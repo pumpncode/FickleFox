@@ -1,0 +1,16 @@
+{
+	"id": "foxsGarden",
+	"name": "Pawlatro",
+	"display_name": "Pawlatro",
+	"author": ["FoxDeploy"],
+	"description": "A collection of fun and balanced animal themed jokers and tarot cards.",
+	"prefix": "Fox",
+	"main_file": "config.lua",
+	"priority": 1,
+	"badge_colour": "0011EC",
+	"badge_text_colour": "FBA105",
+	"version": "0.0.2",
+	"dependencies": [
+		"Steamodded (>=1.0.0~ALPHA-1206c)"
+	]
+}

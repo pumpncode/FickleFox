@@ -1,0 +1,107 @@
+
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+# set var to track glass not broken 
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = '''        local cards_destroyed = {}'''        
+position = "at"
+payload = '''local cards_destroyed = {}
+local glass_not_destroyed = {}
+print('setupGlassTrackingvar')'''
+match_indent = false
+
+# set var to track glass not broken 
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = '''destroyed = true
+end'''
+position = "at"
+payload = '''        destroyed = true
+        print('glass did break!')
+    else
+        glass_not_destroyed[#glass_not_destroyed+1] = scoring_hand[i]
+        print('glass did not break ')
+    end'''
+match_indent = false
+
+# second try to modify this logic
+[[patches]]
+[patches.regex]
+target = "functions/state_events.lua"
+pattern = '''\W*destroyed = true\n\W*end'''
+position = "at"
+payload = '''print('glass did break!')
+                destroyed = true
+            else
+                glass_not_destroyed[#glass_not_destroyed+1] = scoring_hand[i]
+                print('glass did not break ')
+            end'''
+
+
+# second try to modify this logic
+[[patches]]
+[patches.regex]
+target = "functions/state_events.lua"
+pattern = '''destroyed = true\n\W*end'''
+position = "at"
+payload = '''print('glass did break!')
+                destroyed = true
+            else
+                glass_not_destroyed[#glass_not_destroyed+1] = scoring_hand[i]
+                print('glass did not break ')
+            end'''
+
+
+# second try to modify this logic
+[[patches]]
+[patches.regex]
+target = "functions/state_events.lua"
+pattern = '''\W*destroyed = true\n\W*end'''
+position = "at"
+payload = '''print('glass did break!')
+                destroyed = true
+            else
+                glass_not_destroyed[#glass_not_destroyed+1] = scoring_hand[i]
+                print('glass did not break ')
+            end'''
+
+
+
+# calculate wheel fail (for Wheel of Hope)
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "if self.ability.name == 'Ectoplasm' or self.ability.name == 'Hex' or pseudorandom('wheel_of_fortune') < G.GAME.probabilities.normal/self.ability.extra then"
+position = "after"
+payload = '''
+if self.ability.name == 'The Wheel of Fortune' then self.cry_wheel_success = true end
+'''
+match_indent = false
+
+# publish not broken to context 
+[[patches]]
+[patches.regex]
+target = "functions/state_events.lua"
+pattern = '''\w*eval_card.*destroyed..'''
+position = "at"
+payload = '''eval_card(G.jokers.cards[j], {cardarea = G.jokers, remove_playing_cards = true, removed = cards_destroyed, not_broken = glass_not_destroyed})'''
+match_indent = false
+
+# New context to modify mult/chips before hands are played - used for Clown Car
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+match_indent = true
+pattern = '''if modded then update_hand_text({sound = 'chips2', modded = modded}, {chips = hand_chips, mult = mult}) end'''
+position = "after"
+payload = '''
+for i=1, #G.jokers.cards do
+    eval_card(G.jokers.cards[i], {cardarea = G.jokers, full_hand = G.play.cards, scoring_hand = scoring_hand, scoring_name = text, poker_hands = poker_hands, before_but_not_as_much = true})
+end
+'''

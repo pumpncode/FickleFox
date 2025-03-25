@@ -1,0 +1,4 @@
+FoxMod = {}
+FoxMod.INIT = {
+    Jokers = {}
+}
