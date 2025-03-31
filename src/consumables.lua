@@ -62,10 +62,14 @@ end
         discovered = true,
         can_use = function(self, card)
             if G.STATE ~= G.STATES.HAND_PLAYED and G.STATE ~= G.STATES.DRAW_TO_HAND and G.STATE ~= G.STATES.PLAY_TAROT then
-                return true
+                if #G.hand.highlighted > 1 + (card.area == G.hand and 1 or 0) then
+                    return true
+                else
+                return false
                 -- if next(SMODS.Edition:get_edition_cards(G.jokers, true)) then
                 --     return true
                 -- end
+                end
             end
         end,
         use = function(card, area, copier)
@@ -146,10 +150,14 @@ end
         discovered = true,
         can_use = function(self, card)
             if G.STATE ~= G.STATES.HAND_PLAYED and G.STATE ~= G.STATES.DRAW_TO_HAND and G.STATE ~= G.STATES.PLAY_TAROT then
-                return true
+                if #G.hand.highlighted > 1 + (card.area == G.hand and 1 or 0) then
+                    return true
+                else
+                return false
                 -- if next(SMODS.Edition:get_edition_cards(G.jokers, true)) then
                 --     return true
                 -- end
+                end
             end
         end,
         use = function(card, area, copier)
@@ -216,10 +224,14 @@ end
         discovered = true,
         can_use = function(self, card)
             if G.STATE ~= G.STATES.HAND_PLAYED and G.STATE ~= G.STATES.DRAW_TO_HAND and G.STATE ~= G.STATES.PLAY_TAROT then
-                return true
+                if #G.hand.highlighted > 1 + (card.area == G.hand and 1 or 0) then
+                    return true
+                else
+                return false
                 -- if next(SMODS.Edition:get_edition_cards(G.jokers, true)) then
                 --     return true
                 -- end
+                end
             end
         end,
         use = function(card, area, copier)
@@ -287,10 +299,14 @@ end
     discovered = true,
     can_use = function(self, card)
         if G.STATE ~= G.STATES.HAND_PLAYED and G.STATE ~= G.STATES.DRAW_TO_HAND and G.STATE ~= G.STATES.PLAY_TAROT then
-            return true
+            if #G.hand.highlighted > 2 + (card.area == G.hand and 1 or 0) then
+                return true
+            else
+            return false
             -- if next(SMODS.Edition:get_edition_cards(G.jokers, true)) then
             --     return true
             -- end
+            end
         end
     end,
     use = function(card, area, copier)
@@ -340,6 +356,79 @@ end
                 end
                 
                 return true end }))
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.2,
+            func = function()
+                G.hand:unhighlight_all(); return true
+            end
+        }))
+        delay(0.5)
+    end,
+})
+
+SMODS.Consumable({ -- the sprout
+    set = "Tarot",
+    key = "pawlatro_sprout",
+    config = {
+        maxSelected = 1
+    },
+    pos = {
+        x = 2,
+        y = 1
+    },
+    loc_txt = {
+        name = "The Sprout",
+        text = {
+            "Turns up to {C:attention}two{} cards",
+            "into {C:attention}Grass{}",            
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = G.P_CENTERS.m_Fox_grass
+        return { vars = { card.ability.maxSelected } }
+    end,
+    atlas = 'FoxModMisc',
+    cost = 3,
+    discovered = true,
+    can_use = function(self, card)
+        if G.STATE ~= G.STATES.HAND_PLAYED and G.STATE ~= G.STATES.DRAW_TO_HAND and G.STATE ~= G.STATES.PLAY_TAROT then
+            if #G.hand.highlighted > 2 + (card.area == G.hand and 1 or 0) then
+                return true
+            else
+            return false
+            -- if next(SMODS.Edition:get_edition_cards(G.jokers, true)) then
+            --     return true
+            -- end
+            end
+        end
+    end,
+    use = function(card, area, copier)
+        for i = 1, #G.hand.highlighted do
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.3,
+                func = function()
+                    local card = G.hand.highlighted[i]
+
+                    card:flip();
+                    card:set_ability("m_Fox_grass", true)                    
+                    return true
+                end
+            }))
+        end
+        for i = 1, #G.hand.highlighted do
+            local percent = 0.85 + (i - 0.999) / (#G.hand.highlighted - 0.998) * 0.3
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.15,
+                func = function()
+                    G.hand.highlighted[i]:flip(); play_sound('tarot2', percent, 0.6); G.hand.highlighted[i]:juice_up(
+                        0.3,
+                        0.3); return true
+                end
+            }))
+        end
         G.E_MANAGER:add_event(Event({
             trigger = 'after',
             delay = 0.2,
@@ -505,12 +594,13 @@ use = function(self, card, area, copier)
     delay(0.5)
 end
 })
+
 SMODS.Consumable({ --Coating Polymerization
         set = "Spectral",
         key = "pawlatro_coating",
         pos = {
-            x = 0,
-            y = 0
+            x = 3,
+            y = 1
         },
         loc_txt = {
             name = "Coating",
@@ -665,20 +755,7 @@ SMODS.Consumable({ --Coating Polymerization
             card:set_edition('e_negative', false)
             card:add_to_deck()
             G.jokers:emplace(card)
-        end,
-        unredeem = function(self)
-            if not G.GAME.modifiers.cry_booster_packs then
-                G.GAME.modifiers.cry_booster_packs = 2
-            end
-            G.GAME.modifiers.cry_booster_packs = G.GAME.modifiers.cry_booster_packs
-                - math.max(1, math.floor(self.config.extra)) --Booster slots
-            G.E_MANAGER:add_event(Event({
-                func = function()                            --card slot
-                    change_shop_size(math.min(-1, -1 * math.floor(self.config.extra)))
-                    return true
-                end,
-            }))
-        end,
+        end
     })
 
     SMODS.Consumable({

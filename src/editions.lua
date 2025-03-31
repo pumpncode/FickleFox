@@ -20,7 +20,7 @@ SMODS.Edition({
         odds = 6
     },
     in_shop = true,
-    weight = 80,
+    weight = 25,
     extra_cost = 4,
     -- disable_base_shader=true,
     apply_to_float = true, --false,
@@ -102,7 +102,7 @@ SMODS.Edition({ --etherOverdrive
         odds = 3
     },
     in_shop = true,
-    weight = 80,
+    weight = 40,
     extra_cost = 4,
     apply_to_float = true, --false,
     loc_vars = function(self)
@@ -181,7 +181,7 @@ SMODS.Edition({
         chips = 5
     },
     in_shop = true,
-    weight = 80,
+    weight = 25,
     extra_cost = 4,
     apply_to_float = true,
     loc_vars = function(self)
@@ -197,10 +197,8 @@ SMODS.Edition({
     },
     calculate = function(self, card, context)
         if context.post_joker or (context.main_scoring and context.cardarea == G.play) then
-            play_sound("Fox_secretRare", 0.95)
-            sendInfoMessage(inspect(card))
+            -- play_sound("Fox_secretRare", 0.95)
             sendInfoMessage("we are counting this as a played card", "secretRareOn_" .. card.label) -- .. card.base.id)
-            inspect(context)
             card.ability.perma_bonus = card.ability.perma_bonus + self.config.chipGrowthRateSelf
             --self.edition.chips = self.edition.chips + 5
             if card.ability.set == 'Joker' then
@@ -241,7 +239,7 @@ SMODS.Edition({ --akashic rare
         initialxmult = 0.4,
     },
     in_shop = true,
-    weight = 80,
+    weight = 20,
     extra_cost = 4,
     on_apply = function(self, card, context)
         sendInfoMessage("triggering on pickup logic for this card", self.key)
@@ -277,7 +275,7 @@ SMODS.Edition({ --akashic rare
     calculate = function(self, card, context)
         if context.main_scoring and context.cardarea == G.play then
             if card.ability.set ~= 'Joker' then
-                play_sound("Fox_secretRare", 0.95)
+                -- play_sound("Fox_secretRare", 0.95)
                 local t = card.base.id or card.label
 
                 sendInfoMessage("we are counting this as a played card", "AkashicOn_" .. t) -- .. card.base.id)
@@ -286,17 +284,25 @@ SMODS.Edition({ --akashic rare
 
                 card.ability.x_mult = card.ability.x_mult + self.config.chipGrowthRateSelf
                 sendInfoMessage("Base Card Mult was x" .. prexXmult .. " and is now x" .. card.ability.x_mult,
-                    "AkashicOn_" .. t)                                                                                            -- .. card.base.id)
+                    "AkashicOn_" .. t) -- .. card.base.id)
             end
         elseif context.post_joker or (context.main_scoring and context.cardarea == G.play) then
             local t = card.base.id or card.label
             local prexXmult = card.ability.x_mult
             if card.ability.set == 'Joker' and context.post_joker then
-                play_sound("Fox_secretRare", 0.95)
+                -- play_sound("Fox_secretRare", 0.95)
                 card.ability.x_mult = card.ability.x_mult + self.config.chipGrowthRateSelf
-                sendInfoMessage("Joker - Mult was x" .. prexXmult .. " and is now x" .. card.ability.x_mult,
-                    "AkashicOn_" .. t)                                                                                          -- .. card.base.id)
+                sendInfoMessage("Joker - Mult was x" .. prexXmult .. " and is now x" .. card.ability.x_mult, "AkashicOn_" .. t)
+                
+                if card.ability.x_mult < 1.0 then 
+                    sendInfoMessage("Joker special case, ensuring diminuitive mult applied", "AkashicOn_" .. t)
+                    return {
+                        colour = G.C.RED,
+                        x_mult = card.ability.x_mult
+                    } -- .. card.base.id)
             end
+        end
+
             -- if card.ability.set == 'Joker' then
             --     return {
             --         colour = G.C.RED,
@@ -320,10 +326,11 @@ SMODS.Edition({ --akashic rare
     end
 })
 
-SMODS.Enhancement ({  -- grass
-    key="grass",
-	atlas = "FoxModMisc",
-	pos = {x=2, y = 1},
+SMODS.Enhancement({  -- grass
+    key = "grass",
+    name = "Grass Card",
+    atlas = "FoxModMisc",
+    pos = { x = 4, y = 0 },
     replace_base_card = true,
     no_suit = true,
     no_rank = true,
@@ -337,41 +344,66 @@ SMODS.Enhancement ({  -- grass
             '{s:0.9,C:inactive}Currently {X:chips,C:white} +#1#{}{}',
         }
     },
-	config = {extra = {  h_x_chips = 5, chipsRate = 2}},
+    config = { extra = { h_x_chips = 5, chipsRate = 2 } },
 
-	loc_vars = function(self, info_queue, card)
+    loc_vars = function(self, info_queue, card)
         return {
-            vars = { card.ability.extra.h_x_chips, card.ability.extra.chipsRate}
+            vars = { card.ability.extra.h_x_chips, card.ability.extra.chipsRate }
         }
     end,
 
-	calculate = function(self, card, context, ret)
-		if context.cardarea == G.hand and context.before then
-            sendInfoMessage("I am being held")
-            card.ability.extra.h_x_chips =  card.ability.extra.h_x_chips + card.ability.extra.chipsRate
-			return {
-				chips = card.ability.extra.h_x_chips
-			}
-		end											
-
-		if context.cardarea == G.play and context.main_scoring then
-            sendInfoMessage("I am being played")
+    calculate = function(self, card, context, ret)
+        if context.cardarea == G.hand and context.before then
+            card.ability.extra.h_x_chips = card.ability.extra.h_x_chips + card.ability.extra.chipsRate
+            sendInfoMessage(
+            "I am being held, currently " ..
+            card.ability.extra.h_x_chips .. " and was " .. card.ability.extra.h_x_chips - card.ability.extra.chipsRate,
+                "grassCard")
+            return {
+                chips = card.ability.extra.h_x_chips
+            }
+        end
+        if context.cardarea == G.play and context.main_scoring then
+            sendInfoMessage("I am being played", "grassCard")
 
             return {
-				chips = card.ability.extra.h_x_chips
-			}			
-		end
-		
-		if context.final_scoring_step and card.ability.extra.marked then
-			G.E_MANAGER:add_event(Event({
-				trigger = 'immediate',
-				func = function()
-					card:shatter()
-					return true 
-				end 
-			}))
-		end
-	end
+                chips = card.ability.extra.h_x_chips
+            }
+        end
+        if context.repetition then
+            card.ability.extra.h_x_chips = card.ability.extra.h_x_chips + card.ability.extra.chipsRate
+            sendInfoMessage(
+            "I am being repeated, currently " ..
+            card.ability.extra.h_x_chips .. " and was " .. card.ability.extra.h_x_chips - card.ability.extra.chipsRate,
+                "grassCard")
+            card:juice_up()
+            return {
+                chips = card.ability.extra.h_x_chips
+            }
+        end
+        -- if context.individual then
+        --     sendInfoMessage("I am individually being repeated")
+        --     card.ability.extra.h_x_chips =  card.ability.extra.h_x_chips + card.ability.extra.chipsRate
+        --     card:juice_up()
+        -- end
+    end
+})
+
+SMODS.Enhancement({
+    key = "extra",
+    name = "Extra Card",
+    atlas = "FoxModMisc",
+    pos = { x = 2, y = 1 },
+    replace_base_card = true,
+    no_suit = false,
+    no_rank = false,
+    always_scores = false,
+    loc_txt = {
+        name = "Extra Card",
+        label = "Extra",
+        text = { "Gives +30 chips and +4 mult", }
+    },
+    config = { perma_bonus = 30, mult = 4, x_mult = 2 }
 })
 
 -- SMODS.Enhancement({ --akashic rare
@@ -388,7 +420,7 @@ SMODS.Enhancement ({  -- grass
 --     },
 --     discovered = true,
 --     unlocked = true,
-    
+
 --     config = {
 --         chipGrowthRateSelf = .1,
 --         initialxmult = 0.4,

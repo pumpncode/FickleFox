@@ -23,6 +23,7 @@ SMODS.Sound({key = "kirby_suction",	path = "kirby-suction.mp3",atlas_table = "AS
 SMODS.Sound({key = "dbz_punch",	path = "dbz_punch.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "redxiii",	path = "redxiii_2.wav",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "yoshiEat",	path = "yoshi-tongue.mp3",atlas_table = "ASSET_ATLAS"})
+SMODS.Sound({key = "akumaClear",	path = "akuma_clear.mp3",atlas_table = "ASSET_ATLAS"})
 --redxiii_2.wav
 --dbz_punch.mp3
 SMODS.current_mod.optional_features = {retrigger_joker = true}

@@ -209,7 +209,7 @@ SMODS.Joker {
     name = "Lucky Retriever",
     key = "luckyretriever",
     config = {
-        odds = 4,
+        odds = 6,
         extra = 1
     },
     loc_txt = {
@@ -254,7 +254,7 @@ SMODS.Joker {
                 local _card = copy_card(context.other_card, nil, nil, G.playing_card)
                 _card:add_to_deck()
                 G.deck.config.card_limit = G.deck.config.card_limit + 1
-                G.deck:emplace(_card)
+                G.hand:emplace(_card)
                 table.insert(G.playing_cards, _card)
                 playing_card_joker_effects({ true })
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
@@ -372,14 +372,12 @@ SMODS.Joker { --fickleFox
             local otherCard = context.other_card
             local cardInfo = getValueNilSafe(otherCard.base.value)
             local othercardSeal = getValueNilSafe(cardInfo.seal)
-
-            sendInfoMessage("Card " .. cardInfo .. " has seal of " .. othercardSeal, "FickleFox ")
+            
             if othercardSeal == "Gold" or "" ~= othercardSeal then
                 sendInfoMessage("Other card has Gold seal already, skipping", "FickleFox")
                 return
             elseif pseudorandom("ficklefox") < G.GAME.probabilities.normal / card.ability.oddsToBless then
                 card:juice_up()
-                sendInfoMessage("We are going to bless" .. cardInfo, "FickleFox")
 
                 G.E_MANAGER:add_event(Event({
                     trigger = "after",
@@ -398,12 +396,6 @@ SMODS.Joker { --fickleFox
                         }
                     end,
                 }))
-            else
-                sendInfoMessage("We have decided to snub " .. cardInfo, "FickleFox")
-                return {
-                    message = { "snubbed" },
-                    colour = G.C.FILTER,
-                }
             end
         end
     end
@@ -421,8 +413,8 @@ SMODS.Joker { --benevolance
         ['text'] = {
             [1] = 'Rewards your diligence and saving',
             [2] = 'applies {X:mult,C:white}X#2#{} Mult',
-            [3] = 'to cards with {C:attention}gold seal in your hand',
-            [4] = 'Will randomly {C:attention}spread gold seal{} in played flushes'
+            [3] = 'to cards with {C:attention}gold seals{} in your hand',
+            [4] = "Has a {C:green}#1# in #3#{} chance to {C:attention}spread gold seals{} in played flushes"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -444,14 +436,15 @@ SMODS.Joker { --benevolance
 
     --when scoring, check for presence of gold seal.  If present, apply xMult to that card
     calculate = function(self, card, context)
-        if context.individual and context.after then
-            if context.cardarea == G.hand then
+        if context.individual and context.cardarea == G.hand and context.other_card and context.other_card.seal and context.other_card.seal == 'Gold' and not context.end_of_round then
+        -- if context.individual and context.after then
+            -- if context.cardarea == G.hand then
                 sendInfoMessage("We are reviewing cards in hand", "BenevloanceJoker")
                 local otherCard = context.other_card
                 local cardInfo = getValueNilSafe(otherCard.base.value)
                 -- if card.seal then  --need to be sure it is a gold seal, not a blue or red
                 if otherCard.seal == 'Gold' then
-                    sendInfoMessage("Card" .. cardInfo .. " has GOLD seal, let's rock", "BenevloanceJoker ")
+                    sendInfoMessage("Card" .. cardInfo .. " has GOLD seal, let's rock", self.key)
 
                     return {
                         x_mult = card.ability.extra,
@@ -460,11 +453,12 @@ SMODS.Joker { --benevolance
                     }
                 else
                     local sealinfo = getValueNilSafe(otherCard.seal)
-                    sendInfoMessage("Card" .. cardInfo .. " has no seal, or seal of" .. sealinfo, "BenevloanceJoker ")
+                    sendInfoMessage("Card" .. cardInfo .. " has no seal, or seal of" .. sealinfo, self.key)
                 end
-            end
-        elseif context.cardarea == G.play and not context.end_of_round then
-            --review hand, see if any cards have gold seal and is a flush or flush house or five of a kind
+            -- end
+            --context.cardarea == G.play and context.other_card and context.other_card.ability and context.other_card.ability.name == 'Gold Card' and not context.end_of_round then
+        elseif context.cardarea == G.jokers and context.after then
+            --review played  hand, see if any cards have gold seal and is a flush or flush house or five of a kind
             --if so, then 50% chance to apply goldseals on other cards (don't overwrite)
             local goldSealFound = 'false'
             for i = 1, #context.scoring_hand do
@@ -472,10 +466,8 @@ SMODS.Joker { --benevolance
                     goldSealFound = 'true'
                 end
             end
-            sendInfoMessage("Gold seal found: " .. goldSealFound, "BenevloanceJoker ")
-            inspect(context.scoring_name)
-
-            sendInfoMessage("hand played is  " .. G.GAME.current_round.current_hand.handname)
+            sendInfoMessage("Gold seal found: " .. goldSealFound .. " & hand played is " .. G.GAME.current_round.current_hand.handname, self.key)
+            
             if G.GAME.current_round.current_hand.handname == "Royal Flush" or
                 G.GAME.current_round.current_hand.handname == "Flush" or
                 G.GAME.current_round.current_hand.handname == "Flush Five" or
@@ -483,8 +475,7 @@ SMODS.Joker { --benevolance
                 G.GAME.current_round.current_hand.handname == "Four of a Kind" then
                 for i = 1, #context.scoring_hand do
                     local otherCard = context.scoring_hand[i]
-                    if otherCard.seal then
-                        return
+                    if otherCard.seal then 
                     else
                         if pseudorandom("benevolence") < G.GAME.probabilities.normal / card.ability.oddsToBless then
                             card:juice_up()
@@ -504,6 +495,9 @@ SMODS.Joker { --benevolance
                                     }
                                 end,
                             }))
+                        else
+                            sendInfoMessage("We are unlucky", self.key)
+
                         end
                     end
                 end
@@ -640,7 +634,7 @@ SMODS.Joker { --akuma
 }
 
 
-SMODS.Joker { --Good Doggie
+SMODS.Joker { --Shin Akuma
     name = "Shin A kuma",
     key = "shinAKuma",
     config = {
@@ -651,16 +645,17 @@ SMODS.Joker { --Good Doggie
         ['name'] = 'Shin A Kuma',
         ['text'] = {
             [1] = '{C:attention}Retriggers{} all {C:attention}10{}, played or in hand',
+            [2] = 'After playing one {C:attention}Shun Goku Satsu{} all tens apply 3.2x mult'
         }
     },
     loc_vars = function(self, info_queue, card)
         return { vars = { G.GAME.probabilities.normal, card.ability.odds, 3 } } -- Fix for missing values
     end,
     pos = {
-        x = 8,
+        x = 9,
         y = 0
     },
-    cost = 5,
+    cost = 8,
     rarity = 1,
     blueprint_compat = true,
     eternal_compat = true,
@@ -672,9 +667,10 @@ SMODS.Joker { --Good Doggie
     calculate = function(self, card, context)
         --region :scoring the card when played
         if context.cardarea == G.play and context.individual and context.other_card then
-            sendInfoMessage("Card " .. context.other_card.base.id .. " is a ten, retriggering xMult bonus", "Akuma")
+
 
             if (context.other_card.base.id == 10 or context.other_card.base.id == "10") then
+                sendInfoMessage("Card " .. context.other_card.base.id .. " is a ten, retriggering xMult bonus", "Akuma")
                 -- play_sound("Fox_metsu", 0.85)
                 return {
                     message = localize('k_again_ex'),
@@ -753,8 +749,8 @@ SMODS.Joker { --Sun and Moon
     name = "Sun and Moon",
     key = "sunandmoon",
     config = {
-        plusMult = 5,
-        chips = 8
+        plusMult = 6,
+        chips = 9
     },
     loc_txt = {
         ['name'] = 'Sun and Moon',
@@ -834,7 +830,7 @@ SMODS.Joker { -- Felicette
 
     -- When scoring, check for presence of blue seal. If present, apply xMult to that card
     calculate = function(self, card, context)
-        if context.individual then
+        if context.individual and not context.after then
             if context.cardarea == G.hand then
                 sendInfoMessage("Reviewing cards held in hand", "FelicetteJoker")
                 local otherCard = context.other_card
@@ -1429,8 +1425,8 @@ SMODS.Joker { --Tacocat
         x = 3,
         y = 2
     },
-    cost = 2,
-    rarity = 1,
+    cost = 7,
+    rarity = 2,
     blueprint_compat = true,
     eternal_compat = true,
     unlocked = true,
@@ -1689,6 +1685,7 @@ SMODS.Joker { --redxiii
     key = "redxiii",
     config = {
         extra = 2,
+        ready = false,
     },
     loc_txt = {
         ['name'] = 'Red XIII',
@@ -1713,13 +1710,36 @@ SMODS.Joker { --redxiii
     atlas = 'FoxModJokers',
 
     calculate = function(self, card, context)
-        if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_cosmocanyon"]) then
-            return {
-                message = "Awooo",
-                repetitions = card.ability.extra,
-            }
+        if context.after then card.ability.ready = false  
+        elseif context.cardarea == G.play then
+            if card.ability.ready then
+                sendInfoMessage("hand is scoring and we are ready", "redXiii")
+
+                return {
+                    message = "Awooo",
+                    repetitions = card.ability.extra,
+                    card = card
+                }
+            else
+                sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", "redXiii")
+             end
         end
+        if nil ~= context.poker_hands and next(context.poker_hands["Fox_cosmocanyon"]) then
+            if false == card.ability.ready then 
+                sendInfoMessage("Joker is now READY!", "redXiii")
+                card.ability.ready = true;
+            end
+
+            local eval = function(card) return (card.ability.ready == true) end
+            juice_card_until(card, eval, true)
+        -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
+        -- elseif nil ~= context.poker_hands then
+        --     if next(context.poker_hands["Fox_cosmocanyon"]) then else card.ability.ready = false end 
+            --context.individual 
+    --seif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' and not context.after then
+--if context.repetition and context.cardarea == G.play         
     end
+end
 }
 
 
@@ -1728,11 +1748,12 @@ SMODS.Joker { --Torgal  - boosts played flushes
     key = "torgal",
     config = {
         extra = 2,
+        ready = false
     },
     loc_txt = {
         ['name'] = 'Torgal',
         ['text'] = {
-            "Retriggers scored cards for played {C:attention}Cosmo Canyons{}",
+            "Retriggers scored cards for played {C:attention}Full Moons{}",
             "{C:attention}#1#{} additional times",
         }
     },
@@ -1740,8 +1761,8 @@ SMODS.Joker { --Torgal  - boosts played flushes
         return { vars = { card.ability.extra } }
     end,
     pos = {
-        x = 2,
-        y = 0
+        x = 0,
+        y = 2
     },
     cost = 2,
     rarity = 1,
@@ -1752,11 +1773,20 @@ SMODS.Joker { --Torgal  - boosts played flushes
     atlas = 'FoxModJokers',
 
     calculate = function(self, card, context)
-        if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_cosmocanyon"]) then
+        if context.after then card.ability.ready = false end 
+        if nil ~= context.poker_hands and next(context.poker_hands["Fox_fullmoon"]) then
+            card.ability.ready = true;
+            local eval = function(card) return (card.ability.ready == true) end
+            juice_card_until(card, eval, true)
+        -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
+        elseif nil ~= context.poker_hands then
+            if next(context.poker_hands["Fox_fullmoon"]) then else card.ability.ready = false end 
+        if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_fullmoon"]) then
             return {
                 message = "Awooo",
                 repetitions = card.ability.extra,
             }
+            end
         end
     end
 }
@@ -1766,11 +1796,12 @@ SMODS.Joker { --flush tailed fox - boosts played flushes
     key = "flushFox",
     config = {
         extra = 2,
+        ready = false
     },
     loc_txt = {
         ['name'] = 'Flush Tailed Fox',
         ['text'] = {
-            "Retriggers scored cards for played {C:attention}Cosmo Canyons{}",
+            "Retriggers scored cards for played {C:attention}Flush{} or Flush House Hands",
             "{C:attention}#1#{} additional times",
         }
     },
@@ -1778,7 +1809,198 @@ SMODS.Joker { --flush tailed fox - boosts played flushes
         return { vars = { card.ability.extra } }
     end,
     pos = {
-        x = 2,
+        x = 0,
+        y = 3
+    },
+    cost = 2,
+    rarity = 1,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'FoxModJokers',
+
+    calculate = function(self, card, context)        
+        --     if context.after then card.ability.ready = false end 
+        --     if nil ~= context.poker_hands and next(context.poker_hands["Fox_fullmoon"]) then
+        --         card.ability.ready = true;
+        --         local eval = function(card) return (card.ability.ready == true) end
+        --         juice_card_until(card, eval, true)
+        --     -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
+        --     elseif nil ~= context.poker_hands then
+        --         if next(context.poker_hands["Fox_fullmoon"]) then else card.ability.ready = false end 
+        --     if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_fullmoon"]) then
+        --         return {
+        --             message = "Awooo",
+        --             repetitions = card.ability.extra,
+        --         }
+        --         end
+        --     end
+        -- end
+        if context.after then card.ability.ready = false end 
+        if nil ~= context.poker_hands and next(context.poker_hands["Flush"]) or
+            context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Flush Five"]) or
+            context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Flush House"]) then
+
+            card.ability.ready = true;
+            local eval = function(card) return (card.ability.ready == true) end
+            juice_card_until(card, eval, true)
+        -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
+        elseif nil ~= context.poker_hands then
+            if next(context.poker_hands["Flush"]) 
+            or next(context.poker_hands["Flush Five"]) 
+            or next(context.poker_hands["Flush House"]) then else card.ability.ready = false end  
+         if card.ability.ready and context.cardarea == G.play --and next(context.poker_hands["Flush"]) or
+        --     context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Flush Five"]) or
+        --     context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Flush House"]) 
+            then
+            return {
+                message = "Awooo",
+                repetitions = card.ability.extra,
+            }
+        end
+    end
+end
+}
+
+SMODS.Joker { --chocobo 
+    name = "Chocobo Straightaway",
+    key = "chocobo",
+    config = {
+        extraGrowthRate = 5,
+        extra = 0
+    },
+    loc_txt = {
+        ['name'] = 'Chocobo Straightaway',
+        ['text'] = {
+            "Gains {C:mult}#1#{} mult when a scored hand contains a {C:attention}Straight{}",
+            "{C:inactive}(Currently{} {C:mult}+#2#{} {C:inactive}Mult){}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extraGrowthRate, card.ability.extra } }
+    end,
+    pos = {
+        x = 8,
+        y = 2
+    },
+    cost = 2,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'FoxModJokers',
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                mult = card.ability.extra,
+                card = card
+            }
+        elseif context.cardarea == G.jokers and context.before and nil~=context.poker_hands and next(context.poker_hands['Straight']) and not context.blueprint then
+            card.ability.extra = card.ability.extra + card.ability.extraGrowthRate
+            return {
+                message = localize('k_upgrade_ex'),
+                colour = G.C.CHIPS,
+                card = self
+            }            
+        end
+    end
+}
+
+
+SMODS.Joker { --Gumoss
+    name = "Gumoss",
+    key = "gumoss",
+    config = {
+        extra = 2,
+    },
+    loc_txt = {
+        ['name'] = 'Gumoss',
+        ['text'] = {
+            "Retriggers scored or held grass cards",
+            "{C:attention}#1#{} additional times",
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = G.P_CENTERS.m_Fox_grass
+        return { vars = { card.ability.extra } }
+    end,
+    pos = {
+        x = 1,
+        y = 1
+    },
+    cost = 2,
+    rarity = 1,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'FoxModJokers',
+
+    calculate = function(self, card, context) --context.other_card.ability and context.other_card.ability.name == 'Gold Card'
+        -- if context.repetition and not context.repetition_only and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" then
+        -- -- playing card retriggers using .repetition
+        -- return {
+        --     message = localize("k_again_ex"),
+        --     repetitions = card.ability.extra,
+        --     card = card,
+        --     was_blueprinted = context.blueprint,
+        -- }
+        if context.cardarea == G.play and context.repetition and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" and not context.after then
+            return {
+                message = localize('k_again_ex'),
+                repetitions = card.ability.extra,
+                card = card
+            }
+            --context.individual and context.cardarea == G.hand and not context.after
+        elseif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' and not context.after then
+            sendInfoMessage("1849, new method for held grass", self.key)
+
+            return {
+                message = localize('k_again_ex'),
+                repetitions = card.ability.extra,
+                card = heldCard
+            }
+        elseif context.joker_main and context.repetition then
+            sendInfoMessage(" checking for held grass", self.key)
+            for _, heldCard in ipairs(G.hand.cards) do
+                local cardAbility = heldCard.ability.name or "nil"
+                if cardAbility == "Grass Card" then
+                    sendInfoMessage(heldCard.base.id .. " has ability of " .. cardAbility)
+                    return {
+                        message = localize('k_again_ex'),
+                        repetitions = card.ability.extra,
+                        card = heldCard
+                    }
+                end
+            end
+        end
+    end
+}
+
+
+SMODS.Joker { --Mammorest
+    name = "Mammorest",
+    key = "mammorest",
+    config = {
+        x_mult = 1,
+        x_mult_rate = 0.01,
+    },
+    loc_txt = {
+        ['name'] = 'Mammorest',
+        ['text'] = {
+            "Gains {X:mult,C:white}#1#{} xMult when grass cards trigger",
+            "{C:attention}Currently {X:mult,C:white}#2#{}",
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = G.P_CENTERS.m_Fox_grass --e_Fox_ghostRare
+        return { vars = { card.ability.x_mult_rate, card.ability.x_mult } }
+    end,
+    pos = {
+        x = 1,
         y = 0
     },
     cost = 2,
@@ -1789,18 +2011,140 @@ SMODS.Joker { --flush tailed fox - boosts played flushes
     discovered = true,
     atlas = 'FoxModJokers',
 
-    calculate = function(self, card, context)
-        if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_cosmocanyon"]) then
+    calculate = function(self, card, context) --context.other_card.ability and context.other_card.ability.name == 'Gold Card'
+        -- if context.repetition and not context.repetition_only and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" then
+        -- -- playing card retriggers using .repetition
+        -- return {
+        --     message = localize("k_again_ex"),
+        --     repetitions = card.ability.extra,
+        --     card = card,
+        --     was_blueprinted = context.blueprint,
+        -- }
+        if context.before and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" then
+            sendInfoMessage("mammorest observed the other card proccing from being held", self.key)
+            card.ability.x_mult = card.ability.x_mult + card.ability.x_mult_rate
+            card:juice_up()
             return {
-                message = "Awooo",
-                repetitions = card.ability.extra,
+                message = localize('k_upgrade_ex'),
+                card = card
             }
+        end
+        if context.repetition and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card"  and not context.after  then
+            sendInfoMessage("mammorest observed the other card repeating", self.key)
+            card.ability.x_mult = card.ability.x_mult + card.ability.x_mult_rate
+            card:juice_up()
+            return {
+                message = localize('k_upgrade_ex'),
+                card = card
+            }
+            --context.individual and context.cardarea == G.hand and not context.after
+        elseif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' then
+            sendInfoMessage("1849, new method for held grass", self.key)
+
+            card.ability.x_mult = card.ability.x_mult + card.ability.x_mult_rate
+            card:juice_up()
+            return {
+                message = localize('k_upgrade_ex'),
+                card = card
+            }
+
         end
     end
 }
 
 
+SMODS.Joker { --Thwomp
+    name = "Thwomp",
+    key = "thwomp",
+    config = {
+        chips = 0,
+        chips_rate = 10,
+    },
+    loc_txt = {
+        ['name'] = 'Thwomp',
+        ['text'] = {
+            "Gains {C:chips}+#1#{} chips when Stone cards trigger",
+            "{C:attention}Currently {C:chips}+ #2#{} chips",
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = G.P_CENTERS.m_stone
+        return { vars = { card.ability.chips_rate, card.ability.chips } }
+    end,
+    pos = {
+        x = 2,
+        y = 3
+    },
+    cost = 2,
+    rarity = 1,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'FoxModJokers',
 
+    calculate = function(self, card, context) --context.other_card.ability and context.other_card.ability.name == 'Gold Card'
+
+        if context.individual and context.cardarea == G.play and context.other_card.ability and context.other_card.ability.name == 'Stone Card' then
+            sendInfoMessage("1849, new method for held grass", self.key)
+
+            card.ability.chips = card.ability.chips + card.ability.chips_rate
+            card:juice_up()
+            return {
+                message = localize('k_upgrade_ex'),
+                card = card
+            }
+
+        elseif context.joker_main then
+            return {
+                chips = card.ability.chips,
+                card = card
+            } 
+        end
+    end
+}
+
+SMODS.Joker { --Dragon Princess
+    name = "Dragon Princess",
+    key = "Dragon Princess",
+    config = {
+        odds = 3, Xmult = 2.5     
+    },
+    loc_txt = {
+        ['name'] = 'Dragon Princess',
+        ['text'] = {
+            "{C:green}#1# in #2#{} chance for",
+            "played cards with",
+            "{C:diamonds}Diamond{} suit to give",
+            "{X:mult,C:white} X#3# {} Mult when scored",
+    }},
+    loc_vars = function(self, info_queue, card)
+        return { vars = { G.GAME.probabilities.normal, card.ability.odds,card.ability.Xmult} }
+    end,
+    pos = {
+        x = 1,
+        y = 3
+    },
+    cost = 2,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'FoxModJokers',
+
+    calculate = function(self, card, context) 
+        if context.individual and context.cardarea == G.play then 
+            if context.other_card:is_suit("Diamonds") and pseudorandom('Dragon Princess') < G.GAME.probabilities.normal/card.ability.odds then
+                        return {
+                            x_mult = card.ability.Xmult,
+                            card = card
+                        }
+                end
+            end
+        end    
+    
+}
 
 SMODS.Joker { --glass card 1
     name = "Become Unto Glass",
@@ -1811,7 +2155,7 @@ SMODS.Joker { --glass card 1
     loc_txt = {
         ['name'] = 'Become Unto Glass',
         ['text'] = {
-            "Played cards of {c:attention}#1#{} Rank become glass when played",            
+            "Played cards of {c:attention}#1#{} Rank become glass when played",
             "{s:0.9}rank changes every round{}"
         }
     },
@@ -1863,32 +2207,32 @@ SMODS.Joker { --glass card 1
                         trigger = 'after',
                         delay = 0.15,
                         func = function()
-                            playedCard:flip(); play_sound('tarot2',0.6); playedCard:juice_up(
-                            0.3, 0.3); return true
+                            playedCard:flip(); play_sound('tarot2', 0.6); playedCard:juice_up(
+                                0.3, 0.3); return true
                         end
                     }))
                 end
             end
         end
-            --and context.other_card and context.other_card:get_id() == G.GAME.current_round.idol_card.id then
-            --sendInfoMessage(" other card was " .. context.other_card:get_id() .. " and required rank was " .. G.GAME.current_round.idol_card.id ,self.key)
-            -- G.E_MANAGER:add_event(Event({
-            --     trigger = 'after',
-            --     delay = 0.15,
-            --     func = function()
-            --         context.other_card:flip(); play_sound('card1', percent); context.other_card:juice_up(0.3, 0.3); return true
-            --     end
-            -- }))
+        --and context.other_card and context.other_card:get_id() == G.GAME.current_round.idol_card.id then
+        --sendInfoMessage(" other card was " .. context.other_card:get_id() .. " and required rank was " .. G.GAME.current_round.idol_card.id ,self.key)
+        -- G.E_MANAGER:add_event(Event({
+        --     trigger = 'after',
+        --     delay = 0.15,
+        --     func = function()
+        --         context.other_card:flip(); play_sound('card1', percent); context.other_card:juice_up(0.3, 0.3); return true
+        --     end
+        -- }))
 
 
 
-            -- G.E_MANAGER:add_event(Event({
-            --     trigger = 'after',
-            --     delay = 0.15,
-            --     func = function()
-            --         context.other_card:flip(); play_sound('tarot2', percent, 0.6); context.other_card:juice_up(0.3, 0.3); return true
-            --     end
-            -- }))
+        -- G.E_MANAGER:add_event(Event({
+        --     trigger = 'after',
+        --     delay = 0.15,
+        --     func = function()
+        --         context.other_card:flip(); play_sound('tarot2', percent, 0.6); context.other_card:juice_up(0.3, 0.3); return true
+        --     end
+        -- }))
         -- else
         --     if context.repetition and context.cardarea == G.play and context.other_card:get_id() == G.GAME.current_round.idol_card.id then
         --         return {
@@ -1981,14 +2325,16 @@ SMODS.Joker { --glass card 3 gains +mult when glass cards do not break
             }
         elseif context.cardarea == G.play and context.individual and context.other_card and context.other_card.ability.name == 'Glass Card' then
             sendInfoMessage(
-            "observed played glass, mult was " ..
-            card.ability.extra .. " now increasing to " .. card.ability.extra + card.ability.extraGrowthRate, self.key)
+                "observed played glass, mult was " ..
+                card.ability.extra .. " now increasing to " .. card.ability.extra + card.ability.extraGrowthRate,
+                self.key)
             card.ability.extra = card.ability.extra + card.ability.extraGrowthRate
-  
+
             return {
                 delay = 0.2,
                 message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extraGrowthRate } },
-                colour = G.C.RED, card = card
+                colour = G.C.RED,
+                card = card
             }
         elseif context.remove_playing_cards and not context.blueprint then --and nil ~= context.not_broken would work but we need to patch smods
             sendInfoMessage("checking broken glass", self.key)
@@ -2035,8 +2381,8 @@ SMODS.Joker { --Joku
         x = 0,
         y = 0
     },
-    cost = 2,
-    rarity = 1,
+    cost = 12,
+    rarity = 4,
     blueprint_compat = false,
     eternal_compat = true,
     unlocked = true,
@@ -2201,272 +2547,5 @@ SMODS.Joker { --Kirbo
         end
     end
 }
-
-SMODS.Booster({
-    object_type = "Booster",
-    key = "RarityCollection",
-    kind = "Jokers",
-    atlas = "FoxModBoosters",
-    pos = { x = 0, y = 0 },
-    config = { extra = 4, choose = 1 },
-    cost = 10,
-    order = 3,
-    weight = 0.96,
-    create_card = function(self, card)
-        -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-        local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
-        sendInfoMessage("creating cards for this pack", self.key)
-
-        local edition = poll_with_custom_editions()
-        if nil == edition then
-            edition = poll_custom_editions()
-        end
-        getCard:set_edition(edition, false)
-
-        local jokerInfo2 = inspect(getCard)
-        local label = "unknown"
-        local editInf = "none"
-
-        if jokerInfo2.label then label = jokerInfo2.label end
-        if jokerInfo2.edition then editInf = jokerInfo2.edition.key end
-
-        sendInfoMessage("checking edition of created joker of " .. label .. " edition = " .. editInf, self.key)
-
-        return getCard
-    end,
-    ease_background_colour = function(self)
-        ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
-        ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
-    end,
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.config.center.config.choose, card.ability.extra } }
-    end,
-    loc_txt = {
-        name = "Rarity Collection",
-        text = {
-            "Choose {C:attention}#1#{} of",
-            "up to {C:attention}#2# Special Edition Jokers{}",
-        },
-    },
-    group_key = "Negation Pack",
-})
-
-SMODS.Booster({
-    object_type = "Booster",
-    key = "RarityMegaCollection",
-    kind = "Jokers",
-    atlas = "FoxModBoosters",
-    pos = { x = 1, y = 1 },
-    config = { extra = 7, choose = 2 },
-    cost = 10,
-    order = 3,
-    weight = 0.96,
-    create_card = function(self, card)
-        local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
-        sendInfoMessage("creating cards for this pack", self.key)
-
-        local edition = poll_with_custom_editions()
-        if nil == edition then
-            edition = poll_custom_editions()
-        end
-        getCard:set_edition(edition, false)
-
-        local jokerInfo2 = inspect(getCard)
-        local label = "unknown"
-        local editInf = "none"
-
-        if jokerInfo2.label then label = jokerInfo2.label end
-        if jokerInfo2.edition then editInf = jokerInfo2.edition.key end
-
-        sendInfoMessage("checking edition of created joker of " .. label .. " edition = " .. editInf, self.key)
-
-        return getCard
-    end,
-    ease_background_colour = function(self)
-        ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
-        ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
-    end,
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.config.center.config.choose, card.ability.extra } }
-    end,
-    loc_txt = {
-        name = "Rarity Mega Collection",
-        text = {
-            "Choose {C:attention}#1#{} of",
-            "up to {C:attention}#2# Special Edition Jokers{}",
-        },
-    },
-    group_key = "Negation Pack",
-})
-
-SMODS.Booster({
-    object_type = "Booster",
-    key = "negation",
-    kind = "Jokers",
-    atlas = "FoxModBoosters",
-    pos = { x = 0, y = 1 },
-    config = { extra = 5, choose = 1 },
-    cost = 15,
-    order = 3,
-    weight = 0.96,
-    create_card = function(self, card)
-        -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-        local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
-        sendInfoMessage("creating cards for this pack")
-        local jokerInfo = inspect(getCard)
-        sendInfoMessage("created joker card of " .. jokerInfo)
-
-        getCard:set_edition('e_negative', false)
-        return getCard
-    end,
-    ease_background_colour = function(self)
-        ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
-        ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
-    end,
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.config.center.config.choose, card.ability.extra } }
-    end,
-    loc_txt = {
-        name = "Negation Rarity Collection",
-        text = {
-            "Choose {C:attention}#1#{} of",
-            "up to {C:attention}#2# Negative Jokers{}",
-        },
-    },
-    group_key = "Negation Pack",
-})
-
-SMODS.Booster({
-    object_type = "Booster",
-    key = "RarityStandardCollection",
-    kind = "Card",
-    atlas = "FoxModBoosters",
-    pos = { x = 2, y = 0 },
-    config = { extra = 4, choose = 1 },
-    cost = 10,
-    order = 3,
-    weight = 0.96,
-    create_card = function(self, card)
-        --function create_playing_card(card_init, area, skip_materialize, silent, colours)
-
-        local getCard = create_playing_card(nil, G.pack_cards, true, true, nil)
-        sendInfoMessage("creating cards for this pack")
-        local jokerInfo = inspect(getCard)
-        sendInfoMessage("created joker card of " .. jokerInfo, self.key)
-        local edition = poll_with_custom_editions()
-        getCard:set_edition(edition, false)
-        return getCard
-    end,
-    ease_background_colour = function(self)
-        ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
-        ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
-    end,
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.config.center.config.choose, card.ability.extra } }
-    end,
-    loc_txt = {
-        name = "Standard Rarity Collection",
-        text = {
-            "Choose {C:attention}#1#{} of",
-            "up to {C:attention}#2# Rare Edition Cards{}",
-        },
-    },
-    group_key = "Negation Pack",
-})
-
--- SMODS.Booster({
---     object_type = "Booster",
---     key = "negationOld",
---     kind = "Jokers",
---     atlas = "FoxModBoosters",
---     pos = { x = 0, y = 0 },
---     config = { extra = 4, choose = 1 },
---     cost = 15,
---     order = 1,
---     weight = 0.96,
---     create_card = function(self, card)
---         -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
---         local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
---         sendInfoMessage("creating cards for this pack")
---         local jokerInfo = inspect(getCard)
---         sendInfoMessage("created joker card of " .. jokerInfo)
-
---         getCard:set_edition('e_negative', false)
---         return getCard
---     end,
---     ease_background_colour = function(self)
---         ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
---         ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
---     end,
---     loc_vars = function(self, info_queue, card)
---         return { vars = { card.config.center.config.choose, card.ability.extra } }
---     end,
---     loc_txt = {
---         name = "Negation Pack Old",
---         text = {
---             "Choose {C:attention}#1#{} of",
---             "up to {C:attention}#2# Negative Jokers{}",
---         },
---     },
---     group_key = "Negation Pack",
--- })
-
-SMODS.Booster({
-    object_type = "Booster",
-    key = "hologramPACK",
-    kind = "Jokers",
-    atlas = "FoxMod2xOnlyBooster",
-    pos = { x = 0, y = 0 },
-    config = { extra = 5, choose = 1 },
-    cost = 10,
-    order = 2,
-    weight = 0.97,
-    set_ability = function(self, card, initial, delay_sprites)
-        sendInfoMessage("triggering post injection logic for this pack", self.key)
-
-        card:set_edition('e_holo', false)
-        card.cost = 10
-    end,
-    -- draw = function(self, card, layer)
-    --     self:draw_shader('holo' , nil, nil, true)
-    -- end,
-    create_card = function(self, card)
-        -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-        local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxholo")
-        sendInfoMessage("creating cards for this pack")
-        local jokerInfo = inspect(getCard)
-        sendInfoMessage("created joker card of " .. jokerInfo, self.key)
-
-        getCard:set_edition('e_holo', false)
-        return getCard
-    end,
-    ease_background_colour = function(self) ease_background_colour { new_colour = HEX('62a1b4'), special_colour = HEX('fce1b6'), contrast = 2 } end,
-    particles = function(self)
-        G.booster_pack_sparkles = Particles(1, 1, 0, 0, {
-            timer = 0.015,
-            scale = 0.3,
-            initialize = true,
-            lifespan = 3,
-            speed = 0.1,
-            padding = -1,
-            attach = G.ROOM_ATTACH,
-            colours = { G.C.BLACK, G.C.GOLD },
-            fill = true
-        })
-        G.booster_pack_sparkles.fade_alpha = 1
-        G.booster_pack_sparkles:fade(1, 0)
-    end,
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.config.center.config.choose, card.ability.extra } }
-    end,
-    loc_txt = {
-        name = "Holographic Pack",
-        text = {
-            "Choose {C:attention}#1#{} of",
-            "up to {C:attention}#2# Holographic Jokers{}",
-        },
-    },
-    group_key = "Negation Pack",
-})
 
 sendInfoMessage("Completed processing jokers", "essay.lua")

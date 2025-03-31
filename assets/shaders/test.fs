@@ -3,9 +3,8 @@
 #else
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
-
-//watch shader Mods/FoxMods/assets/shaders/etherOverdrive.fs
-extern MY_HIGHP_OR_MEDIUMP vec2 gold_seal;
+//watch shader Mods/yourmodName/assets/shaders/test.fs
+extern MY_HIGHP_OR_MEDIUMP vec2 test;
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
 extern MY_HIGHP_OR_MEDIUMP number time;
 extern MY_HIGHP_OR_MEDIUMP vec4 texture_details;
@@ -14,6 +13,7 @@ extern bool shadow;
 extern MY_HIGHP_OR_MEDIUMP vec4 burn_colour_1;
 extern MY_HIGHP_OR_MEDIUMP vec4 burn_colour_2;
 
+//must keep 
 vec4 dissolve_mask(vec4 tex, vec2 texture_coords, vec2 uv)
 {
     if (dissolve < 0.001) {
@@ -52,72 +52,36 @@ vec4 dissolve_mask(vec4 tex, vec2 texture_coords, vec2 uv)
     return vec4(shadow ? vec3(0.,0.,0.) : tex.xyz, res > adjusted_dissolve ? (shadow ? tex.a*0.3: tex.a) : .0);
 }
 
-number hue(number s, number t, number h)
+/// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
+vec4 effect(vec4 fragColor, Image texture, vec2 texture_coords,vec2 screen_coords )
 {
-	number hs = mod(h, 1.)*6.;
-	if (hs < 1.) return (t-s) * hs + s;
-	if (hs < 3.) return t;
-	if (hs < 4.) return (t-s) * (4.-hs) + s;
-	return s;
-}
+        vec2 uv = texture_coords * image_details.xy / image_details.y;
+    
+                    //renamed to time, since that is what it's called in this shader format
+    float stripes = time * uv.y;
+    float rounded = floor(stripes);
+    
+    if (mod(rounded, 2.0) == 0.0)
+    {
+         fragColor = vec4(1.0, 1.0, 0.0, 1.0);   
+    }
+    else
+    {
+         fragColor = vec4(0.0, 0.0, 0.0, 1.0);   
+    }
 
-vec4 RGB(vec4 c)
-{
-	if (c.y < 0.0001)
-		return vec4(vec3(c.z), c.a);
+    // Do not remove!  some weird shader optimization happens here and we must reference our own shader's public (extern) name
+    // if you don't the shader will crash, it has to to with memory optimization
+    // optionally, you could come up with a cool way to use these values which are shared among all instances in a given frame
+    fragColor.rgb += test.x * 0.0;
 
-	number t = (c.z < .5) ? c.y*c.z + c.z : -c.y*c.z + (c.y+c.z);
-	number s = 2.0 * c.z - t;
-	return vec4(hue(s,t,c.x + 1./3.), hue(s,t,c.x), hue(s,t,c.x - 1./3.), c.w);
-}
+    return dissolve_mask(fragColor, texture_coords, texture_coords);
 
-vec4 HSL(vec4 c)
-{
-	number low = min(c.r, min(c.g, c.b));
-	number high = max(c.r, max(c.g, c.b));
-	number delta = high - low;
-	number sum = high+low;
-
-	vec4 hsl = vec4(.0, .0, .5 * sum, c.a);
-	if (delta == .0)
-		return hsl;
-
-	hsl.y = (hsl.z < .5) ? delta / sum : delta / (2.0 - sum);
-
-	if (high == c.r)
-		hsl.x = (c.g - c.b) / delta;
-	else if (high == c.g)
-		hsl.x = (c.b - c.r) / delta + 2.0;
-	else
-		hsl.x = (c.r - c.g) / delta + 4.0;
-
-	hsl.x = mod(hsl.x / 6., 1.);
-	return hsl;
+    
 }
 
 
-vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-{
-    //r controls timing
-    //a controls alpha, but white will always be 1
-    vec4 pixel;
-    pixel = Texel(texture, texture_coords);
-    number low = min(pixel.r, min(pixel.g, pixel.b));
-    number high = max(pixel.r, max(pixel.g, pixel.b));
-	number delta;
-    delta = high*0.5;
-
-    number fac;
-    fac = 0.3+sin((texture_coords.x*450. + sin(gold_seal.r*6.)*180.)-700.*gold_seal.r) - sin((texture_coords.x*190. + texture_coords.y*30.)+1080.3*gold_seal.r);
-
-    pixel.r = max(pixel.r, (1. - pixel.r)*delta*fac + pixel.r);
-    pixel.g = max(pixel.g, (1. - pixel.g)*delta*fac + pixel.g);
-    pixel.b = max(pixel.b, (1. - pixel.b)*delta*fac + pixel.b);
-    return dissolve_mask(pixel, texture_coords, texture_coords);
-
-    return pixel;
-}
-
+//have to keep this boiler plate below to my knowledge
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;
 extern MY_HIGHP_OR_MEDIUMP float hovering;
 extern MY_HIGHP_OR_MEDIUMP float screen_scale;
