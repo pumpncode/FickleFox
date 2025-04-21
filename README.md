@@ -30,7 +30,6 @@ Joker | Clone and Power Up  | Planning
 Joker | Octopus Themed | Planning
 Joker | Kraken Themed | Planning
 Tarot | Enfeeble | Planning
-Tarot | Summoning Circle | Planning
 
 Fully Fleshed out cards are at the bottom of the list.  Concepts are at the top.
 

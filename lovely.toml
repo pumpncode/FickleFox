@@ -5,15 +5,217 @@ dump_lua = true
 priority = 0
 
 # set var to track glass not broken 
+#[[patches]]
+#[patches.pattern]
+#target = "functions/state_events.lua"
+#pattern = '''        local cards_destroyed = {}'''        
+#position = "at"
+#payload = '''local cards_destroyed = {}
+#local glass_not_destroyed = {}
+#print('setupGlassTrackingvar')'''
+#match_indent = false
+
+# setup todo as a global function
 [[patches]]
 [patches.pattern]
-target = "functions/state_events.lua"
-pattern = '''        local cards_destroyed = {}'''        
+target = "functions/common_events.lua"
+pattern = '''function reset_ancient_card()
+'''
 position = "at"
-payload = '''local cards_destroyed = {}
-local glass_not_destroyed = {}
-print('setupGlassTrackingvar')'''
+payload = '''        
+function reset_todoList()
+    print("in reset Todolist")
+    local _poker_hands = {}
+    for k, v in pairs(G.GAME.hands) do
+        if v.visible and k ~= G.GAME.current_round.to_do_poker_hand then _poker_hands[#_poker_hands+1] = k end
+    end
+    G.GAME.current_round.to_do_poker_hand = pseudorandom_element(_poker_hands, pseudoseed('to_do'))
+    --self.ability.to_do_poker_hand = G.GAME.current_round.to_do_poker_hand
+    print("To do hand set as : " .. G.GAME.current_round.to_do_poker_hand)
+end
+
+function reset_ancient_card()
+'''
 match_indent = false
+
+# disabled because then card became out of sync
+# set to do list global to be reset every round 
+#[[patches]]
+#[patches.pattern]
+#target = "functions/state_events.lua"
+#pattern = '''
+#                        reset_ancient_card()
+#                        reset_castle_card()
+#'''
+#position = "at"
+#payload = '''
+#                        reset_ancient_card()
+#                        reset_todoList()
+#                       reset_castle_card()
+#'''
+#match_indent = false
+
+# override to do to respect new global var
+#[[patches]]
+#[patches.pattern]
+#target = "card.lua"
+#pattern = '''
+#       local _poker_hands = {}
+#        for k, v in pairs(G.GAME.hands) do
+#            if v.visible then _poker_hands[#_poker_hands+1] = k end
+#        end
+#        local old_hand = self.ability.to_do_poker_hand
+#        self.ability.to_do_poker_hand = nil
+#
+#        while not self.ability.to_do_poker_hand do
+#            self.ability.to_do_poker_hand = pseudorandom_element(_poker_hands, pseudoseed((self.area and self.area.config.type == 'title') and 'false_to_do' or 'to_do'))
+#            if self.ability.to_do_poker_hand == old_hand then self.ability.to_do_poker_hand = nil end
+#        end
+#    end
+#'''
+#position = "at"
+#payload = '''        
+#    if nil == G.GAME.current_round.to_do_poker_hand then reset_todoList() end
+#    print("using global to do hand of " .. G.GAME.current_round.to_do_poker_hand)
+#    self.ability.to_do_poker_hand = G.GAME.current_round.to_do_poker_hand
+#if self.ability.name == 'To Do List' and not context.blueprint then
+#    reset_todoList()
+#    print("using global to do hand of " .. G.GAME.current_round.to_do_poker_hand)                    
+#    self.ability.to_do_poker_hand = G.GAME.current_round.to_do_poker_hand
+#    return {
+#        message = localize('k_reset')
+#    }
+#end
+#'''
+#match_indent = false
+
+# override the OTHER implementation of  To do list to respect global var 
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+       if self.ability.name == 'To Do List' and not context.blueprint then
+                    local _poker_hands = {}
+                    for k, v in pairs(G.GAME.hands) do
+                        if v.visible and k ~= self.ability.to_do_poker_hand then _poker_hands[#_poker_hands+1] = k end
+                    end
+                    self.ability.to_do_poker_hand = pseudorandom_element(_poker_hands, pseudoseed('to_do'))
+                    return {
+                        message = localize('k_reset')
+                    }
+                end
+'''
+position = "at"
+payload = '''        
+        if self.ability.name == 'To Do List' and not context.blueprint then                    
+                    reset_todoList()
+                    print("using global to do hand of " .. G.GAME.current_round.to_do_poker_hand)                    
+                    self.ability.to_do_poker_hand = G.GAME.current_round.to_do_poker_hand
+                    return {
+                        message = localize('k_reset')
+                    }
+                end
+'''
+match_indent = false
+
+
+
+#move to do to a global var
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''function reset_ancient_card()
+'''
+position = "at"
+payload = '''        
+function reset_todoList()
+    print("in reset Todolist")
+    local _poker_hands = {}
+    for k, v in pairs(G.GAME.hands) do
+        if v.visible and k ~= G.GAME.current_round.to_do_poker_hand then _poker_hands[#_poker_hands+1] = k end
+    end
+    G.GAME.current_round.to_do_poker_hand = pseudorandom_element(_poker_hands, pseudoseed('to_do'))
+    --self.ability.to_do_poker_hand = G.GAME.current_round.to_do_poker_hand
+    print("To do hand set as : " .. G.GAME.current_round.to_do_poker_hand)
+end
+
+function reset_ancient_card()
+'''
+match_indent = false
+
+# set logging to triage cards not appearing as they should
+#[[patches]]
+#[patches.pattern]
+#target = "functions/common_events.lua"
+#pattern = '''if _type == 'Base' then 
+#        forced_key = 'c_base'
+#    end
+#'''
+#position = "at"
+#payload = '''        if _type == 'Base' then 
+#        forced_key = 'c_base'
+#    end
+#
+#    local safeForcedKey = forced_key or "nil"
+#    print("in create card, attempting to creatr card with forced key of" .. safeForcedKey)
+#    print(" next line will be [   center = G.P_CENTERS[safeForcedKey]]")
+#'''
+#match_indent = false
+
+
+# spawn WAYYY more cards
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = '''            
+for i = 1, 200 do
+'''
+position = "at"
+payload = '''
+  print("test")
+for i = 1, 450 do 
+
+'''
+match_indent = false
+
+# spawn our hero card
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = '''
+--VERSION
+'''
+position = "at"
+payload = '''
+local card
+G.E_MANAGER:add_event(Event({mmm
+                trigger = 'after',
+                delay = 2.04,
+                func = (function()
+                    local SC_scale = 1.1*(G.debug_splash_size_toggle and 0.8 or 1)
+                    card = Card(G.title_top.T.x, G.title_top.T.y, 1.2*G.CARD_W*SC_scale, 1.2*G.CARD_H*SC_scale, nil, G.P_CENTERS.j_Fox_flushFox)
+                    card.no_ui = 1
+                    card.states.visible = false
+                    if nil ~= replace_card then 
+                        replace_card.parent = nil
+                        replace_card:start_dissolve({G.C.BLACK, G.C.ORANGE, G.C.RED, G.C.GOLD})
+                    end
+                G.title_top:emplace(card)
+                    return true
+            end)}))
+
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 1.04,
+                func = (function()
+                    card:start_materialize()
+                    G.title_top:emplace(card)
+                    return true
+            end)}))
+--VERSION
+'''
+match_indent = false
+
 
 # set var to track glass not broken 
 [[patches]]

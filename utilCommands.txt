@@ -1,0 +1,37 @@
+
+
+for _, jokerCard in ipairs(G.your_collection[1]) do
+  print(jokerCard.edition)
+end
+
+
+G.your_collection, [1], [2], and [3]
+
+G.your_collection
+
+mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+
+eval G.your_collection[2]
+
+mmmmmmmmmmmmmmmmmmmmmmm
+local function forceEditionCollectionView(s)
+
+for _, jokerCard in ipairs(G.your_collection[1].cards) do
+  jokerCard:set_edition(s, true)
+end
+
+for _, jokerCard in ipairs(G.your_collection[2].cards) do
+  jokerCard:set_edition(s, true)
+end
+
+for _, jokerCard in ipairs(G.your_collection[3].cards) do
+  jokerCard:set_edition(s, true)
+end
+
+end
+mmmmmmmmmmmmmmmmmmmmmmmmmm
+
+watch shader Mods/FoxMods/assets/shaders/glimmer3.fs
+eval forceEditionCollectionView("e_Fox_goldRare")
+
+mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm

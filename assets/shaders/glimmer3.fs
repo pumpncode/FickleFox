@@ -111,18 +111,32 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     
     if (is_white) {
         // tweak these
-        float smoke_time = time * 0.3; 
-        vec2 smoke_uv = uv * 3.0;
+        float smoke_time = time * 8.3;
+        vec2 smoke_uv = uv * .2;
         
         // more vornoir noise
-        float smoke1 = sin(smoke_uv.x * 3.0 + smoke_time) * 0.5;
-        float smoke2 = cos(smoke_uv.y * 4.0 - smoke_time * 1.2) * 0.5;
-        float smoke3 = sin(smoke_uv.x * 1.5 + smoke_uv.y * 1.2 + smoke_time * 0.8) * 0.5;
+        float smoke1 = sin(smoke_uv.x * 3.0 + smoke_time) * 1.4;
+        float smoke2 = cos(smoke_uv.y * 4.0 - smoke_time * 4.2) * .5;
+        float smoke3 = sin(smoke_uv.x * 1.5 + smoke_uv.y * 1.2 + smoke_time * 5);
         
-        float smoke_pattern = (smoke1 + smoke2 + smoke3) * 0.3 + 0.5;
+        float smoke_pattern = (smoke1 + smoke2 + smoke3) * 2.7 + 0.5;
 
-        return vec4(vec3(1.0 - smoke_pattern * 0.3), 1.0); 
+        // return vec4(vec3(1.0 - smoke_pattern * 0.3), 1.0); 
+
+        vec3 smoke_color = vec3(1.0 - smoke_pattern * 0.3);
+
+        // Blend toward darkness if its too bright
+        smoke_color = mix(smoke_color, vec3(0.25), smoothstep(0.25, 0.6, smoke_color.r));
+
+        return vec4(smoke_color, 1.0);
     }
+    
+    vec4 hslGrey = HSL(tex);
+    
+            if (hslGrey.y < 0.15 || hslGrey.z < 0.15) {
+            // This pixel is either grey or black — skip the gold shift
+            return dissolve_mask(tex * colour, texture_coords, uv);
+        }
 
     // removed
     // number low = min(tex.r, min(tex.g, tex.b));
@@ -148,15 +162,56 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
 
     float golden_shift = 0.08 + 0.07 * sin(time * 0.5 + field * 6.283);
     hsl.x = mix(0.08, 0.15, fract(hsl.x + golden_shift + glimmer.y * 0.04));    
-    hsl.y = min(0.8, hsl.y + 0.7);    
-    float shineFactor = 0.4 + 0.3 * sin(texture_coords.x * 450.0 + sin(time * 6.0) * 180.0) 
-                            - sin(texture_coords.x * 190.0 + texture_coords.y * 30.0 + time * 1080.3);
-
-    hsl.z = mix(0.4, 1.0, pow(abs(sin(time + uv.x * 10.0)), 3.5)); // More exaggerated movement    
-    float specular = pow(abs(sin(time * 1.5 + uv.y * 5.0)), 18.0) * 0.8;     
-    hsl.z = clamp(hsl.z + specular + shineFactor * 0.3, 0.3, 1.0);
     
-    tex.rgb = RGB(hsl).rgb;
+    hsl.y = mix(hsl.y, min(0.8, hsl.y + 0.7), smoothstep(0.05, 0.2, hsl.y));
+    
+    //hsl.y = min(0.8, hsl.y + 0.7);    
+    // float shineFactor = 0.4 + 0.3 * sin((texture_coords.x + time * 0.05) * 190.0 + sin(time * 6.0) * 180.0) 
+    //                         - sin(texture_coords.x * 190.0 + texture_coords.y * 30.0 + time * 1080.3);
+
+    // Soft shimmer across the surface
+    // float waveX = sin((uv.x * 8.0 + time * 0.8));
+    // float waveY = cos((uv.y * 6.0 + time * 1.2));
+    // float shimmer = 0.5 + 0.5 * waveX * waveY;
+    
+    // float pulse = sin((uv.x + uv.y) * 15.0 + time * 2.0) * 0.1;
+
+    // // Final blended shine factor
+    // float shineFactor = shimmer + pulse;
+    //     hsl.z = mix(0.4, 1.0, pow(abs(sin(time + uv.x * 10.0)), 3.5)); // More exaggerated movement    
+    //     float specular = pow(abs(sin(time * 1.5 + uv.y * 5.0)), 18.0) * 0.8;     
+    //     hsl.z = clamp(hsl.z + specular + shineFactor * 0.3, 0.3, 1.0);
+        
+    //     float originalLuma = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
+    // hsl.z = min(hsl.z, originalLuma + 0.15);  // Clamp brightness to retain detail
+ 
+    // tex.rgb = RGB(hsl).rgb;
+    // if (high < 0.1) {
+    //     tex.rgb = vec3(0.0); // Force pure black for very dark pixels
+    // }
+
+    // ==Shimmer Base from negative shine
+number fac = 0.8 + 0.9 * sin(11. * uv.x + 4.32 * uv.y + glimmer.r * 12. + cos(glimmer.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
+number fac2 = 0.5 + 0.5 * sin(8. * uv.x + 2.32 * uv.y + glimmer.r * 5. - cos(glimmer.r * 2.3 + uv.x * 8.2));
+number fac3 = 0.5 + 0.5 * sin(10. * uv.x + 5.32 * uv.y + glimmer.r * 6.111 + sin(glimmer.r * 5.3 + uv.y * 3.2));
+number fac4 = 0.5 + 0.5 * sin(3. * uv.x + 2.32 * uv.y + glimmer.r * 8.111 + sin(glimmer.r * 1.3 + uv.y * 11.2));
+number fac5 = sin(0.9 * 16. * uv.x + 5.32 * uv.y + glimmer.r * 12. + cos(glimmer.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
+
+number maxfac = 0.7 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fac3 * fac4), 0.);
+
+// === Apply to gold color range ===
+vec3 baseGold = vec3(0.9, 0.7, 0.2); // Base gold
+vec3 warmHighlight = vec3(1.0, 0.85, 0.5); // Highlighted gold
+
+// Interference-based shimmer mixing between base and highlight gold
+vec3 finalColor = mix(baseGold, warmHighlight, clamp(maxfac, 0.0, 1.0));
+
+// Add shine modulation to channel intensities
+finalColor.r = finalColor.r - delta + delta * maxfac * (0.7 + fac5 * 0.27) - 0.1;
+finalColor.g = finalColor.g - delta + delta * maxfac * (0.7 - fac5 * 0.27) - 0.1;
+finalColor.b = finalColor.b - delta + delta * maxfac * 0.7 - 0.1;
+
+tex.rgb = finalColor;
 
 	if (tex[3] < 0.7)
 		tex[3] = tex[3] / 3.;

@@ -19,12 +19,12 @@ return {
 					"3 or more cards divisble by {C:attention}XVI{}",
 				},
 			},
-			phd_fox_shungokusatsu = {
-				name = "ShunGokuSatsu",
-				text = {
-					"4 or more cards of rank 10",
-				},
-			}
+			-- phd_fox_Shun Goku Satsu = {
+			-- 	name = "Shun Goku Satsu",
+			-- 	text = {
+			-- 		"4 or more cards of rank 10",
+			-- 	},
+			-- }
 		}
 	},
 	misc = {

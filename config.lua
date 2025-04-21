@@ -22,8 +22,10 @@ SMODS.Sound({key = "kirby_poyo",	path = "kirby-poyo-time-d.mp3",atlas_table = "A
 SMODS.Sound({key = "kirby_suction",	path = "kirby-suction.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "dbz_punch",	path = "dbz_punch.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "redxiii",	path = "redxiii_2.wav",atlas_table = "ASSET_ATLAS"})
+SMODS.Sound({key = "ether",	path = "etherOverdrive.ogg",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "yoshiEat",	path = "yoshi-tongue.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "akumaClear",	path = "akuma_clear.mp3",atlas_table = "ASSET_ATLAS"})
+SMODS.Sound({key = "grass",	path = "grass.ogg",atlas_table = "ASSET_ATLAS"})
 --redxiii_2.wav
 --dbz_punch.mp3
 SMODS.current_mod.optional_features = {retrigger_joker = true}
@@ -35,13 +37,14 @@ SMODS.Atlas{ key = "FoxModMisc", path = "misc.png", px = 71, py = 95, atlas_tabl
 SMODS.Atlas{ key = "FoxMod2xOnly", path = "2xOnly.png", px = 71, py = 95, atlas_table = "ASSET_ATLAS" }
 SMODS.Atlas{ key = "FoxMod2xOnlyBooster", path = "fox_mod_booster_2x_only.png", px = 71, py = 95, atlas_table = "ASSET_ATLAS" }
 SMODS.Atlas{ key = "FoxModEpicJokers", path = "FoxModEpicJokers.png", px = 71, py = 95, atlas_table = "ASSET_ATLAS" }
+SMODS.Atlas{ key = "FoxModDecks", path = "decks.png", px = 71, py = 95, atlas_table = "ASSET_ATLAS" }
 
 SMODS.Shader({ key = 'glimmer', path = 'glimmer3.fs' })
 SMODS.Shader({ key = 'etherOverdrive', path = 'etherOverdrive.fs' })
 SMODS.Shader({ key = 'akashic', path = 'akashic.fs' })
 -- SMODS.Shader({ key = 'secretRare', path = 'secretRare_new.fs' })
 -- SMODS.Shader({ key = 'secretRare_subtle', path = 'secretRare_4.fs' })
-
+SMODS.Shader({ key = 'ghostRare', path = 'ghostRare.fs' })
 SMODS.Shader({ key = 'secretRare', path = 'secretRare_4.fs' })
 
 local lovely_toml_info = NFS.getInfo(SMODS.current_mod.path .. "lovely.toml")

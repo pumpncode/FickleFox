@@ -46,7 +46,7 @@ SMODS.PokerHand({
         }
     },
     evaluate = function(parts, hand)
-        if #hand > 2 then -- TODO - find redxiii joker to trigger bonus and next(SMODS.find_card("fox_redxiii")) then         
+        if #hand > 2 then 
         local counted = 0
             for _, card in ipairs(hand) do
                 counted = counted + card.base.id
@@ -107,7 +107,7 @@ SMODS.PokerHand({ --torgal
     key = "fullmoon",
     chips = 50,
     mult = 5,
-    l_chips = 15,
+    l_chips = 16,
     l_mult = 2,
     visible = false,
     example = {        
@@ -182,7 +182,7 @@ SMODS.PokerHand({ --torgal
 --     end,
 -- }
 
-SMODS.PokerHand({ --shungokusatsu
+SMODS.PokerHand({ --Shun Goku Satsu
     key = "shungokusatsu",
     chips = 50,
     mult = 15,
@@ -226,7 +226,7 @@ SMODS.PokerHand({ --shungokusatsu
 })
 
 -- FoxMod.PokerHandDummy {
---     key = "shungokusatsu",
+--     key = "Shun Goku Satsu",
 --     generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
 --         SMODS.Center.generate_ui(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
 --         if desc_nodes ~= full_UI_table.main then

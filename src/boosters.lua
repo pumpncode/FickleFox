@@ -32,6 +32,22 @@ function getRandomFoxJoker()
     return randomJoker
 end
 
+function forceEditionCollectionView(s)
+
+    for _, jokerCard in ipairs(G.your_collection[1].cards) do
+      jokerCard:set_edition(s, true)
+    end
+    
+    for _, jokerCard in ipairs(G.your_collection[2].cards) do
+      jokerCard:set_edition(s, true)
+    end
+    
+    for _, jokerCard in ipairs(G.your_collection[3].cards) do
+      jokerCard:set_edition(s, true)
+    end
+    
+end
+
 local function poll_ability(s)
     local randNo = math.random(10)
     if randNo > 1 and randNo < 5 then

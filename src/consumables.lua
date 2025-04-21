@@ -12,13 +12,15 @@ local function poll_ability(s)
 end
 
 local function poll_custom_editions()
-    local randNo = math.random(9)
+    local randNo = math.random(12)
     if randNo > 0 and randNo < 4 then
         return "e_Fox_fragileRelic"
     elseif randNo > 3 and randNo < 6 then
-        return "e_Fox_ghostRare"
-    else
+        return "e_Fox_goldRare"
+    elseif randNo > 5 and randNo < 8 then
         return "e_Fox_secretRare"
+    else
+        return "e_Fox_ghostRare"
     end
 end
 
@@ -38,7 +40,7 @@ end
     --region: Tarots
     SMODS.Consumable({ --Enfeeble
         set = "Tarot",
-        key = "pawlatro_enfeeb",
+        key = "ficklefox_enfeeb",
         config = {
             maxSelected = 2
         },
@@ -126,7 +128,7 @@ end
 
     SMODS.Consumable({ --The Sword
         set = "Tarot",
-        key = "pawlatro_sword",
+        key = "ficklefox_sword",
         config = {
             maxSelected = 2
         },
@@ -137,12 +139,12 @@ end
         loc_txt = {
             name = "The Sword",
             text = {
-                "Applies the legendary edition {C:dark_edition}Ghost Rare{} to",
+                "Applies the legendary edition {C:dark_edition}Gold Rare{} to",
                 "up to {C:attention}2{} cards"
             }
         },
         loc_vars = function(self, info_queue, card)
-            info_queue[#info_queue + 1] = G.P_CENTERS.e_Fox_ghostRare
+            info_queue[#info_queue + 1] = G.P_CENTERS.e_Fox_goldRare
             return { vars = { card.ability.maxSelected } }
         end,
         atlas = 'FoxModMisc',
@@ -169,7 +171,7 @@ end
                         local card = G.hand.highlighted[i]
 
                         card:flip();
-                        card:set_edition("e_Fox_ghostRare", true)
+                        card:set_edition("e_Fox_goldRare", true)
                         -- card:set_edition('e_noire', true)
                         return true
                     end
@@ -200,7 +202,7 @@ end
 
     SMODS.Consumable({ --The Ether
         set = "Tarot",
-        key = "pawlatro_The Ether",
+        key = "ficklefox_The Ether",
         config = {
             maxSelected = 2
         },
@@ -274,7 +276,7 @@ end
 
     SMODS.Consumable({ --bargain the crow / the raven
     set = "Tarot",
-    key = "pawlatro_bargain",
+    key = "ficklefox_bargain",
     config = {
         maxSelected = 1
     },
@@ -369,7 +371,7 @@ end
 
 SMODS.Consumable({ -- the sprout
     set = "Tarot",
-    key = "pawlatro_sprout",
+    key = "ficklefox_sprout",
     config = {
         maxSelected = 1
     },
@@ -442,7 +444,7 @@ SMODS.Consumable({ -- the sprout
 
 SMODS.Consumable({ --Meteor Shower
 set = "Spectral",
-key = "pawlatro_meteorain",
+key = "ficklefox_meteorain",
 pos = {
     x = 0,
     y = 0
@@ -500,7 +502,7 @@ use = function(self, card, area, copier)
     local cardsUpgradedCount = 0
     local allholoLucky = false
     delay(0.3)
-    if pseudorandom('pawlatro_meteorain') < G.GAME.probabilities.normal / card.ability.allHoloOdds then
+    if pseudorandom('ficklefox_meteorain') < G.GAME.probabilities.normal / card.ability.allHoloOdds then
         allholoLucky = true
         card_eval_status_text(card, 'extra', nil, nil, nil,
             { message = " Oops!  All Holo!", colour = G.C.FILTER })
@@ -508,7 +510,7 @@ use = function(self, card, area, copier)
 
 
     for i = 1, #G.hand.cards do
-        if pseudorandom('pawlatro_meteorain') < G.GAME.probabilities.normal / card.ability.odds or allholoLucky then
+        if pseudorandom('ficklefox_meteorain') < G.GAME.probabilities.normal / card.ability.odds or allholoLucky then
             boonApplied = true
             cardsUpgradedCount = cardsUpgradedCount + 1
             sendInfoMessage("this card was lucky, adding a special boon")
@@ -597,7 +599,7 @@ end
 
 SMODS.Consumable({ --Coating Polymerization
         set = "Spectral",
-        key = "pawlatro_coating",
+        key = "ficklefox_coating",
         pos = {
             x = 3,
             y = 1
@@ -655,7 +657,7 @@ SMODS.Consumable({ --Coating Polymerization
             local cardsUpgradedCount = 0
             local allholoLucky = false
             delay(0.3)
-            if pseudorandom('pawlatro_meteorain') < G.GAME.probabilities.normal / card.ability.allHoloOdds then
+            if pseudorandom('ficklefox_meteorain') < G.GAME.probabilities.normal / card.ability.allHoloOdds then
                 allholoLucky = true
                 card_eval_status_text(card, 'extra', nil, nil, nil,
                     { message = " Oops!  All Holo!", colour = G.C.FILTER })
@@ -663,7 +665,7 @@ SMODS.Consumable({ --Coating Polymerization
 
 
             for i = 1, #G.hand.cards do
-                if pseudorandom('pawlatro_meteorain') < G.GAME.probabilities.normal / card.ability.odds or allholoLucky then
+                if pseudorandom('ficklefox_meteorain') < G.GAME.probabilities.normal / card.ability.odds or allholoLucky then
                     boonApplied = true
                     cardsUpgradedCount = cardsUpgradedCount + 1
                     sendInfoMessage("this card was lucky, adding a special boon")
@@ -758,13 +760,192 @@ SMODS.Consumable({ --Coating Polymerization
         end
     })
 
-    SMODS.Consumable({
+    -- SMODS.Consumable {
+    --     set = 'Planet',
+    --     key = 'cursed_eldland',
+    --     atlas = 'joy_p_eldland',
+    --     discovered = true,
+    --     config = { hand_type = 'joy_eldlixir', softlock = true },
+    --     pos = { x = 0, y = 0 },
+    --     loc_txt = {
+    --         name = "Four fingered Voucher",
+    --         text = {
+    --             "{S:0.8}({S:0.8,V:1}lvl.#1#{S:0.8}){} Level up",
+    --             "{C:attention}#2#",
+    --             "{C:mult}+#3#{} Mult and",
+    --             "{C:chips}+#4#{} chips",
+    --         },
+    --     },
+    --     set_card_type_badge = function(self, card, badges)
+    --         badges[1] = create_badge(localize('k_planet'), get_type_colour(self or card.config, card), nil, 1.2)
+    --     end,
+    --     generate_ui = 0,
+    --     process_loc_text = function(self)
+    --         local target_text = G.localization.descriptions[self.set]['c_mercury'].text
+    --         SMODS.Consumable.process_loc_text(self)
+    --         G.localization.descriptions[self.set][self.key] = {}
+    --         G.localization.descriptions[self.set][self.key].text = target_text
+    --     end
+    -- }
+
+    -- SMODS.Consumable({--meteor
+    --     object_type = "Consumable",
+    --     set = "Planet",
+    --     name = "Meteor",
+    --     key = "Meteor",
+    --     pos = { x = 1, y = 1 },
+    --     config = { hand_type = { "Fox_cosmocanyon" } },
+    --     loc_txt = {
+    --         name = "Cosmo Canyon",
+    --         text = {
+    --             "Level {C:attention}#1#{}",
+    --             "Levels up the {C:attention}Cosmo Canyon{} hand",
+    --             "{C:mult}+2{} Mult and",
+    --             "{C:chips}+15{} chips",
+    --         },
+    --     },
+    --     cost = 4,
+    --     atlas = "FoxModMisc",
+    --     order = 3,
+    --     can_use = function(self, card)
+    --         return true
+    --     end,
+    --     loc_vars = function(self, info_queue, center)            
+    --         return {
+    --             vars = {                    
+    --                 G.GAME.hands["Fox_cosmocanyon"].level
+    --             },
+    --         }
+    --     end,
+    --     use = function(self, card, area, copier)
+    --         local hand_name = card.ability.hand_type[1]
+    
+    --         if G.GAME.hands[hand_name] then
+    --             local hand_data = G.GAME.hands[hand_name]
+    
+    --             update_hand_text({ sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3 },
+    --                 {
+    --                     handname = localize(hand_name, 'poker_hands'),
+    --                     chips = hand_data.chips,
+    --                     mult = hand_data.mult,
+    --                     level = hand_data.level
+    --                 }
+    --             )
+    
+    --             level_up_hand(card, hand_name)
+    
+    --             update_hand_text({ sound = 'button', volume = 0.7, pitch = 1.1, delay = 0 },
+    --                 { mult = 0, chips = 0, handname = '', level = '' }
+    --             )
+    --         else
+    --             print(card.ability.hand_type .. " NOT found in G.GAME.hands!")
+    --         end
+    --     end,
+    --        -- Only in shop if the cosmo canyon  hand is visible
+    --     in_pool = function(self)
+    --         local hand_name = self.config.hand_type[1]
+    --         return G.GAME.hands[hand_name] and G.GAME.hands[hand_name].visible
+    --     end
+    -- })
+    
+    SMODS.Consumable {
         object_type = "Consumable",
         set = "Planet",
         name = "Meteor",
         key = "Meteor",
         pos = { x = 1, y = 1 },
-        config = { hand_types = { "Cosmo Canyon" } },
+        config = { hand_type = "Fox_cosmocanyon"  },
+        cost = 4,
+        atlas = "FoxModMisc",
+        order = 3,
+    
+        can_use = function(self, card)
+            return true
+        end,
+    
+        loc_txt = {
+            name = "Cosmo Canyon",
+            text = {
+                "Level {C:attention}#1#{}",
+                "Levels up the {C:attention}Cosmo Canyon{} hand",
+                "{C:mult}+#2#{} Mult and",
+                "{C:chips}+#3#{} Chips"
+            }
+        },
+    
+        loc_vars = function(self, info_queue, center)
+            local hand_name = "Fox_cosmocanyon"
+            local hand = G.GAME.hands[hand_name]
+            local level = hand and hand.level or 1
+            local mult = 2  -- Default mult increase
+            local chips = 15 -- Default chips increase
+    
+            return { vars = { level, mult, chips } }
+        end,
+    
+        use = function(self, card, area, copier)
+            if self.config.hand_type and G.GAME.hands[self.config.hand_type] then
+                local hand_name = self.config.hand_type
+    
+                -- **Show old values before level-up**
+                update_hand_text({ sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3 },
+                    {
+                        handname = localize(hand_name, 'poker_hands'),
+                        chips = G.GAME.hands[hand_name].chips,
+                        mult = G.GAME.hands[hand_name].mult,
+                        level = G.GAME.hands[hand_name].level
+                    }
+                )
+    
+                -- **Apply the level-up**
+                level_up_hand(card, hand_name)
+    
+                -- **Show new values after level-up**
+                update_hand_text({ sound = 'button', volume = 0.7, pitch = 1.1, delay = 0.6 },
+                    {
+                        handname = localize(hand_name, 'poker_hands'),
+                        chips = G.GAME.hands[hand_name].chips,
+                        mult = G.GAME.hands[hand_name].mult,
+                        level = G.GAME.hands[hand_name].level
+                    }
+                )
+    
+                -- **Reset UI immediately after**
+                update_hand_text({ sound = 'button', volume = 0.5, pitch = 1.0, delay = 1.5 },
+                    { mult = 0, chips = 0, handname = '', level = '' }
+                )
+            else
+                print("Cosmo Canyon hand NOT found in G.GAME.hands!")
+            end
+        end,
+    
+        -- Only in shop if the Cosmo Canyon hand is visible
+        in_pool = function(self)
+            local hand_name = self.config.hand_type
+            return G.GAME.hands[hand_name] and G.GAME.hands[hand_name].visible
+        end,
+    
+        keep_on_use = function(self, card)
+            return false
+        end
+    }
+
+    SMODS.Consumable({--fullmoon
+        object_type = "Consumable",
+        set = "Planet",
+        name = "Full Moon",
+        key = "fullmoon",
+        pos = { x = 0, y = 2 },
+        config = { hand_type =  "Fox_fullmoon" },
+        loc_txt = {
+            name = "Full Moon",
+            text = {
+                "Level {C:attention}#1#{}",
+                "Levels up the {C:attention}Full Moon{} hand",
+                "{C:mult}+2{} Mult and",
+                "{C:chips}+16{} chips",
+            },
+        },
         cost = 4,
         atlas = "FoxModMisc",
         order = 3,
@@ -772,57 +953,133 @@ SMODS.Consumable({ --Coating Polymerization
             return true
         end,
         loc_vars = function(self, info_queue, center)
-            local levelone = G.GAME.hands["High Card"].level or 1
-            local leveltwo = G.GAME.hands["Pair"].level or 1
-            local levelthree = G.GAME.hands["Two Pair"].level or 1
-            local planetcolourone = G.C.HAND_LEVELS[math.min(levelone, 7)]
-            local planetcolourtwo = G.C.HAND_LEVELS[math.min(leveltwo, 7)]
-            local planetcolourthree = G.C.HAND_LEVELS[math.min(levelthree, 7)]
-            if levelone == 1 or leveltwo == 1 or levelthree == 1 then --Level 1 colour is white (The background), so this sets it to black
-                if levelone == 1 then
-                    planetcolourone = G.C.UI.TEXT_DARK
-                end
-                if leveltwo == 1 then
-                    planetcolourtwo = G.C.UI.TEXT_DARK
-                end
-                if levelthree == 1 then
-                    planetcolourthree = G.C.UI.TEXT_DARK
-                end
-            end
-            return {
-                vars = {
-                    localize("High Card", "poker_hands"),
-                    localize("Pair", "poker_hands"),
-                    localize("Two Pair", "poker_hands"),
-                    G.GAME.hands["High Card"].level,
-                    G.GAME.hands["Pair"].level,
-                    G.GAME.hands["Two Pair"].level,
-                    colours = { planetcolourone, planetcolourtwo, planetcolourthree },
+            local hand_name = self.config.hand_type
+            return {                
+                vars = {                    
+                    G.GAME.hands[hand_name].level
                 },
             }
         end,
         use = function(self, card, area, copier)
-            suit_level_up(self, card, area, copier)
-        end,
-        bulk_use = function(self, card, area, copier, number)
-            suit_level_up(self, card, area, copier, number)
-        end,
-        calculate = function(self, card, context)
-            if
-                G.GAME.used_vouchers.v_observatory
-                and (
-                    context.scoring_name == "High Card"
-                    or context.scoring_name == "Pair"
-                    or context.scoring_name == "Two Pair"
+            local hand_name = card.ability.hand_type
+    
+            if G.GAME.hands[hand_name] then
+                local hand_data = G.GAME.hands[hand_name]
+    
+                update_hand_text({ sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3 },
+                    {
+                        handname = localize(hand_name, 'poker_hands'),
+                        chips = hand_data.chips,
+                        mult = hand_data.mult,
+                        level = hand_data.level
+                    }
                 )
-            then
-                local value = G.P_CENTERS.v_observatory.config.extra
-                return {
-                    message = localize({ type = "variable", key = "a_xmult", vars = { value } }),
-                    Xmult_mod = value,
-                }
+    
+                level_up_hand(card, hand_name)
+    
+                update_hand_text({ sound = 'button', volume = 0.7, pitch = 1.1, delay = 0 },
+                    { mult = 0, chips = 0, handname = '', level = '' }
+                )
+            else
+                print(card.ability.hand_type .. " NOT found in G.GAME.hands!")
             end
         end,
+           -- Only in shop if the cosmo canyon  hand is visible
+        in_pool = function(self)
+            local hand_name = self.config.hand_type
+            return G.GAME.hands[hand_name] and G.GAME.hands[hand_name].visible
+        end
     })
+
+    SMODS.Consumable(        
+    {--shun goku satsu
+    
+    object_type = "Consumable",
+    set = "Planet",
+    name = "Shun Goku Satsu",
+    key = "Shun Goku Satsu",
+    pos = { x = 4, y = 1 },
+    config = { hand_type = "Fox_shungokusatsu" },
+    loc_txt = {
+        name = "Shun Goku Satsu",
+        text = {
+            "Level {C:attention}#1#{}",
+            "Levels up the {C:attention}Shun Goku Satsu{} hand",
+            "{C:chips}+15{} chips and",
+            "{C:edition_negative}+1{} Retriggers when equipped with an A Kuma Joker",
+            
+        },
+    },
+    cost = 4,
+    atlas = "FoxModMisc",
+    order = 3,
+    can_use = function(self, card)
+        return true
+    end,
+    loc_vars = function(self, info_queue, center)
+        local hand_name = self.config.hand_type
+        return {                
+            vars = {                    
+                G.GAME.hands[hand_name].level
+            },
+        }
+    end,
+    loc_vars = function(self, info_queue, center)
+        local hand = G.GAME.hands[hand_name]
+        local hand_name = hand
+        local level = hand and hand.level or 1
+        local mult = 0  -- Default mult increase
+        local chips = 15 -- Default chips increase
+
+        return { vars = { level, mult, chips } }
+    end,
+
+    use = function(self, card, area, copier)
+        if self.config.hand_type and G.GAME.hands[self.config.hand_type] then
+            local hand_name = self.config.hand_type
+
+            -- **Show old values before level-up**
+            update_hand_text({ sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3 },
+                {
+                    handname = localize(hand_name, 'poker_hands'),
+                    chips = G.GAME.hands[hand_name].chips,
+                    mult = G.GAME.hands[hand_name].mult,
+                    level = G.GAME.hands[hand_name].level
+                }
+            )
+
+            -- **Apply the level-up**
+            level_up_hand(card, hand_name)
+
+            -- **Show new values after level-up**
+            update_hand_text({ sound = 'button', volume = 0.7, pitch = 1.1, delay = 0.6 },
+                {
+                    handname = localize(hand_name, 'poker_hands'),
+                    chips = G.GAME.hands[hand_name].chips,
+                    mult = G.GAME.hands[hand_name].mult,
+                    level = G.GAME.hands[hand_name].level
+                }
+            )
+
+            -- **Reset UI immediately after**
+            update_hand_text({ sound = 'button', volume = 0.5, pitch = 1.0, delay = 1.5 },
+                { mult = 0, chips = 0, handname = '', level = '' }
+            )
+        else
+            print("Shun Goku Satsu hand NOT found in G.GAME.hands!")
+        end
+    end,
+
+    -- Only in shop if the Cosmo Canyon hand is visible
+    in_pool = function(self)
+        local hand_name = self.config.hand_type
+        return G.GAME.hands[hand_name] and G.GAME.hands[hand_name].visible
+    end,
+
+    keep_on_use = function(self, card)
+        return false
+    end
+})
+
 
 sendInfoMessage("Completed Processing consumables", "consumables.lua")
