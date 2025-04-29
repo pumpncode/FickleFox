@@ -46,62 +46,21 @@ SMODS.PokerHand({
         }
     },
     evaluate = function(parts, hand)
-        if #hand > 2 then 
-        local counted = 0
-            for _, card in ipairs(hand) do
-                counted = counted + card.base.id
-            end
-            -- sendInfoMessage("Hand was played, checking value " .. counted, "cosmo")
-            if counted % 13 == 0 then
-                return { hand }
+        if next(SMODS.find_card("j_Fox_redxiii")) then
+            if #hand > 2 then
+            local counted = 0
+                for _, card in ipairs(hand) do
+                    counted = counted + card.base.id
+                end
+                -- sendInfoMessage("Hand was played, checking value " .. counted, "cosmo")
+                if counted % 13 == 0 then
+                    return { hand }
+                end
             end
         end
         return {}
     end
 })
-
--- FoxMod.PokerHandDummy {
---     key = "cosmocanyon",
---     generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
---         SMODS.Center.generate_ui(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
---         if desc_nodes ~= full_UI_table.main then
---             local cards = {}
---             local card_w = G.CARD_W * 0.6
---             local card_h = G.CARD_H * 0.6            
---             table.insert(cards, Card(0, 0, card_w, card_h, G.P_CARDS['S_3'], G.P_CENTERS.m_gold))
---             table.insert(cards, Card(0, 0, card_w, card_h, G.P_CARDS['H_8'], G.P_CENTERS.m_steel))
---             table.insert(cards, Card(0, 0, card_w, card_h, G.P_CARDS['C_2']))
---             G.joy_dummy_area = CardArea(
---                 0, 0,
---                 4.25 * card_w,
---                 0.95 * card_h,
---                 { card_limit = 5, type = 'title', highlight_limit = 0, collection = true }
---             )
-
---             for i, p_card in ipairs(cards) do
---                 G.joy_dummy_area:emplace(p_card)
---             end
-
---             desc_nodes[#desc_nodes + 1] = {
---                 {
---                     n = G.UIT.B,
---                     config = { w = 0, h = 0.1 },
---                 },
---             }
-
---             desc_nodes[#desc_nodes + 1] = {
---                 {
---                     n = G.UIT.R,
---                     config = { align = "cm", padding = 0.07, no_fill = true },
---                     nodes = {
---                         { n = G.UIT.O, config = { object = G.joy_dummy_area } }
---                     }
---                 },
---             }
---         end
---     end,
--- }
-
 
 SMODS.PokerHand({ --torgal
     key = "fullmoon",
@@ -126,61 +85,21 @@ SMODS.PokerHand({ --torgal
         }
     },
     evaluate = function(parts, hand)
-        if #hand > 2 then 
-        local counted = 0
-            for _, card in ipairs(hand) do
-                counted = counted + card.base.id
-            end
-            -- sendInfoMessage("Hand was played, checking value " .. counted, "cosmo")
-            if counted % 16 == 0 then
-                return { hand }
+        if next(SMODS.find_card("j_Fox_torgal")) then
+            if #hand > 2 then 
+            local counted = 0
+                for _, card in ipairs(hand) do
+                    counted = counted + card.base.id
+                end
+                -- sendInfoMessage("Hand was played, checking value " .. counted, "cosmo")
+                if counted % 16 == 0 then
+                    return { hand }
+                end
             end
         end
         return {}
     end
 })
-
--- FoxMod.PokerHandDummy {
---     key = "fullmoon",
---     generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
---         SMODS.Center.generate_ui(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
---         if desc_nodes ~= full_UI_table.main then
---             local cards = {}
---             local card_w = G.CARD_W * 0.6
---             local card_h = G.CARD_H * 0.6            
---             table.insert(cards, Card(0, 0, card_w, card_h, G.P_CARDS['S_6'], G.P_CENTERS.m_gold))
---             table.insert(cards, Card(0, 0, card_w, card_h, G.P_CARDS['H_5'], G.P_CENTERS.m_steel))
---             table.insert(cards, Card(0, 0, card_w, card_h, G.P_CARDS['C_6']))
---             G.joy_dummy_area = CardArea(
---                 0, 0,
---                 4.25 * card_w,
---                 0.95 * card_h,
---                 { card_limit = 5, type = 'title', highlight_limit = 0, collection = true }
---             )
-
---             for i, p_card in ipairs(cards) do
---                 G.joy_dummy_area:emplace(p_card)
---             end
-
---             desc_nodes[#desc_nodes + 1] = {
---                 {
---                     n = G.UIT.B,
---                     config = { w = 0, h = 0.1 },
---                 },
---             }
-
---             desc_nodes[#desc_nodes + 1] = {
---                 {
---                     n = G.UIT.R,
---                     config = { align = "cm", padding = 0.07, no_fill = true },
---                     nodes = {
---                         { n = G.UIT.O, config = { object = G.joy_dummy_area } }
---                     }
---                 },
---             }
---         end
---     end,
--- }
 
 SMODS.PokerHand({ --Shun Goku Satsu
     key = "shungokusatsu",
@@ -206,24 +125,26 @@ SMODS.PokerHand({ --Shun Goku Satsu
             "4 or more cards of rank 10",
         }
     },
-    evaluate = function(parts, hand)        
-        local counted = 0
-        if next(parts._5) or next(parts._4) then
-            for _, card in ipairs(hand) do
-                if card.base.id == 10 or card.base.id == "10" then
-                    counted = counted + 1
-                end                
+    evaluate = function(parts, hand)
+        if next(SMODS.find_card("j_Fox_akuma")) then
+            local counted = 0
+            if next(parts._5) or next(parts._4) then
+                for _, card in ipairs(hand) do
+                    if card.base.id == 10 or card.base.id == "10" then
+                        counted = counted + 1
+                    end                
+                end
+            end
+
+            if counted > 3 then
+                play_sound("Fox_akumaClear", 1)
+                return {hand}
             end
         end
-
-        if counted > 3 then
-            play_sound("Fox_akumaClear", 1)
-            return {hand}
-        else
-            return {}
-        end
+        return {}
     end
 })
+
 
 -- FoxMod.PokerHandDummy {
 --     key = "Shun Goku Satsu",

@@ -19,12 +19,6 @@ return {
 					"3 or more cards divisble by {C:attention}XVI{}",
 				},
 			},
-			-- phd_fox_Shun Goku Satsu = {
-			-- 	name = "Shun Goku Satsu",
-			-- 	text = {
-			-- 		"4 or more cards of rank 10",
-			-- 	},
-			-- }
 		}
 	},
 	misc = {
@@ -44,6 +38,14 @@ return {
 			["Shun Goku Satsu"] =  {
 				"4 or more cards of rank 10",
 			}
-		}
-	},
+		},
+		dictionary = {
+			RarityCollection = "Spice up your game with special editions",
+			RarityMegaCollection = "Two is better than one",
+			FickleFoxBooster = "Try some FickleFox exclusive jokers!",
+			NegationPack = "After all, why not take one",
+			StandardRarity = "Spiffed up standard cards!",
+			hologramPACK = "Oops all shineys",
+		},
+	}
 }

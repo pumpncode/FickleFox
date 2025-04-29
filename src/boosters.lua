@@ -129,7 +129,7 @@ SMODS.Booster({
             "up to {C:attention}#2# Special Edition Jokers{}",
         },
     },
-    group_key = "Negation Pack",
+    group_key = "RarityCollection",
 })
 
 SMODS.Booster({
@@ -177,7 +177,7 @@ SMODS.Booster({
             "up to {C:attention}#2# Special Edition Jokers{}",
         },
     },
-    group_key = "Negation Pack",
+    group_key = "RarityMegaCollection",
 })
 
 
@@ -229,7 +229,7 @@ SMODS.Booster({
             "up to {C:attention}#2# Fickle Fox Jokers{}",
         },
     },
-    group_key = "Negation Pack",
+    group_key = "FickleFoxBooster",
 })
 
 SMODS.Booster({
@@ -266,7 +266,7 @@ SMODS.Booster({
             "up to {C:attention}#2# Negative Jokers{}",
         },
     },
-    group_key = "Negation Pack",
+    group_key = "NegationPack",
 })
 
 SMODS.Booster({
@@ -304,7 +304,7 @@ SMODS.Booster({
             "up to {C:attention}#2# Rare Edition Cards{}",
         },
     },
-    group_key = "Negation Pack",
+    group_key = "StandardRarity",
 })
 
 
@@ -361,5 +361,5 @@ SMODS.Booster({
             "up to {C:attention}#2# Holographic Jokers{}",
         },
     },
-    group_key = "Negation Pack",
+    group_key = "hologramPACK",
 })

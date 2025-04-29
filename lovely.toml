@@ -188,7 +188,7 @@ pattern = '''
 position = "at"
 payload = '''
 local card
-G.E_MANAGER:add_event(Event({mmm
+G.E_MANAGER:add_event(Event({
                 trigger = 'after',
                 delay = 2.04,
                 func = (function()

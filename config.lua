@@ -25,6 +25,7 @@ SMODS.Sound({key = "redxiii",	path = "redxiii_2.wav",atlas_table = "ASSET_ATLAS"
 SMODS.Sound({key = "ether",	path = "etherOverdrive.ogg",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "yoshiEat",	path = "yoshi-tongue.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "akumaClear",	path = "akuma_clear.mp3",atlas_table = "ASSET_ATLAS"})
+SMODS.Sound({key = "yourMove",	path = "yourmove.ogg",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "grass",	path = "grass.ogg",atlas_table = "ASSET_ATLAS"})
 --redxiii_2.wav
 --dbz_punch.mp3
