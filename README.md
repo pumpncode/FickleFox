@@ -1,169 +1,87 @@
-# Fox Mods
-
-Name to be determined.  A collection of fun animal themed jokers and tarot cards.
-
 ---
 layout: page
 title: Balatro Mod Project
 permalink: /jokers/
 ---
 
-Hi!  I've begun working on a balatro mod.  A full release and github project will come later!
+![](FickleFox.webp)
 
-This doc is laid out in this order:
-* Overall list of all cards names and their status
-* Approved Cards - Cards being built or fully fleshed out
-* Planning and concepts - cards still being developed in the planning phase
+# Fickle Fox
 
-# Status
+An animal themed, vanilla friendly, configurable Balatro mod!
 
-Type | Status | Card Name
---|---|---
-Joker | Golden Retriever | Debugging
-Joker | Akuma Themed Card | Approved, ready
-Joker | Fickle Fox | Approved
-Joker | Fickle Fox Follow Up | Planning
-Joker | Power Up First Card | Planning
-Joker | Fox Themed | Planning
-Joker | Kyuubi Themed | Planning
-Joker | Clone and Power Up  | Planning
-Joker | Octopus Themed | Planning
-Joker | Kraken Themed | Planning
-Tarot | Enfeeble | Planning
+What's the purpose of this mod
+====================
+The themes and goals here are cute art and fun new options for all phases of the game, *especially late game / naninf*.  
 
-Fully Fleshed out cards are at the bottom of the list.  Concepts are at the top.
-
-# Approved Cards
-
-These are being built or are a complete idea and ready to be built.
-
-## Golden Retriever
-Design: A golden retriever dog in Balatro-style with two tennis balls in its mouth.
-![alt text](../assets/images/balatro/goldenRetriever.png)
-
-Effect:
-When a gold card is played, one in three chance of a copy of it being added to your deck.
-Should say "Good boy!' when this happens
-
-~~If a gold card returns, it increases in value before being played again.~~
-
-✅ - Card Art Finalized
-
-✅ - Card Appears in Joker List
-
-✅ - Card Functions
-
-❌ - Card Completed
-
-Troubleshooting
-* Need to fix message
-* card procs too much 
-* should the new cards appear in your hand or in the deck, like the stone card?
-* Odds should be higher, if we are retriggering, the 'good boy' bonus should be lower, like the +mult from luckies
-
-## Heaven's Gate - Raging Demon Card
-
-Card Design ideas: 
-* Features the Japanese kanji for "Heaven" (天), pronounced "ten".
-* Akuma looking joker
-* Backwards facing fighter with kanji for heaven
-* Backwards facing fighter with katakana for 'joker' 
-
-Effect: When a 10 is played, grants +15 chips and a random buff.
-Special Mechanic: Has a chance to count twice, similar to the Blood mechanic.
-
-## Fickle Fox 
-
-- Fickle Fox
-- - Applies gold seal to last played hand of cards all played cards? First played hand?
-- - Could be Golden Fox Effigy
-- One is six chance to vanish
-
-Art Concepts
-
-![alt text](../assets/images/balatro/fickleFoxLevel1.webp)
+I felt that it would be fun if there were more long term options available for late / end-game, and especially if these new jokers were fun or changed the way you play the game!
 
 
-## Fickle Fox Follow Up
+What's in this mod
+====================
+This mod contains a lot of fun stuff, including 40+ fun and original Joker ideas, all of which have lovingly handcrafted art and deep interactions with each other as well as the full set of original Jokers from the base game!  
 
-- - Benevolant Fox God
-- Follow up Joker, similar to Gros Michel and Cavendish, once fleet fox vanshes
-- Gold Seal cards apply 1.5x mult
+### 40+ new jokers!
+### 5+ new boosters
+### New Editions, Vouchers, Decks and more!
 
-![alt text](../assets/images/balatro/fickleFoxLevel2.webp)
+<details>
+    <summary><b>Mod Spoilers</b></summary>
+    ![](jokerSample.webp)
 
-## Summoning Circle Tarot
+    * Golden Repeater - a golden retriever!  Has a chance to repeat gold cards and sometimes make a copy of them!
+    * Lucky Repeater - an irish setter,  Has a chance to repeat lucky cards and sometimes make a copy of them!
+    * Pear Pair - a pair of birds.  gains in strength when you play multiple cards at a time, like pairs, two pairs or more
+    * Fickle Fox - a fox with a stolen bag of money - fickley applies gold seals to your cards
+    * Benevolance - a fox deity (love this design) - applies additional boons to your Gold Sealed cards when they are held in hand
+    * A Kuma - a loveable bear with a strange connection to the number 10
+    * ?????? - goes even further beyond
+    * Hachiko - a dog on the subway - interacts with played 8's and 5's, like Walkie Talkie
+    * Sun and Moon - a Hemmingway's Cat and Ninetailed Fox - interacts with played 9's and 6's, like Hachiko
+    * Felicette - the first cat in space! Try it for yourself
+    * Sonar Bat - helps you discover information about unplayed cards in your deck
+    * Bandit Loach - a cute little loach fish - steals your money but sometimes upgrades your played hand
+    * Holowing Owl - a holographic owl - is always enhanced and interacts nicely with enhanced cards
+    * Death of Rats - every x hands, will 'kill' a played High Card.  Gains in power when allowed to trim the deck.  Resets if other than a high card is played
+    * Tacocat - a cat taco - rewards played palindromes
 
-- - Apply the 'Tag Effect' of Free Uncommon or Rare
-- - Applies 'Free Reroll' 
+</details><br>
 
-![alt text](../assets/images/balatro/Balatro_Summoning_Circle.webp)
+## To do
+<details>
+    <summary><b>Contains Joker Spoilers</b></summary>
+    * Fix Creeper, it should explode    
+    * Replace Art Work For Eldlich
+</details><br>
 
-![alt text](../assets/images/balatro/greaterCircle.png)
+## Special Thanks
 
-# Concept Phase Cards
+* Thanks to **OhPahn** for some programming tips especially around custom sounds, and for contributing an adorable doggo joker!  You can learn more about him here, [be sure to check out his music](https://linktr.ee/ohpahn) and also his own Balatro mod [OhPahndora's Box, with plenty of original tunes!](https://github.com/ohpahn/opandoras-box) 
 
-These cards are all presently just a base idea that should be fleshed out more.  
+* Special thanks to **MarioFan597** for his very helpful artistic advice and guidance, and deep knowledge of the Balatro art style and for contributing two jokers and offering advice on countless others.  You can read more from them here, and be sure to check out their very cool Cryptid Friendly mod: [MarioFan's Ascensio Mod - Github](https://github.com/MarioFan597/Ascensio)
 
-### To Go Even Further Beyond
-Design: A Joker card featuring an anime-style transformation with spiky black hair (base form) and spiky blonde hair with glowing green eyes (powered-up form) in retro pixel art.
-Effect: When played as the first hand, it increases the power level of a card by +1.
+* Special thanks to my real life best friend **Akravator** for contributing one of the Secret Jokers in this mod!
 
-Need better themeing ideas for this card
+## Extra Special Thanks
 
-### Concepts 
+And my deepest thanks to my wife, Linzra for brainstorming and creating 95% of all of the art in this mod!!! You can read more about her here
 
-These cards all need some more work in the areas of theming and affects
+Installation Instructions
+==========================
 
-Clone Card → Creates one copy of itself and increases the copy’s power level by +1.
+[Setup Lovely and Steammodded following this guide on Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=3400691352)
 
-Beautiful Fox → Interacts specifically with cards numbered 7.
+Download the newest release from <x>
 
-Ethereal Nine-Tailed Fox → Interacts specifically with cards numbered 9.
+Navigate to this path (using the Run Command box or paste into explorer)
 
-Undertow → Replaces a played single card with a number 8 card.
+* %AppData%/Balatro
+* If you're not familiar with app variables you can also navigate here
+* * C:\Users\<YourUserName>AppData\Roaming\Balatro
 
-Squidlord → Eights become lucky & wild, and hit twice.
+Create a new folder at this path if it does not exist yet:
+ Mods
 
-Enfeeble Tarot → Decreases the power of up to two cards (i.e. 2 becomes Ace, Ace becomes King)
+Unzip the release, it should look like this when done
 
-Lesser Summoning Circle Tarot → Applies tag, like 'Uncommon free joker in shop' 
-
-Greater Summoning Circle Tarot → Applies tag, like 'Rare free joker in shop' 
-
-
-### Additional todo 
-
-* Come up with overall mod name
-* setup standalone github project
-* enable issues
-* create Releases pipeline for ease of use
-
-
-* * Workshop some Ideas for long term viability, i.e. most of the power in decks comes from same-same builds like Mime and Baron
-- Mime - retrigger all cards in hand
-- Baron - steel like trigger for all kings held in hand
-- Planetary cards apply steel like mult
-- Dusk - retrigger all cards on final hand
-
-### Ideas -
-
-Orbital Bombardment 
-- Blue seal cards apply an extra affect Joker, maybe we can name after a famous original astronomer?
-- Gold seal card affect joker?  Midas?  Gold seal cards add mult = to held dollars in hand
-
-- Fickle Fox
-- - Applies gold seal to last played hand of cards?  First played hand?
-- - Could be Golden Fox Effigy
-- One is six chance to vanish
-
-- - Benevolant Fox God
-- Follow up Joker, similar to Gros Michel and Cavendish, once fleet fox vanshes
-- Gold Seal cards apply 1.5x mult
-
-### Special Thanks
-
-- Special thanks to the official Balatro / Balatro modding discord
-- Special thanks to the Extra Credit team for their fantastic documentation on Balatro and modding
-- Special thanks to the Triple Click podcast for introducing me to Balatro
-- Special thanks to Roffle for introducing me to the world of modded Balatro
+![](sampleDir.png)

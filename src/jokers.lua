@@ -9,14 +9,7 @@ else
 end
 
 
--- to do
---holowing only appear when holographic cards are held
-
---adjust regular akuma rate of mult, should only give 3.2 x when Shun Goku Satsu played
---move that mult over to shin akuma card
--- add logic so five tens is a Shun Gokusatsu rather than a flush five
-
--- add Yugi joker with swapping delay_sprites-- get creeper to work
+-- get creeper to work
 -- other stuff
 --utils
 local function get_card_value(n)
