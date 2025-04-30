@@ -11,29 +11,30 @@ SMODS.current_mod.custom_ui = function(modNodes)
         { card_limit = 5, type = 'title', highlight_limit = 0, collection = true }
     )
     G.Fox_description_area.demo_area = true
-    for i, key in ipairs({ "j_Fox_ficklefox", "j_Fox_benevolence" }) do
-        local card = Card(G.Fox_description_area.T.x + G.Fox_description_area.T.w / 2, G.Fox_description_area.T.y,
-            G.CARD_W, G.CARD_H, G.P_CARDS.empty,
-            G.P_CENTERS[key])
-        card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["joy_Back"], { x = 0, y = 0 })
-        card.children.back.states.hover = card.states.hover
-        card.children.back.states.click = card.states.click
-        card.children.back.states.drag = card.states.drag
-        card.children.back.states.collide.can = false
-        card.children.back:set_role({ major = card, role_type = 'Glued', draw_major = card })
-        G.Fox_description_area:emplace(card)
-        card:flip()
-        G.E_MANAGER:add_event(Event({
-            blocking = false,
-            trigger = "after",
-            delay = 0.4 * i,
-            func = function()
-                play_sound("card1")
-                card:flip()
-                return true
-            end,
-        }))
-    end
+    -- for i, key in ipairs({ "j_Fox_flushfox" }) do
+    --     local card = Card(G.Fox_description_area.T.x + G.Fox_description_area.T.w / 2, G.Fox_description_area.T.y,
+    --         G.CARD_W, G.CARD_H, G.P_CARDS.empty,
+    --         G.P_CENTERS[key])
+
+    --     -- card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["FoxModDecks"], { x = 0, y = 0 })
+    --     card.children.back.states.hover = card.states.hover
+    --     card.children.back.states.click = card.states.click
+    --     card.children.back.states.drag = card.states.drag
+    --     card.children.back.states.collide.can = false
+    --     card.children.back:set_role({ major = card, role_type = 'Glued', draw_major = card })
+    --     G.Fox_description_area:emplace(card)
+    --     card:flip()
+    --     G.E_MANAGER:add_event(Event({
+    --         blocking = false,
+    --         trigger = "after",
+    --         delay = 0.4 * i,
+    --         func = function()
+    --             play_sound("card1")
+    --             card:flip()
+    --             return true
+    --         end,
+    --     }))
+    -- end
 
     modNodes[#modNodes + 1] = {
         n = G.UIT.R,
