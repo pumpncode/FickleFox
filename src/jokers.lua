@@ -734,12 +734,21 @@ SMODS.Joker { --akuma
                 -- Increase chips
                 card.ability.chips = (card.ability.chips or 0) + card.ability.chipGrowthRate
 
-                return {
-                    extra = { focus = card, message = localize('k_upgrade_ex') },
-                    card = card,
-                    colour = G.C.CHIPS,
-                    sound = "Fox_metsu"
-                }
+                if FoxModConfig.playSounds then
+                    return {
+                        extra = { focus = card, message = localize('k_upgrade_ex') },
+                        card = card,
+                        colour = G.C.CHIPS,
+                        sound = "Fox_metsu"
+                    }
+                else
+                    return {
+                        extra = { focus = card, message = localize('k_upgrade_ex') },
+                        card = card,
+                        colour = G.C.CHIPS                     
+                    }
+                end
+
                 -- Show chip gain during scoring
             end
 
@@ -798,12 +807,21 @@ SMODS.Joker { --akuma
             if cardInfo == 10 or cardInfo == "10" then
                 sendInfoMessage("Card " .. cardInfo .. " is a ten, applying xMult bonus", "Akuma")
                 -- play_sound("Fox_metsu", 0.85)
-                return {
-                    x_mult = card.ability.extra,
-                    colour = G.C.BLUE,
-                    card = otherCard,
-                    sound = "Fox_metsu"
-                }
+                if FoxModConfig.playSounds then
+                    return {
+                        x_mult = card.ability.extra,
+                        colour = G.C.BLUE,
+                        card = otherCard,
+                        sound = "Fox_metsu"
+                    }
+                else
+                    return {
+                        x_mult = card.ability.extra,
+                        colour = G.C.BLUE,
+                        card = otherCard,                        
+                    }
+                end
+
             end
         end
     end
@@ -854,13 +872,23 @@ SMODS.Joker { --Shin Akuma
                 sendInfoMessage(
                     "Played Card " .. context.other_card.base.id .. " is a ten, retriggering " .. retrigger .. " times",
                     card.key)
-                -- play_sound("Fox_metsu", 0.85)m
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,
-                    card = card,
-                    sound = "Fox_metsu"
-                }
+                
+                    if FoxModConfig.playSounds then
+                        return {
+                            message = localize('k_again_ex'),
+                            repetitions = card.ability.extra,
+                            card = card,
+                            sound = "Fox_metsu"
+                        }
+                    else
+                        return {
+                            message = localize('k_again_ex'),
+                            repetitions = card.ability.extra,
+                            card = card
+                        }
+                    end
+
+                
             end
         elseif context.individual and context.cardarea == G.hand and context.other_card and not context.end_of_round then
             local hand_name = "Fox_shungokusatsu"
@@ -2969,7 +2997,6 @@ SMODS.Joker { --Yugi Moto
             }))
         end
         if context.cardarea == G.jokers and context.before and context.scoring_name == card.ability.to_do_poker_hand then
-            sendInfoMessage("YU-GI_OH")
             local cards = context.scoring_hand
             
             G.E_MANAGER:add_event(Event({
@@ -2981,7 +3008,10 @@ SMODS.Joker { --Yugi Moto
                     card:juice_up(0.3, 0.3); return true
                 end
             }))
-            play_sound('Fox_yourMove', 1);
+            if FoxModConfig.playSounds then
+                play_sound('Fox_yourMove', 1);
+            end
+            
             
             delay(0.3)
             card.ability.active = true
@@ -3256,7 +3286,9 @@ SMODS.Joker { --Kirbo
                             local rank_suffix = card.base.id == 2 and 14 or math.max(thisUnscoredCard.base.id - 1, 2)
                             rank_suffix = tostring(rank_suffix)
                             thisUnscoredCard:flip();
-                            play_sound("Fox_yoshiEat", 1.05)
+                            if FoxModConfig.playSounds then
+                                play_sound("Fox_yoshiEat", 1.05)
+                            end
                             thisUnscoredCard:set_base(G.P_CARDS[suit_prefix .. rank_suffix])
                             return true
                         end
@@ -3300,7 +3332,9 @@ SMODS.Joker { --Kirbo
                     trigger = 'after',
                     delay = 0.45,
                     func = function()
-                        play_sound("Fox_kirby_poyo", 1.05)                        
+                        if FoxModConfig.playSounds then
+                            play_sound("Fox_kirby_poyo", 1.05)
+                        end
                         context.destroy_card:juice_up(0.3, 0.3);
                         return { remove = true, card = context.destroy_card }
                     end
