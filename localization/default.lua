@@ -19,8 +19,31 @@ return {
 					"3 or more cards divisble by {C:attention}XVI{}",
 				},
 			},
+		},
+		Other = {
+			artistcredit = {
+				name = "Artist",
+				text = {
+				"{E:1}#1#{}"
+				},
+			},				
+			config_credits = {
+				name = " ",
+				text = {
+					"{C:attention}Booster Art:{} Akravator",
+					"{C:attention}Booster Art:{} OhPahn!",
+					"{C:attention}Booster Art:{} MarioFan597!",
+					" ",
+
+					"{C:dark_edition}Special Thanks{} to Linzra for all of your support and most of the Jokers and art!",
+					" ",
+					"{C:attention}Special Thanks{} to the folks in",
+					"the Balatro Discord <3"					
+				}
+			},
 		}
 	},
+	
 	misc = {
 		poker_hands = {
 			joy_eldlixir = "Eldlixir",
@@ -46,6 +69,14 @@ return {
 			NegationPack = "After all, why not take one",
 			StandardRarity = "Spiffed up standard cards!",
 			hologramPACK = "Oops all shineys",
+			k_Fox_discord = "Discord",
+			k_Fox_github = "Github",
+		},
+		artistcredit = {
+    		name = "Artist",
+    		text = {
+			"{E:1}#1#{}"
+			},
 		},
 	}
 }

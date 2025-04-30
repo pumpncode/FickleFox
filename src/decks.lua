@@ -47,6 +47,146 @@ end
 --         }))
 --     end
 -- }
+SMODS.Back{--Maximum Gold Rare
+    name = "Maximum Gold Deck",
+    key = "maximumGold",
+    atlas = "FoxModDecks",
+    pos = {x = 4, y = 0},    
+    config = {polyglass = true},
+    loc_txt = {
+        name = "Maximum Gold Deck",
+        text ={
+            "Start with a Deck",
+            "full of {C:attention,T:m_gold}Gold{} cards",
+            "and matching jokers"
+        },
+    },
+    apply = function(self)    
+    G.E_MANAGER:add_event(Event({
+        func = function()
+            if G.jokers then
+                --spawn eldlich and gold joker 
+                SMODS.add_card({key = "j_Fox_LordOfGold"}) --, edition = "e_Fox_secretRare"})
+                SMODS.add_card({key = "j_golden"}) --
+                SMODS.add_card({key = "j_ticket"}) --
+                SMODS.add_card({key = "j_Fox_goldretriever"}) --
+                
+                return true
+            end
+        end,
+    }))
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                for i = #G.playing_cards, 1, -1 do
+                    G.playing_cards[i]:set_ability(G.P_CENTERS.m_gold, nil, true)
+                end
+                return true
+            end
+        }))
+    end,
+    init = function(self)
+    SMODS.Edition:take_ownership("m_gold", {
+        get_weight = function(self)
+            return 90
+        end,
+    }, true)
+end
+}
+
+if FoxModConfig.customEditions then
+
+
+SMODS.Back{--Maximum Gold Rare
+    name = "Maximum Grass Deck",
+    key = "maximumGrass",
+    atlas = "FoxModDecks",
+    pos = {x = 3, y = 0},    
+    config = {polyglass = true},
+    loc_txt = {
+        name = "Maximum Grass Deck",
+        text ={
+            "Start with a Deck",
+            "full of {C:attention,T:m_Fox_grass}Grass{} cards",
+            "and matching jokers"
+        },
+    },
+    apply = function(self)    
+    G.E_MANAGER:add_event(Event({
+        func = function()
+            if G.jokers then                
+                SMODS.add_card({key = "j_Fox_mammorest"}) 
+                SMODS.add_card({key = "j_Fox_gumoss"})                
+                return true
+            end
+        end,
+    }))
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                for i = #G.playing_cards, 1, -1 do
+                    -- G.playing_cards[i]:set_ability(G.P_CENTERS.m_glass) 
+                    -- ("e_Fox_ghostRare", true)
+                    G.playing_cards[i]:set_ability("m_Fox_grass", true, true)
+                end
+                return true
+            end
+        }))
+    end,
+    init = function(self)
+    SMODS.Edition:take_ownership("m_Fox_grass", {
+        get_weight = function(self)
+            return 90
+        end,
+    }, true)
+end
+}
+
+SMODS.Back{--Gold Rare
+    name = "Gold Rare Deck",
+    key = "goldDeck",
+    atlas = "FoxModDecks",
+    pos = {x = 2, y = 0},    
+    config = {polyglass = true},
+    loc_txt = {
+        name = "Gold Rare Deck",
+        text ={
+            "Start with a Deck",
+            "full of {C:attention,T:e_Fox_goldRare}Gold Rare{} cards"
+        },
+    },
+    apply = function(self)    
+    G.E_MANAGER:add_event(Event({
+        func = function()
+            if G.jokers then
+                --spawn eldlich and gold joker 
+                SMODS.add_card({key = "j_Fox_LordOfGold"}) --, edition = "e_Fox_secretRare"})
+                SMODS.add_card({key = "j_golden"}) --
+                SMODS.add_card({key = "j_ticket"}) --
+                SMODS.add_card({key = "j_Fox_goldretriever"}) --
+                
+                return true
+            end
+        end,
+    }))
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                for i = #G.playing_cards, 1, -1 do
+                    -- G.playing_cards[i]:set_ability(G.P_CENTERS.m_glass)
+                    -- ("e_Fox_ghostRare", true)
+                    G.playing_cards[i]:set_edition("e_Fox_goldRare", true, true)
+                end
+                return true
+            end
+        }))
+    end,
+    init = function(self)
+    SMODS.Edition:take_ownership("e_Fox_goldRare", {
+        get_weight = function(self)
+            return 90
+        end,
+    }, true)
+end
+}
+
 
 SMODS.Back{--ghost rare
     name = "Ghost Rare Deck",
@@ -190,147 +330,6 @@ SMODS.Back{--akashic
 end
 }
 
-
-
-SMODS.Back{--Maximum Gold Rare
-    name = "Maximum Gold Deck",
-    key = "maximumGold",
-    atlas = "FoxModDecks",
-    pos = {x = 4, y = 0},    
-    config = {polyglass = true},
-    loc_txt = {
-        name = "Maximum Gold Deck",
-        text ={
-            "Start with a Deck",
-            "full of {C:attention,T:m_gold}Gold{} cards",
-            "and matching jokers"
-        },
-    },
-    apply = function(self)    
-    G.E_MANAGER:add_event(Event({
-        func = function()
-            if G.jokers then
-                --spawn eldlich and gold joker 
-                SMODS.add_card({key = "j_Fox_LordOfGold"}) --, edition = "e_Fox_secretRare"})
-                SMODS.add_card({key = "j_golden"}) --
-                SMODS.add_card({key = "j_ticket"}) --
-                SMODS.add_card({key = "j_Fox_goldretriever"}) --
-                
-                return true
-            end
-        end,
-    }))
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                for i = #G.playing_cards, 1, -1 do
-                    G.playing_cards[i]:set_ability(G.P_CENTERS.m_gold, nil, true)
-                end
-                return true
-            end
-        }))
-    end,
-    init = function(self)
-    SMODS.Edition:take_ownership("m_gold", {
-        get_weight = function(self)
-            return 90
-        end,
-    }, true)
-end
-}
-
-
-SMODS.Back{--Maximum Gold Rare
-    name = "Maximum Grass Deck",
-    key = "maximumGrass",
-    atlas = "FoxModDecks",
-    pos = {x = 3, y = 0},    
-    config = {polyglass = true},
-    loc_txt = {
-        name = "Maximum Grass Deck",
-        text ={
-            "Start with a Deck",
-            "full of {C:attention,T:m_Fox_grass}Grass{} cards",
-            "and matching jokers"
-        },
-    },
-    apply = function(self)    
-    G.E_MANAGER:add_event(Event({
-        func = function()
-            if G.jokers then                
-                SMODS.add_card({key = "j_Fox_mammorest"}) 
-                SMODS.add_card({key = "j_Fox_gumoss"})                
-                return true
-            end
-        end,
-    }))
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                for i = #G.playing_cards, 1, -1 do
-                    -- G.playing_cards[i]:set_ability(G.P_CENTERS.m_glass) 
-                    -- ("e_Fox_ghostRare", true)
-                    G.playing_cards[i]:set_ability("m_Fox_grass", true, true)
-                end
-                return true
-            end
-        }))
-    end,
-    init = function(self)
-    SMODS.Edition:take_ownership("m_Fox_grass", {
-        get_weight = function(self)
-            return 90
-        end,
-    }, true)
-end
-}
-
-SMODS.Back{--Gold Rare
-    name = "Gold Rare Deck",
-    key = "goldDeck",
-    atlas = "FoxModDecks",
-    pos = {x = 2, y = 0},    
-    config = {polyglass = true},
-    loc_txt = {
-        name = "Gold Rare Deck",
-        text ={
-            "Start with a Deck",
-            "full of {C:attention,T:e_Fox_goldRare}Gold Rare{} cards"
-        },
-    },
-    apply = function(self)    
-    G.E_MANAGER:add_event(Event({
-        func = function()
-            if G.jokers then
-                --spawn eldlich and gold joker 
-                SMODS.add_card({key = "j_Fox_LordOfGold"}) --, edition = "e_Fox_secretRare"})
-                SMODS.add_card({key = "j_golden"}) --
-                SMODS.add_card({key = "j_ticket"}) --
-                SMODS.add_card({key = "j_Fox_goldretriever"}) --
-                
-                return true
-            end
-        end,
-    }))
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                for i = #G.playing_cards, 1, -1 do
-                    -- G.playing_cards[i]:set_ability(G.P_CENTERS.m_glass)
-                    -- ("e_Fox_ghostRare", true)
-                    G.playing_cards[i]:set_edition("e_Fox_goldRare", true, true)
-                end
-                return true
-            end
-        }))
-    end,
-    init = function(self)
-    SMODS.Edition:take_ownership("e_Fox_goldRare", {
-        get_weight = function(self)
-            return 90
-        end,
-    }, true)
-end
-}
-
-
 SMODS.Back{
     name = "Akashic Deck",
     key = "akashic",
@@ -428,32 +427,4 @@ SMODS.Back{--ghost rare
 end
 }
 
-
--- apply = function(self)
---     G.GAME.modifiers.cry_negative_rate = self.config.cry_negative_rate
---     G.E_MANAGER:add_event(Event({
---         func = function()
---             if G.jokers then
---                 local card = create_card("Joker", G.jokers, nil, "cry_exotic", nil, nil, nil, "cry_wormhole")
---                 card:add_to_deck()
---                 card:start_materialize()
---                 G.jokers:emplace(card)
---                 return true
---             end
---         end,
---     }))
--- end,
--- init = function(self)
---     SMODS.Edition:take_ownership("negative", {
---         get_weight = function(self)
---             return self.weight * (G.GAME.modifiers.cry_negative_rate or 1)
---         end,
---     }, true)
---ghost rare
---secretRare
---etheroverdrive
-
-
-    -- shader = 'etherOverdrive',
-    -- config = {
-    --     x_mult =
+end

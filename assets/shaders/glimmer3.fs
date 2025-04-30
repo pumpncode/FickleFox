@@ -165,32 +165,7 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     
     hsl.y = mix(hsl.y, min(0.8, hsl.y + 0.7), smoothstep(0.05, 0.2, hsl.y));
     
-    //hsl.y = min(0.8, hsl.y + 0.7);    
-    // float shineFactor = 0.4 + 0.3 * sin((texture_coords.x + time * 0.05) * 190.0 + sin(time * 6.0) * 180.0) 
-    //                         - sin(texture_coords.x * 190.0 + texture_coords.y * 30.0 + time * 1080.3);
-
-    // Soft shimmer across the surface
-    // float waveX = sin((uv.x * 8.0 + time * 0.8));
-    // float waveY = cos((uv.y * 6.0 + time * 1.2));
-    // float shimmer = 0.5 + 0.5 * waveX * waveY;
-    
-    // float pulse = sin((uv.x + uv.y) * 15.0 + time * 2.0) * 0.1;
-
-    // // Final blended shine factor
-    // float shineFactor = shimmer + pulse;
-    //     hsl.z = mix(0.4, 1.0, pow(abs(sin(time + uv.x * 10.0)), 3.5)); // More exaggerated movement    
-    //     float specular = pow(abs(sin(time * 1.5 + uv.y * 5.0)), 18.0) * 0.8;     
-    //     hsl.z = clamp(hsl.z + specular + shineFactor * 0.3, 0.3, 1.0);
-        
-    //     float originalLuma = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
-    // hsl.z = min(hsl.z, originalLuma + 0.15);  // Clamp brightness to retain detail
- 
-    // tex.rgb = RGB(hsl).rgb;
-    // if (high < 0.1) {
-    //     tex.rgb = vec3(0.0); // Force pure black for very dark pixels
-    // }
-
-    // ==Shimmer Base from negative shine
+    // from negative shine
 number fac = 0.8 + 0.9 * sin(11. * uv.x + 4.32 * uv.y + glimmer.r * 12. + cos(glimmer.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
 number fac2 = 0.5 + 0.5 * sin(8. * uv.x + 2.32 * uv.y + glimmer.r * 5. - cos(glimmer.r * 2.3 + uv.x * 8.2));
 number fac3 = 0.5 + 0.5 * sin(10. * uv.x + 5.32 * uv.y + glimmer.r * 6.111 + sin(glimmer.r * 5.3 + uv.y * 3.2));
@@ -199,14 +174,14 @@ number fac5 = sin(0.9 * 16. * uv.x + 5.32 * uv.y + glimmer.r * 12. + cos(glimmer
 
 number maxfac = 0.7 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fac3 * fac4), 0.);
 
-// === Apply to gold color range ===
+//Apply to gold rgb colors
 vec3 baseGold = vec3(0.9, 0.7, 0.2); // Base gold
 vec3 warmHighlight = vec3(1.0, 0.85, 0.5); // Highlighted gold
 
-// Interference-based shimmer mixing between base and highlight gold
+// belnd
 vec3 finalColor = mix(baseGold, warmHighlight, clamp(maxfac, 0.0, 1.0));
 
-// Add shine modulation to channel intensities
+
 finalColor.r = finalColor.r - delta + delta * maxfac * (0.7 + fac5 * 0.27) - 0.1;
 finalColor.g = finalColor.g - delta + delta * maxfac * (0.7 - fac5 * 0.27) - 0.1;
 finalColor.b = finalColor.b - delta + delta * maxfac * 0.7 - 0.1;
@@ -227,10 +202,10 @@ tex.rgb = finalColor;
 //     vec4 tex = Texel(texture, texture_coords);
 // 	vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
 
-//     // **Mask white areas (ignore them)**
-//     float whiteness = tex.r * tex.g * tex.b;  // Approximate "whiteness"
+//     // exit earlier for white
+//     float whiteness = tex.r * tex.g * tex.b;  
 //     if (whiteness > 0.85) {  
-//         return tex * colour;  // Keep white pixels unchanged
+//         return tex * colour;  
 //     }
 
 
@@ -273,53 +248,6 @@ tex.rgb = finalColor;
 //     return dissolve_mask(tex * colour, texture_coords, uv);
 // }
 
-
-
-// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
-// {
-//     vec4 tex = Texel(texture, texture_coords);
-// 	vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
-//     vec4 hsl = HSL(0.5 * tex + 0.5 * vec4(0.0, 0.0, 1.0, tex.a));
-
-//     // Detect white areas and exclude them
-//     float whiteness = tex.r * tex.g * tex.b;  // Approximation for "white"
-//     if (whiteness > 0.85) {  // Threshold to determine what is "white"
-//         return tex * colour;  // Pass through unchanged
-//     }
-
-//     float t = glimmer.y * 7.221 + time;
-//     vec2 floored_uv = (floor((uv * texture_details.ba))) / texture_details.ba;
-//     vec2 uv_scaled_centered = (floored_uv - 0.5) * 250.;
-
-//     vec2 field_part1 = uv_scaled_centered + 50. * vec2(sin(-t / 143.6340), cos(-t / 99.4324));
-//     vec2 field_part2 = uv_scaled_centered + 50. * vec2(cos(t / 53.1532), cos(t / 61.4532));
-//     vec2 field_part3 = uv_scaled_centered + 50. * vec2(sin(-t / 87.53218), sin(-t / 49.0000));
-
-//     float field = (1. + (
-//         cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
-//         cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92))) / 2.;
-
-//     float res = (.5 + .5 * cos((glimmer.x) * 2.612 + (field + -0.5) * 3.14));
-
-//     number low = min(tex.r, min(tex.g, tex.b));
-//     number high = max(tex.r, max(tex.g, tex.b));
-//     number delta = 0.2 + 0.3 * (high - low) + 0.1 * high;
-
-//     number gridsize = 0.79;
-//     number fac = 0.5 * max(max(max(0., 7. * abs(cos(uv.x * gridsize * 20.)) - 6.), max(0., 7. * cos(uv.y * gridsize * 45. + uv.x * gridsize * 20.) - 6.)), max(0., 7. * cos(uv.y * gridsize * 45. - uv.x * gridsize * 20.) - 6.));
-
-//     // **Shift Hue to Gold Range (0.1 - 0.17 instead of full 0-1 spectrum)**
-//     hsl.x = mix(0.1, 0.17, res + fac);  // Constrain hue to golden tones
-//     hsl.y = hsl.y * 1.3;  // Boost saturation
-//     hsl.z = hsl.z * 0.6 + 0.4;  // Adjust brightness
-
-//     tex = (1. - delta) * tex + delta * RGB(hsl) * vec4(0.9, 0.8, 1.2, tex.a);
-
-//     if (tex[3] < 0.7)
-//         tex[3] = tex[3] / 3.;
-
-//     return dissolve_mask(tex * colour, texture_coords, uv);
-// }
 
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;
 extern MY_HIGHP_OR_MEDIUMP float hovering;

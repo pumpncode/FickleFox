@@ -1,5 +1,14 @@
 sendInfoMessage("Processing jokers", "essay.lua")
 
+sendInfoMessage("State of config", "essay.lua")
+
+if FoxModConfig.playSounds then
+    sendInfoMessage("FoxMod.config.playSounds enabled")    
+else
+    sendInfoMessage("FoxMod.config.playSounds disabled")    
+end
+
+
 -- to do
 --holowing only appear when holographic cards are held
 
@@ -187,30 +196,6 @@ function applyBoonWithOdds(odds, cards)
     end
 end
 
-SMODS.current_mod.config_tab = function() --Config tab
-    return {
-        n = G.UIT.ROOT,
-        config = {
-            align = "cm",
-            padding = 0.05,
-            colour = G.C.CLEAR,
-        },
-        nodes = {
-            create_toggle({
-                label = "Page 1 Jokers (restart required)",
-                ref_table = FoxModconfig,
-                ref_value = "wave1",
-            }),
-            create_toggle({
-                label = "Page 2 Jokers (restart required)",
-                ref_table = FoxModconfig,
-                ref_value = "wave2",
-            })
-        },
-    }
-end
-
-
 SMODS.Joker { --Good Doggie
     name = "Golden Repeater",
     key = "goldretriever",
@@ -227,6 +212,7 @@ SMODS.Joker { --Good Doggie
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "Linzra" }}
         info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
         return { vars = { G.GAME.probabilities.normal, card.ability.odds, 3 } } -- Fix for missing values
     end,
@@ -311,13 +297,14 @@ SMODS.Joker {
     },
     loc_txt = {
         ['name'] = 'Lucky Retriever',
-        ['text'] = {
+        ['text'] = {            
             [1] = '{C:attention}Retrigger{} all {C:attention}Lucky Cards{}',
             [2] = 'Has a {C:green}#1# in #2#{} chance',
             [3] = 'to add a copy of played {C:attention}Lucky Cards{}',
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "OhPahn!" }}
         info_queue[#info_queue + 1] = G.P_CENTERS.m_lucky
         return { vars = { G.GAME.probabilities.normal, card.ability.odds, 3 } }
     end,
@@ -396,6 +383,7 @@ SMODS.Joker { --Pair Pear
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "Linzra" }}
         return { vars = { card.ability.chips } }
     end,
     pos = {
@@ -478,6 +466,7 @@ SMODS.Joker { --fickleFox
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "Linzra" }}
         info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
         return { vars = { G.GAME.probabilities.normal, card.ability.oddsToBless, card.ability.oddsToFlee, card.ability.remaining } }
     end,
@@ -837,6 +826,7 @@ SMODS.Joker { --Shin Akuma
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "Akravator" }}
         local hand_name = "Fox_shungokusatsu"
         local retrigger = G.GAME.hands[hand_name].level or 1
         return { vars = { retrigger } } -- Fix for missing values
@@ -1002,6 +992,7 @@ SMODS.Joker { -- Felicette
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "MarioFan597" }}
         info_queue[#info_queue + 1] = { key = 'blue_seal', set = 'Other' }
         return { vars = { card.ability.extra } }
     end,
@@ -1064,6 +1055,7 @@ SMODS.Joker { -- Sonar Bat
         }
     },
     loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = {key = "artistcredit", set = "Other", vars = { "MarioFan597" }}
         local card0 = "#@" ..
             (G.deck and G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.id or 11) ..
             (G.deck and G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.suit:sub(1, 1) or 'D')
@@ -1686,7 +1678,7 @@ SMODS.Joker { --Hanging Cat
 }
 
 
-SMODS.Joker { --flush tailed fox - boosts played flushes
+SMODS.Joker { --flushTailed fox - boosts played flushes
     name = "Flush Tailed Fox",
     key = "flushFox",
     config = {

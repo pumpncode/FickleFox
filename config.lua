@@ -10,7 +10,36 @@
 local mod = SMODS.current_mod
 sendInfoMessage("Loading config.lua", "FoxMods-config.lua")
 FoxMod = {}
-FoxMod.config = SMODS.current_mod.config
+FoxModConfig = SMODS.current_mod.config
+
+
+SMODS.current_mod.config_tab = function() 
+    return {
+        n = G.UIT.ROOT,
+        config = {
+            align = "cm",
+            padding = 0.05,
+            colour = G.C.CLEAR,
+        },
+        nodes = {
+            create_toggle({
+                label = "Custom Boosters",
+                ref_table = FoxModConfig,
+                ref_value = "customBoosters",
+            }),
+            create_toggle({
+                label = "Custom Editions",
+                ref_table = FoxModConfig,
+                ref_value = "customEditions",
+            }),
+            create_toggle({
+                label = "Play Sounds",
+                ref_table = FoxModConfig,
+                ref_value = "playSounds",
+            })
+        },
+    }
+end
 
 
 SMODS.Atlas {key = "modicon", path = "modlogo.png", px = 34,  py = 34,}
@@ -48,14 +77,6 @@ SMODS.Shader({ key = 'akashic', path = 'akashic.fs' })
 SMODS.Shader({ key = 'ghostRare', path = 'ghostRare.fs' })
 SMODS.Shader({ key = 'secretRare', path = 'secretRare_4.fs' })
 
-local lovely_toml_info = NFS.getInfo(SMODS.current_mod.path .. "lovely.toml")
-local lovely_dir_items = NFS.getInfo(SMODS.current_mod.path .. "lovely") and NFS.getDirectoryItems(SMODS.current_mod.path .. "lovely")
-local should_have_lovely = lovely_toml_info or (lovely_dir_items and #lovely_dir_items > 0)
-if should_have_lovely then
-    -- if we have detected a `lovely.toml` file or a non-empty `lovely` directory (assumption that it contains lovely patches)
-    assert(SMODS.current_mod.lovely, "Failed to detect NeatoJokers lovely patches.\nMake sure your neato-jokers-mod folder is not nested (there should be a bunch of files in the neato-jokers-mod folder and not just another folder).\n\n\n")
-end
-
 sendInfoMessage("Loading all subfiles", "FoxMods-config.lua")
 
 --loads individual lua files 
@@ -68,3 +89,8 @@ end
 sendInfoMessage("finished loading all subfiles", "FoxMods-config.lua")
 sendInfoMessage("finished processing", "FoxMods-config.lua")
 
+return {
+	customBoosters = true,
+	customEditions = true,
+	playSounds = true,	
+}

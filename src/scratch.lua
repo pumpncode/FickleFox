@@ -53,3 +53,17 @@
     -- flipAllCards(cards)
     
     -- delay(0.5)
+
+    -- G.hand.highlighted
+
+    -- G.jokers.highlighted[1].config.loc_vars
+
+--@Winter, credit example
+--     `info_queue[#info_queue+1] = {key = "csau_artistcredit", set = "Other", vars = { G.csau_team.gote }}
+-- The localization string is this, under descriptions.Other
+-- csau_artistcredit = {
+--     name = "Artist",
+--     text = {
+--         "{E:1}#1#{}"
+--     },
+-- },
