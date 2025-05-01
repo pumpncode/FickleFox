@@ -33,6 +33,16 @@ SMODS.current_mod.config_tab = function()
                 ref_value = "customEditions",
             }),
             create_toggle({
+                label = "Allow Negative Boosters",
+                ref_table = FoxModConfig,
+                ref_value = "negativeBooster",
+            }),
+            create_toggle({
+                label = "Allow Mod Specific Boosters",
+                ref_table = FoxModConfig,
+                ref_value = "modSpecificJokerBoosters",
+            }),
+            create_toggle({
                 label = "Play Sounds",
                 ref_table = FoxModConfig,
                 ref_value = "playSounds",
@@ -41,10 +51,9 @@ SMODS.current_mod.config_tab = function()
     }
 end
 
-
 SMODS.Atlas {key = "modicon", path = "modlogo.png", px = 34,  py = 34,}
 
-SMODS.Sound({key = "metsu",path = "metsu.ogg",atlas_table = "ASSET_ATLAS"})
+SMODS.Sound({key = "metsu",path = "metsu.ogg"})
 SMODS.Sound({key = "ghostRare",	path = "woosh.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "secretRare",	path = "secretRare.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "kirby_poyo",	path = "kirby-poyo-time-d.mp3",atlas_table = "ASSET_ATLAS"})
@@ -92,5 +101,7 @@ sendInfoMessage("finished processing", "FoxMods-config.lua")
 return {
 	customBoosters = true,
 	customEditions = true,
-	playSounds = true,	
+	playSounds = true,
+    negativeBooster = true,
+    modSpecificJokerBoosters = true
 }

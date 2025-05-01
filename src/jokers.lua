@@ -8,6 +8,7 @@ else
     sendInfoMessage("FoxMod.config.playSounds disabled")    
 end
 
+SMODS.Sound({key = "ghostRare2",	path = "woosh.mp3",atlas_table = "ASSET_ATLAS"})
 
 -- get creeper to work
 -- other stuff
@@ -2255,6 +2256,11 @@ SMODS.Joker { --Gumoss
         ['text'] = {
             "Gains {C:red}+#1#{} Mult when {c:attention}Grass Cards{} trigger",
             "{s:0.9,C:inactive}Currently {c:red}+#2#{} Mult{}"            
+        },
+        ['unlock'] = {
+            [1] = 'Play a card hand',
+            [2] = 'that contains only',
+            [3] = '{C:attention,E:1}Grass{} cards'
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2269,8 +2275,21 @@ SMODS.Joker { --Gumoss
     rarity = 3,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].config.center == G.P_CENTERS.m_Fox_grass then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 1 then
+                unlock_card(self)
+            end
+        end
+    end,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_Fox_grass',
 
