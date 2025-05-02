@@ -190,7 +190,7 @@ if FoxModConfig.customBoosters then
             weight = 0.96,
             create_card = function(self, card)
                 --function create_playing_card(card_init, area, skip_materialize, silent, colours)
-    
+
                 local getCard = create_playing_card(nil, G.pack_cards, true, true, nil)
                 sendInfoMessage("creating cards for this pack")
                 local jokerInfo = inspect(getCard)
@@ -271,7 +271,6 @@ if FoxModConfig.customBoosters then
     end
 
     if FoxModConfig.negativeBooster then
-
         SMODS.Booster({
             object_type = "Booster",
             key = "negation",
@@ -309,9 +308,6 @@ if FoxModConfig.customBoosters then
             group_key = "NegationPack",
         })
     end
-    
-
-
 
     SMODS.Booster({
         object_type = "Booster",

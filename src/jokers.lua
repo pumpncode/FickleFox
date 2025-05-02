@@ -386,7 +386,7 @@ SMODS.Joker { --Pair Pear
     },
     cost = 5,
     rarity = 1,
-    blueprint_compat = false,
+    blueprint_compat = true,
     eternal_compat = true,
     unlocked = true,
     discovered = true,
@@ -1304,7 +1304,7 @@ SMODS.Joker { --rat of death
     },
     cost = 10,
     rarity = 2,
-    blueprint_compat = false,
+    blueprint_compat = true,
     eternal_compat = true,
     unlocked = true,
     discovered = true,
@@ -2111,8 +2111,9 @@ SMODS.Joker { --Mochicat
     loc_txt = {
         ['name'] = 'Mochicat',
         ['text'] = {
-            "Grants a mysterious boon",
-            "{C:attention}???{} ????",
+            "A Chocolate Mochi Cat",
+            "Retrigger each played",
+            "{C:attention}7{}, {C:attention}8{}, {C:attention}4{}, or {C:attention}2{}"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2132,45 +2133,34 @@ SMODS.Joker { --Mochicat
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_Fox_grass',
 
-    calculate = function(self, card, context) --context.other_card.ability and context.other_card.ability.name == 'Gold Card'
-        -- if context.repetition and not context.repetition_only and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" then
-        -- -- playing card retriggers using .repetition
-        -- return {
-        --     message = localize("k_again_ex"),
-        --     repetitions = card.ability.extra,
-        --     card = card,
-        --     was_blueprinted = context.blueprint,
-        -- }
-        if context.cardarea == G.play and context.repetition and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" and not context.after then
-            return {
-                message = localize('k_again_ex'),
-                repetitions = card.ability.extra,
-                card = card
-            }
-            --context.individual and context.cardarea == G.hand and not context.after
-        elseif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' and not context.after then
-            sendInfoMessage("1849, new method for held grass", self.key)
+    calculate = function(self, card, context) 
+        if context.individual and context.cardarea == G.play then
+        local otherCard = context.other_card
+        local cardInfo = getValueNilSafe(otherCard.base.value)
 
-            return {
-                message = localize('k_again_ex'),
-                repetitions = card.ability.extra,
-                card = heldCard
-            }
-        elseif context.joker_main and context.repetition and not context.after then
-            sendInfoMessage(" checking for held grass", self.key)
-            for _, heldCard in ipairs(G.hand.cards) do
-                local cardAbility = heldCard.ability.name or "nil"
-                if cardAbility == "Grass Card" then
-                    sendInfoMessage(heldCard.base.id .. " has ability of " .. cardAbility)
+        if cardInfo == 2 or cardInfo == "2" or cardInfo == 4 or cardInfo == "4" or
+            cardInfo == 8 or cardInfo == "8" or cardInfo == 7 or cardInfo == "7" then
+                return {
+                    message = localize('k_again_ex'),
+                    repetitions = card.ability.extra,
+                    card = card
+                }
+        end
+    end
+        if context.cardarea == G.play and context.repetition and context.other_card then
+            local otherCard = context.other_card
+            local cardInfo = getValueNilSafe(otherCard.base.value)
+
+            if cardInfo == 2 or cardInfo == "2" or cardInfo == 4 or cardInfo == "4" or
+                cardInfo == 8 or cardInfo == "8" or cardInfo == 7 or cardInfo == "7" then
                     return {
                         message = localize('k_again_ex'),
                         repetitions = card.ability.extra,
-                        card = heldCard
+                        card = card
                     }
-                end
             end
-        end
-    end
+    end   
+end
 }
 
 SMODS.Joker { --Teafant
@@ -3054,9 +3044,9 @@ SMODS.Joker { --Lord of Gold
     loc_txt = {
         ['name'] = 'Lord of Gold',
         ['text'] = {
-            [1] = '{C:attention}Golden Cards{} in hand now have a {C:green}#1# in #2#{} chance',
-            [2] = 'To apply a {X:mult,C:white}x1.5{} Mult bonus',
-            [3] = 'Accrues plus mult per gold card in deck, currently {X:mult,C:white}+#3#{} Mult bonus',
+            '{C:attention}Golden Cards{} in hand now have a {C:green}#1# in #2#{} chance',
+            'To apply a {X:mult,C:white}x1.5{} Mult bonus',
+             'Accrues plus mult per gold card in deck, currently {X:mult,C:white}+#3#{} Mult bonus',
             '{s:0.9,C:inactive}Eldlich is the Lord of all that is Golden{}',
 
         }

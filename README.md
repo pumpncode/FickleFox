@@ -10,6 +10,13 @@ permalink: /jokers/
 
 An animal themed, vanilla friendly, configurable Balatro mod!
 
+[
+![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/channels/1116389027176787968/1343279563563597854)
+
+*Report issues or suggest ideas in the Discord!  Or file an issue on the repo!*
+
+
+
 What's the purpose of this mod
 ====================
 The themes and goals here are cute art and fun new options for all phases of the game, *especially late game / naninf*.  
@@ -51,7 +58,10 @@ This mod contains a lot of fun stuff, including 40+ fun and original Joker ideas
 <details>
     <summary><b>Contains Joker Spoilers</b></summary>
     * Fix Creeper, it should explode    
-    * Replace Art Work For Eldlich
+    * Add progression - unlock system!    
+    * Caffeine is a great option for a retrigger joker, it's chemical compound is C8H10N4O2 so it would retrigger 
+        10, 8, 4 and 2's
+
 </details><br>
 
 ## Special Thanks

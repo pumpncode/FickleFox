@@ -1,5 +1,21 @@
 sendInfoMessage("Processing consumables", "consumables.lua")
 
+function flipAllCards(cards)
+    local i = 0
+    for _, playedCard in ipairs(cards) do
+        i = i + 1
+        local percent = 1.15 - (i - 0.999) / (#G.hand.cards - 0.998) * 0.3
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.15,
+            func = function()
+                playedCard:flip(); play_sound('card1', percent);
+                playedCard:juice_up(0.3, 0.3); return true
+            end
+        }))
+    end
+end
+
 local function poll_ability(s)
     local randNo = math.random(10)
     if randNo > 1 and randNo < 5 then
@@ -487,17 +503,12 @@ use = function(self, card, area, copier)
             return true
         end
     }))
-    for i = 1, #G.hand.cards do
-        local percent = 1.15 - (i - 0.999) / (#G.hand.cards - 0.998) * 0.3
-        G.E_MANAGER:add_event(Event({
-            trigger = 'after',
-            delay = 0.15,
-            func = function()
-                G.hand.cards[i]:flip(); play_sound('card1', percent); G.hand.cards[i]:juice_up(0.3, 0.3); return true
-            end
-        }))
-    end
+    
+    local cards = G.hand.cards
+    flipAllCards(flipAllCards)
+    
     sendInfoMessage("Flipped all cards, need to implement adding a special boon")
+    
     local boonApplied = false
     local cardsUpgradedCount = 0
     local allholoLucky = false
