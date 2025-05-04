@@ -89,7 +89,7 @@ if FoxModConfig.customBoosters then
             config = { extra = 4, choose = 1 },
             cost = 10,
             order = 3,
-            weight = 0.96,
+            weight = 0.20,
             create_card = function(self, card)
                 -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
                 local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
@@ -139,7 +139,7 @@ if FoxModConfig.customBoosters then
             config = { extra = 7, choose = 2 },
             cost = 10,
             order = 3,
-            weight = 0.96,
+            weight = 0.10,
             create_card = function(self, card)
                 local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
                 -- sendInfoMessage("creating cards for this pack", self.key)
@@ -187,7 +187,7 @@ if FoxModConfig.customBoosters then
             config = { extra = 4, choose = 1 },
             cost = 10,
             order = 3,
-            weight = 0.96,
+            weight = 0.25,
             create_card = function(self, card)
                 --function create_playing_card(card_init, area, skip_materialize, silent, colours)
 
@@ -227,7 +227,7 @@ if FoxModConfig.customBoosters then
             config = { extra = 4, choose = 1 },
             cost = 10,
             order = 3,
-            weight = 0.96,
+            weight = 0.15,
             create_card = function(self, card)
                 -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
                 local randomFoxJoker = getRandomFoxJoker()
@@ -280,7 +280,7 @@ if FoxModConfig.customBoosters then
             config = { extra = 5, choose = 1 },
             cost = 15,
             order = 3,
-            weight = 0.96,
+            weight = 0.05,
             create_card = function(self, card)
                 -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
                 local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")
@@ -318,7 +318,7 @@ if FoxModConfig.customBoosters then
         config = { extra = 5, choose = 1 },
         cost = 10,
         order = 2,
-        weight = 0.97,
+        weight = 0.25,
         set_ability = function(self, card, initial, delay_sprites)
             -- sendInfoMessage("triggering post injection logic for this pack", self.key)
 

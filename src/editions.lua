@@ -174,7 +174,7 @@ if FoxModConfig.customEditions then
             odds = 3
         },
         in_shop = true,
-        weight = 40,
+        weight = 10,
         extra_cost = 4,
         apply_to_float = true, --false,
         loc_vars = function(self)
@@ -527,105 +527,6 @@ if FoxModConfig.customEditions then
                 }
             end
         end
-    })
-
-    -- SMODS.Enhancement({ --akashic rare
-    --     key = "grass",
-    --     loc_txt = {
-    --         name = "Grass card",
-    --         label = "Grass",
-    --         text = {
-    --             "Grows when played",
-    --             "Applies {X:mult,C:white}x0.5{} mult to begin",
-    --             "Increases by {c:attention}0.1{} when scored",
-    --             '{s:0.9,C:inactive}Currently {X:mult,C:white} x#1#{}{}',
-    --         }
-    --     },
-    --     discovered = true,
-    --     unlocked = true,
-
-    --     config = {
-    --         chipGrowthRateSelf = .1,
-    --         initialxmult = 0.4,
-    --     },
-    --     in_shop = true,
-    --     weight = 80,
-    --     extra_cost = 4,
-    --     on_apply = function(self, card, context)
-    --         sendInfoMessage("triggering on pickup logic for this card", self.key)
-    --         self.ability.x_mult = 0.5
-    --         -- self:set_edition('e_holo', false)
-    --         -- card.cost = 10
-    --     end,
-    --     apply_to_float = true,
-    --     loc_vars = function(self, info_queue, card)
-    --         -- local thunk= inspectDepth(context)
-    --         -- sendInfoMessage(thunk)
-    --         if nil ~= card and nil ~= card.ability then
-    --             return {
-    --                 vars = {
-    --                     card.ability.x_mult }
-    --             }
-    --         else
-    --             sendInfoMessage("card or card.ability was nil :(", self.key)
-    --         end
-
-    --         -- if nil ~= context and nil ~= context.ability then
-    --         --     return {
-    --         --         vars = {
-    --         --             context.ability.x_mult }
-    --         --     }
-    --         -- end
-    --     end,
-    --     sound = {
-    --         sound = "Fox_secretRare",
-    --         per = 1,
-    --         vol = 0.3,
-    --     },
-    --     calculate = function(self, card, context)
-    --         if context.main_scoring and context.cardarea == G.play then
-    --             if card.ability.set ~= 'Joker' then
-    --                 play_sound("Fox_secretRare", 0.95)
-    --                 local t = card.base.id or card.label
-
-    --                 sendInfoMessage("we are counting this as a played card", "AkashicOn_" .. t) -- .. card.base.id)
-
-    --                 local prexXmult = card.ability.x_mult
-
-    --                 card.ability.x_mult = card.ability.x_mult + self.config.chipGrowthRateSelf
-    --                 sendInfoMessage("Base Card Mult was x" .. prexXmult .. " and is now x" .. card.ability.x_mult,
-    --                     "AkashicOn_" .. t)                                                                                            -- .. card.base.id)
-    --             end
-    --         elseif context.post_joker or (context.main_scoring and context.cardarea == G.play) then
-    --             local t = card.base.id or card.label
-    --             local prexXmult = card.ability.x_mult
-    --             if card.ability.set == 'Joker' and context.post_joker then
-    --                 play_sound("Fox_secretRare", 0.95)
-    --                 card.ability.x_mult = card.ability.x_mult + self.config.chipGrowthRateSelf
-    --                 sendInfoMessage("Joker - Mult was x" .. prexXmult .. " and is now x" .. card.ability.x_mult,
-    --                     "AkashicOn_" .. t)                                                                                          -- .. card.base.id)
-    --             end
-    --             -- if card.ability.set == 'Joker' then
-    --             --     return {
-    --             --         colour = G.C.RED,
-    --             --         x_mult = card.ability.x_mult
-    --             --     }
-    --             -- end
-    --             -- return {
-    --             --     colour = G.C.RED,
-    --             --     x_mult = card.ability.x_mult
-    --             -- }
-
-
-
-    --             -- elseif context.cardarea == G.jokers and context.individual and context.scoring_hand then
-    --             --     sendInfoMessage("this should be joker only", "secretRareOn_".. card.label)-- .. card.base.id)
-    --             --     sendInfoMessage("perma bonus was: " .. card.ability.perma_bonus, "secretRare")-- .. card.base.id)
-    --             --     card.ability.perma_bonus = card.ability.perma_bonus + #context.scoring_hand * self.config.chipGrowthRateOther
-
-    --             --     sendInfoMessage("perma bonus now: " .. card.ability.perma_bonus, "secretRare")-- .. card.base.id)
-    --         end --disabled other card played mechanic, too strong
-    --     end
-    -- })
+    })   
     end
 sendInfoMessage("Completed Processing editions", "editions.lua")

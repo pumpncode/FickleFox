@@ -156,7 +156,7 @@ end
             name = "The Sword",
             text = {
                 "Applies the legendary edition {C:dark_edition}Gold Rare{} to",
-                "up to {C:attention}2{} cards"
+                "to {C:attention}two cards{}"
             }
         },
         loc_vars = function(self, info_queue, card)
@@ -505,7 +505,7 @@ use = function(self, card, area, copier)
     }))
     
     local cards = G.hand.cards
-    flipAllCards(flipAllCards)
+    flipAllCards(cards)
     
     sendInfoMessage("Flipped all cards, need to implement adding a special boon")
     
@@ -627,11 +627,15 @@ SMODS.Consumable({ --Coating Polymerization
         config = {
             odds = 2,
             allHoloOdds = 10,
-            extra = 1
+            --extra = 1,
+            extra={odds=1}
+
         },
         loc_vars = function(self, info_queue, card)
             local safeodds = 5
-            return { vars = { G.GAME.probabilities.normal, 5 } }
+            return { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
+
+            -- return { vars = { G.GAME.probabilities.normal, 5 } }
         end,
         atlas = 'FoxModMisc',
         cost = 15,

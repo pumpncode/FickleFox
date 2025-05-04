@@ -137,7 +137,7 @@ SMODS.PokerHand({ --Shun Goku Satsu
             end
 
             if counted > 3 then
-                play_sound("Fox_akumaClear", 1)
+                -- play_sound("Fox_akumaClear", 1)
                 return {hand}
             end
         end
