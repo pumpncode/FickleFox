@@ -2199,6 +2199,10 @@ SMODS.Joker { --Teafant
         ['text'] = {
             "Retriggers scored or held grass cards",
             "{C:attention}#1#{} additional times",
+        },
+        ["unlock"] = {
+            "Play a hand containing one or more",
+            "{C:dark_edition}Grass Cards{}"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2208,13 +2212,26 @@ SMODS.Joker { --Teafant
     pos = {
         x = 6,
         y = 3
-    },
+    },    
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].config.center == G.P_CENTERS.m_Fox_grass then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 1 then
+                unlock_card(self)
+            end
+        end
+    end,
     cost = 7,
     rarity = 3,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_Fox_grass',
 
@@ -2392,11 +2409,22 @@ SMODS.Joker { --Mammorest
         ['text'] = {
             "Gains {X:mult,C:white}#1#{} xMult when grass cards trigger",
             "{C:attention}Currently {X:mult,C:white}#2#{}",
+        },
+        ["unlock"] = {
+            "Play a hand while having both",
+            "{C:dark_edition}Grass Cards{} Jokers"
         }
     },
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = G.P_CENTERS.m_Fox_grass --e_Fox_ghostRare
         return { vars = { card.ability.x_mult_rate, card.ability.x_mult } }
+    end,
+    check_for_unlock = function(self, args)
+        if next(SMODS.find_card("j_Fox_teafant")) and 
+            next(SMODS.find_card("j_Fox_gumoss")) then
+                unlock_card(self)
+            end
+        
     end,
     pos = {
         x = 1,
@@ -2406,8 +2434,8 @@ SMODS.Joker { --Mammorest
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_Fox_grass',
 

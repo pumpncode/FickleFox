@@ -5,6 +5,8 @@ FoxMod.GetHighlightedInfo = function() for k, v in pairs(G.hand.highlighted) do
     end
  end
 
+ local enableTest = false
+ if enableTest then
 SMODS.Joker { --Pair Pear
     name = "Mult Joker",
     key = "testJoker",
@@ -44,4 +46,7 @@ SMODS.Joker { --Pair Pear
                 card = card
             }
         end
-    end}
+    end
+}
+
+end

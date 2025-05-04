@@ -1,4 +1,10 @@
+-- git tag -a 0.3 -m "BETA now with more bug fixing!" master
+-- git push --tags
 
+-- format_ui_value(
+-- #G.GAME.hands["Fox_shungokusatsu"].level
+
+-- tonumber(format_ui_value(G.GAME.hands["Fox_shungokusatsu"].level))
 -- function flipAllCards(cards)
 --     for _, playedCard in ipairs(cards) do
 --         local percent = 1.15 - (i - 0.999) / (#G.hand.cards - 0.998) * 0.3

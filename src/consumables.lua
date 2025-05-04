@@ -142,6 +142,8 @@ end
         end,
     })
 
+    if FoxModConfig.customEditions then
+
     SMODS.Consumable({ --The Sword
         set = "Tarot",
         key = "ficklefox_sword",
@@ -385,6 +387,7 @@ end
     end,
 })
 
+
 SMODS.Consumable({ -- the sprout
     set = "Tarot",
     key = "ficklefox_sprout",
@@ -457,6 +460,7 @@ SMODS.Consumable({ -- the sprout
         delay(0.5)
     end,
 })
+end --if customEdition check
 
 SMODS.Consumable({ --Meteor Shower
 set = "Spectral",
@@ -775,94 +779,6 @@ SMODS.Consumable({ --Coating Polymerization
         end
     })
 
-    -- SMODS.Consumable {
-    --     set = 'Planet',
-    --     key = 'cursed_eldland',
-    --     atlas = 'joy_p_eldland',
-    --     discovered = true,
-    --     config = { hand_type = 'joy_eldlixir', softlock = true },
-    --     pos = { x = 0, y = 0 },
-    --     loc_txt = {
-    --         name = "Four fingered Voucher",
-    --         text = {
-    --             "{S:0.8}({S:0.8,V:1}lvl.#1#{S:0.8}){} Level up",
-    --             "{C:attention}#2#",
-    --             "{C:mult}+#3#{} Mult and",
-    --             "{C:chips}+#4#{} chips",
-    --         },
-    --     },
-    --     set_card_type_badge = function(self, card, badges)
-    --         badges[1] = create_badge(localize('k_planet'), get_type_colour(self or card.config, card), nil, 1.2)
-    --     end,
-    --     generate_ui = 0,
-    --     process_loc_text = function(self)
-    --         local target_text = G.localization.descriptions[self.set]['c_mercury'].text
-    --         SMODS.Consumable.process_loc_text(self)
-    --         G.localization.descriptions[self.set][self.key] = {}
-    --         G.localization.descriptions[self.set][self.key].text = target_text
-    --     end
-    -- }
-
-    -- SMODS.Consumable({--meteor
-    --     object_type = "Consumable",
-    --     set = "Planet",
-    --     name = "Meteor",
-    --     key = "Meteor",
-    --     pos = { x = 1, y = 1 },
-    --     config = { hand_type = { "Fox_cosmocanyon" } },
-    --     loc_txt = {
-    --         name = "Cosmo Canyon",
-    --         text = {
-    --             "Level {C:attention}#1#{}",
-    --             "Levels up the {C:attention}Cosmo Canyon{} hand",
-    --             "{C:mult}+2{} Mult and",
-    --             "{C:chips}+15{} chips",
-    --         },
-    --     },
-    --     cost = 4,
-    --     atlas = "FoxModMisc",
-    --     order = 3,
-    --     can_use = function(self, card)
-    --         return true
-    --     end,
-    --     loc_vars = function(self, info_queue, center)            
-    --         return {
-    --             vars = {                    
-    --                 G.GAME.hands["Fox_cosmocanyon"].level
-    --             },
-    --         }
-    --     end,
-    --     use = function(self, card, area, copier)
-    --         local hand_name = card.ability.hand_type[1]
-    
-    --         if G.GAME.hands[hand_name] then
-    --             local hand_data = G.GAME.hands[hand_name]
-    
-    --             update_hand_text({ sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3 },
-    --                 {
-    --                     handname = localize(hand_name, 'poker_hands'),
-    --                     chips = hand_data.chips,
-    --                     mult = hand_data.mult,
-    --                     level = hand_data.level
-    --                 }
-    --             )
-    
-    --             level_up_hand(card, hand_name)
-    
-    --             update_hand_text({ sound = 'button', volume = 0.7, pitch = 1.1, delay = 0 },
-    --                 { mult = 0, chips = 0, handname = '', level = '' }
-    --             )
-    --         else
-    --             print(card.ability.hand_type .. " NOT found in G.GAME.hands!")
-    --         end
-    --     end,
-    --        -- Only in shop if the cosmo canyon  hand is visible
-    --     in_pool = function(self)
-    --         local hand_name = self.config.hand_type[1]
-    --         return G.GAME.hands[hand_name] and G.GAME.hands[hand_name].visible
-    --     end
-    -- })
-    
     SMODS.Consumable {
         object_type = "Consumable",
         set = "Planet",
