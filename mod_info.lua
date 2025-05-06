@@ -149,14 +149,19 @@ SMODS.current_mod.config_tab = function()
         },
         nodes = {
             create_toggle({
-                label = "Custom Boosters",
+                label = "Allow Custom Boosters?",
                 ref_table = FoxModConfig,
                 ref_value = "customBoosters",
             }),
             create_toggle({
-                label = "Custom Editions",
+                label = "Allow Custom Editions?",
                 ref_table = FoxModConfig,
                 ref_value = "customEditions",
+            }),
+            create_toggle({
+                label = "Allow Custom Hands?",
+                ref_table = FoxModConfig,
+                ref_value = "customHands",
             }),
             create_toggle({
                 label = "Allow Negative Boosters",
@@ -172,6 +177,11 @@ SMODS.current_mod.config_tab = function()
                 label = "Play Sounds",
                 ref_table = FoxModConfig,
                 ref_value = "playSounds",
+            }),
+            create_toggle({
+                label = "More Mystery?",
+                ref_table = FoxModConfig,
+                ref_value = "moreMystery",
             })
         },
     }

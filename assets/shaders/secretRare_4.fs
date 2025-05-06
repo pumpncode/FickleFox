@@ -4,7 +4,7 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
-//watch shader Mods/FoxMods/assets/shaders/secretRare_4.fs
+//watch shader Mods/FickleFox/assets/shaders/secretRare_4.fs
 extern MY_HIGHP_OR_MEDIUMP vec2 secretRare;
 
 extern MY_HIGHP_OR_MEDIUMP number dissolve;

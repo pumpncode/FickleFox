@@ -1840,145 +1840,146 @@ SMODS.Joker { --flushTailed fox - boosts played flushes
     end
 }
 
+if FoxModConfig.customHands then
+    SMODS.Joker { --redxiii
+        name = "Red XIII",
+        key = "redxiii",
+        config = {
+            extra = 2,
+            ready = false,
+        },
+        loc_txt = {
+            ['name'] = 'Red XIII',
+            ['text'] = {
+                "Unlocks the {C:attention}Cosmo Canyon{} hand",
+                "Retriggers scored cards for played {C:attention}Cosmo Canyons{}",
+                "{C:attention}#1#{} additional times",
+            }
+        },
+        loc_vars = function(self, info_queue, card)
+            return { vars = { card.ability.extra } }
+        end,
+        pos = {
+            x = 2,
+            y = 0
+        },
+        cost = 5,
+        rarity = 2,
+        blueprint_compat = false,
+        eternal_compat = true,
+        unlocked = true,
+        discovered = true,
+        atlas = 'FoxModJokers',
+        calculate = function(self, card, context)
+            if context.after then
+                card.ability.ready = false
+            elseif context.cardarea == G.play then
+                if card.ability.ready then
+                    sendInfoMessage("hand is scoring and we are ready", "redXiii")
 
-SMODS.Joker { --redxiii
-    name = "Red XIII",
-    key = "redxiii",
-    config = {
-        extra = 2,
-        ready = false,
-    },
-    loc_txt = {
-        ['name'] = 'Red XIII',
-        ['text'] = {
-            "Unlocks the {C:attention}Cosmo Canyon{} hand",
-            "Retriggers scored cards for played {C:attention}Cosmo Canyons{}",
-            "{C:attention}#1#{} additional times",
-        }
-    },
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra } }
-    end,
-    pos = {
-        x = 2,
-        y = 0
-    },
-    cost = 5,
-    rarity = 2,
-    blueprint_compat = false,
-    eternal_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'FoxModJokers',
-    calculate = function(self, card, context)
-        if context.after then
-            card.ability.ready = false
-        elseif context.cardarea == G.play then
-            if card.ability.ready then
-                sendInfoMessage("hand is scoring and we are ready", "redXiii")
+                    return {
+                        message = "Awooo",
+                        repetitions = card.ability.extra,
+                        card = card
+                    }
+                else
+                    sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", "redXiii")
+                end
+            end
+            if nil ~= context.poker_hands and next(context.poker_hands["Fox_cosmocanyon"]) then
+                if false == card.ability.ready then
+                    sendInfoMessage("Joker is now READY!", "redXiii")
+                    card.ability.ready = true;
+                end
 
-                return {
-                    message = "Awooo",
-                    repetitions = card.ability.extra,
-                    card = card
-                }
-            else
-                sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", "redXiii")
+                local eval = function(card) return (card.ability.ready == true) end
+                juice_card_until(card, eval, true)
             end
         end
-        if nil ~= context.poker_hands and next(context.poker_hands["Fox_cosmocanyon"]) then
-            if false == card.ability.ready then
-                sendInfoMessage("Joker is now READY!", "redXiii")
-                card.ability.ready = true;
+    }
+
+
+    SMODS.Joker { --Torgal  - boosts played flushes
+        name = "Torgal",
+        key = "torgal",
+        config = {
+            extra = 2,
+            ready = false
+        },
+        loc_txt = {
+            ['name'] = 'Torgal',
+            ['text'] = {
+                "Unlocks the {C:attention}Full Moon{} hand",
+                "Retriggers scored cards for played {C:attention}Full Moons{}",
+                "{C:attention}#1#{} additional times",
+            }
+        },
+        loc_vars = function(self, info_queue, card)
+            return { vars = { card.ability.extra } }
+        end,
+        pos = {
+            x = 0,
+            y = 2
+        },
+        cost = 5,
+        rarity = 2,
+        blueprint_compat = false,
+        eternal_compat = true,
+        unlocked = true,
+        discovered = true,
+        atlas = 'FoxModJokers',
+
+        calculate = function(self, card, context)
+            if context.after then
+                card.ability.ready = false
+            elseif context.cardarea == G.play then
+                if card.ability.ready then
+                    sendInfoMessage("hand is scoring and we are ready", self.key)
+
+                    return {
+                        message = "Awooo",
+                        repetitions = card.ability.extra,
+                        card = card
+                    }
+                else
+                    sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", self.key)
+                end
             end
+            if nil ~= context.poker_hands and next(context.poker_hands["Fox_fullmoon"]) then
+                if false == card.ability.ready then
+                    sendInfoMessage("Joker is now READY!", self.ket)
+                    card.ability.ready = true;
+                end
 
-            local eval = function(card) return (card.ability.ready == true) end
-            juice_card_until(card, eval, true)
-        end
-    end
-}
-
-
-SMODS.Joker { --Torgal  - boosts played flushes
-    name = "Torgal",
-    key = "torgal",
-    config = {
-        extra = 2,
-        ready = false
-    },
-    loc_txt = {
-        ['name'] = 'Torgal',
-        ['text'] = {
-            "Unlocks the {C:attention}Full Moon{} hand",
-            "Retriggers scored cards for played {C:attention}Full Moons{}",
-            "{C:attention}#1#{} additional times",
-        }
-    },
-    loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra } }
-    end,
-    pos = {
-        x = 0,
-        y = 2
-    },
-    cost = 5,
-    rarity = 2,
-    blueprint_compat = false,
-    eternal_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'FoxModJokers',
-
-    calculate = function(self, card, context)
-        if context.after then
-            card.ability.ready = false
-        elseif context.cardarea == G.play then
-            if card.ability.ready then
-                sendInfoMessage("hand is scoring and we are ready", self.key)
-
-                return {
-                    message = "Awooo",
-                    repetitions = card.ability.extra,
-                    card = card
-                }
-            else
-                sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", self.key)
+                local eval = function(card) return (card.ability.ready == true) end
+                juice_card_until(card, eval, true)
+                -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
+                -- elseif nil ~= context.poker_hands then
+                --     if next(context.poker_hands["Fox_cosmocanyon"]) then else card.ability.ready = false end
+                --context.individual
+                --seif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' and not context.after then
+                --if context.repetition and context.cardarea == G.play
             end
-        end
-        if nil ~= context.poker_hands and next(context.poker_hands["Fox_fullmoon"]) then
-            if false == card.ability.ready then
-                sendInfoMessage("Joker is now READY!", self.ket)
-                card.ability.ready = true;
-            end
-
-            local eval = function(card) return (card.ability.ready == true) end
-            juice_card_until(card, eval, true)
-            -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
-            -- elseif nil ~= context.poker_hands then
-            --     if next(context.poker_hands["Fox_cosmocanyon"]) then else card.ability.ready = false end
-            --context.individual
-            --seif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' and not context.after then
-            --if context.repetition and context.cardarea == G.play
-        end
-    end,
-    -- calculate = function(self, card, context)
-    --     if context.after then card.ability.ready = false end
-    --     if nil ~= context.poker_hands and next(context.poker_hands["Fox_fullmoon"]) then
-    --         card.ability.ready = true;
-    --         local eval = function(card) return (card.ability.ready == true) end
-    --         juice_card_until(card, eval, true)
-    --     -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
-    --     elseif nil ~= context.poker_hands then
-    --         if next(context.poker_hands["Fox_fullmoon"]) then else card.ability.ready = false end
-    --     if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_fullmoon"]) then
-    --         return {
-    --             message = "Awooo",
-    --             repetitions = card.ability.extra,
-    --         }
-    --         end
-    --     end
-    -- end
-}
+        end,
+        -- calculate = function(self, card, context)
+        --     if context.after then card.ability.ready = false end
+        --     if nil ~= context.poker_hands and next(context.poker_hands["Fox_fullmoon"]) then
+        --         card.ability.ready = true;
+        --         local eval = function(card) return (card.ability.ready == true) end
+        --         juice_card_until(card, eval, true)
+        --     -- elseif nil ~= context.poker_hands and !next(context.poker_hands["Fox_cosmocanyon"]) then
+        --     elseif nil ~= context.poker_hands then
+        --         if next(context.poker_hands["Fox_fullmoon"]) then else card.ability.ready = false end
+        --     if context.poker_hands ~= nil and context.cardarea == G.play and next(context.poker_hands["Fox_fullmoon"]) then
+        --         return {
+        --             message = "Awooo",
+        --             repetitions = card.ability.extra,
+        --         }
+        --         end
+        --     end
+        -- end
+    }
+end
 
 SMODS.Joker { --chocobo
     name = "Chocobo Straightaway",
@@ -1992,10 +1993,22 @@ SMODS.Joker { --chocobo
         ['text'] = {
             "Gains {C:mult}#1#{} mult when a scored hand contains a {C:attention}Straight{}",
             "{C:inactive}(Currently{} {C:mult}+#2#{} {C:inactive}Mult){}"
+        },
+        ["unlock"] = {
+            "Level the Straight Hand",
+            "To level Five or more"
         }
     },
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extraGrowthRate, card.ability.extra } }
+    end,
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local straightLevel = tonumber(format_ui_value(G.GAME.hands["Straight"].level))
+                if straightLevel > 4  then
+                    unlock_card(self)
+                end
+            end
     end,
     pos = {
         x = 8,
@@ -2005,8 +2018,8 @@ SMODS.Joker { --chocobo
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
 
     calculate = function(self, card, context)
@@ -2043,7 +2056,12 @@ SMODS.Joker { --moogle
             "to recieve a {c:attention}random enhancement{} or {c:dark_edition}edition{} when scored",
             "if {C:attention}poker hand{} is a {C:attention}#3#{}",
             "{C:inactive}(Currently applying {C:mult}+#2#{} {C:inactive}Mult){}"
+        },
+        ["unlock"] = {
+            "Obtain 10 or more",
+            "Enhanced Cards"
         }
+
     },
     loc_vars = function(self, info_queue, card)
         -- local safeHand = card.ability.to_do_poker_hand or "SomeHand"
@@ -2051,16 +2069,27 @@ SMODS.Joker { --moogle
         card.ability.to_do_poker_hand = G.GAME.current_round.to_do_poker_hand
         return { vars = { G.GAME.probabilities.normal, card.ability.odds, localize(card.ability.to_do_poker_hand, 'poker_hands') } }
     end,
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local enhancedTally = 0
+            for k, v in pairs(G.playing_cards) do
+                if v.config.center ~= G.P_CENTERS.c_base then enhancedTally =enhancedTally+1 end
+            end
+            if enhancedTally >= 10 then
+                unlock_card(self)
+            end
+        end
+end,
     pos = {
         x = 4,
         y = 3
     },
-    cost = 5,
+    cost = 6,
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     set_ability = function(self, card, initial, delay_sprites)
         print("checking for previous todo list joker, we will respect its hand")
@@ -2221,8 +2250,7 @@ SMODS.Joker { --Mochicat
                 cardInfo == 8 or cardInfo == "8" or cardInfo == 7 or cardInfo == "7" then
                 return {
                     message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,
-                    card = card
+                    repetitions = card.ability.extra,                    
                 }
             end
         end
@@ -2234,8 +2262,7 @@ SMODS.Joker { --Mochicat
                 cardInfo == 8 or cardInfo == "8" or cardInfo == 7 or cardInfo == "7" then
                 return {
                     message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,
-                    card = card
+                    repetitions = card.ability.extra,                    
                 }
             end
         end
@@ -2544,9 +2571,20 @@ SMODS.Joker { --Mammorest
     end
 }
 
+local caffinatedText = {
+    "A Caffinated Boba Cat",
+    "Retrigger each played",
+    "{C:attention}10{}, {C:attention}8{}, {C:attention}4{}, or {C:attention}2{}"
+}
 
+if FoxModConfig.moreMystery then
+    caffinatedText = {
+        "Grants a mysterious boon",
+        "{C:attention}???{} ????",
+    }
+end
 
-SMODS.Joker { --Mochicat
+SMODS.Joker { --Boba 
     name = "Caffinated",
     key = "caffinated",
     config = {
@@ -2554,10 +2592,8 @@ SMODS.Joker { --Mochicat
     },
     loc_txt = {
         ['name'] = 'Caffinated',
-        ['text'] = {
-            "Grants a mysterious boon",
-            "{C:attention}???{} ????",
-        }
+        
+        ['text'] = caffinatedText
     },
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = G.P_CENTERS.m_Fox_grass
@@ -3121,7 +3157,6 @@ SMODS.Joker { --Yugi Moto
                 play_sound('Fox_yourMove', 1);
             end
 
-
             delay(0.3)
             card.ability.active = true
 
@@ -3334,7 +3369,7 @@ SMODS.Joker { --Kirbo
         y = 1
     },
     cost = 2,
-    rarity = 2,
+    rarity = 4,
     blueprint_compat = false,
     eternal_compat = true,
     unlocked = true,

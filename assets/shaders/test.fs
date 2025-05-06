@@ -3,7 +3,7 @@
 #else
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
-//watch shader Mods/yourmodName/assets/shaders/test.fs
+//watch shader Mods/FickleFox/assets/shaders/test.fs
 extern MY_HIGHP_OR_MEDIUMP vec2 test;
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
 extern MY_HIGHP_OR_MEDIUMP number time;
@@ -52,34 +52,65 @@ vec4 dissolve_mask(vec4 tex, vec2 texture_coords, vec2 uv)
     return vec4(shadow ? vec3(0.,0.,0.) : tex.xyz, res > adjusted_dissolve ? (shadow ? tex.a*0.3: tex.a) : .0);
 }
 
-/// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
-vec4 effect(vec4 fragColor, Image texture, vec2 texture_coords,vec2 screen_coords )
+// /// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
+// vec4 effect(vec4 fragColor, Image texture, vec2 texture_coords,vec2 screen_coords )
+// {
+//         vec2 uv = texture_coords * image_details.xy / image_details.y;
+    
+//                     //renamed to time, since that is what it's called in this shader format
+//     float stripes = time * uv.y;
+//     float rounded = floor(stripes);
+    
+//     if (mod(rounded, 2.0) == 0.0)
+//     {
+//          fragColor = vec4(1.0, 1.0, 0.0, 1.0);   
+//     }
+//     else
+//     {
+//          fragColor = vec4(0.0, 0.0, 0.0, 1.0);   
+//     }
+
+//     // Do not remove!  some weird shader optimization happens here and we must reference our own shader's public (extern) name
+//     // if you don't the shader will crash, it has to to with memory optimization
+//     // optionally, you could come up with a cool way to use these values which are shared among all instances in a given frame
+//     fragColor.rgb += test.x * 0.0;
+
+//     return dissolve_mask(fragColor, texture_coords, texture_coords);
+
+    
+// }
+
+vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
-        vec2 uv = texture_coords * image_details.xy / image_details.y;
-    
-                    //renamed to time, since that is what it's called in this shader format
-    float stripes = time * uv.y;
-    float rounded = floor(stripes);
-    
-    if (mod(rounded, 2.0) == 0.0)
-    {
-         fragColor = vec4(1.0, 1.0, 0.0, 1.0);   
-    }
-    else
-    {
-         fragColor = vec4(0.0, 0.0, 0.0, 1.0);   
-    }
+    vec4 tex = Texel(texture, texture_coords);
+    vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
 
-    // Do not remove!  some weird shader optimization happens here and we must reference our own shader's public (extern) name
-    // if you don't the shader will crash, it has to to with memory optimization
-    // optionally, you could come up with a cool way to use these values which are shared among all instances in a given frame
-    fragColor.rgb += test.x * 0.0;
+    // === Time-adjusted UVs for parallax glitter layers ===
+    vec2 uv1 = uv;
+    vec2 uv2 = uv;
 
-    return dissolve_mask(fragColor, texture_coords, texture_coords);
+    uv1.y += time * 0.1;
+    uv1.x -= sin(time * 0.1) * 0.5;
 
-    
+    uv2.y += time * 0.07;
+    uv2.x += sin(time * 0.1) * 0.11;
+
+    // === Fake texture noise using sine waves ===
+    float noise1 = sin((uv1.x * 12.0 + uv1.y * 40.0) + time * 0.5);
+    float noise2 = cos((uv2.x * 30.0 + uv2.y * 25.0) - time * 0.6);
+    float glitter = noise1 * noise2;
+
+    // === Sparkle intensity ===
+    glitter = pow(max(0.0, glitter), 15.0); // Gives those bright star-like speckles
+
+    // === Tint and mix with original texture ===
+    vec3 glitterColor = vec3(1.8, 1.9, 2.0); // white-hot glitter (feel free to tint)
+    vec3 mixed = mix(tex.rgb, glitterColor, glitter * 0.5 * test.x); // blend into texture
+
+    tex.rgb = mixed;
+
+    return dissolve_mask(tex * colour, texture_coords, uv);
 }
-
 
 //have to keep this boiler plate below to my knowledge
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;

@@ -3,5 +3,6 @@ return {
 	customEditions = true,
 	playSounds = true,
     negativeBooster = true,
-    modSpecificJokerBoosters = true
+    modSpecificJokerBoosters = true,
+    moreMystery = true
 }

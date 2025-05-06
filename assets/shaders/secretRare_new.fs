@@ -4,7 +4,7 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
-//watch shader Mods/FoxMods/assets/shaders/secretRare_new.fs
+//watch shader Mods/FickleFox/assets/shaders/secretRare_new.fs
 // inspired by https://www.shadertoy.com/view/Dty3Dc
 extern MY_HIGHP_OR_MEDIUMP vec2 secretRare;
 
