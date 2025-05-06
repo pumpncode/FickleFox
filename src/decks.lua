@@ -96,10 +96,11 @@ end
 if FoxModConfig.customEditions then
 
 
-SMODS.Back{--Maximum Gold Rare
+SMODS.Back{--Maximum Grass Rare
     name = "Maximum Grass Deck",
     key = "maximumGrass",
     atlas = "FoxModDecks",
+    unlocked = false,
     pos = {x = 3, y = 0},    
     config = {polyglass = true},
     loc_txt = {
@@ -109,7 +110,20 @@ SMODS.Back{--Maximum Gold Rare
             "full of {C:attention,T:m_Fox_grass}Grass{} cards",
             "and matching jokers"
         },
+        unlock = {
+            "Win a round with",
+        "all Grass Jokers in a single run"
+        }
     },
+    check_for_unlock = function(self, args)
+        if args.type == 'round_win' then
+            if G.P_CENTERS["j_Fox_gumoss"].discovered 
+                and G.P_CENTERS["j_Fox_mammorest"].discovered 
+                    and G.P_CENTERS["j_Fox_teafant"].discovered then 
+                        unlock_card(self)
+                    end
+                end                                
+    end,
     apply = function(self)    
     G.E_MANAGER:add_event(Event({
         func = function()

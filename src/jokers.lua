@@ -1197,6 +1197,10 @@ SMODS.Joker { --Holowing Owl
             [1] = '{C:attention}Retrigger{} all {C:attention}Holographic Cards{}, played or in hand',
             [2] = 'has a {C:green}#1# in #2#{} chance',
             [3] = 'to add copy of played {C:attention}Holographic Cards{}',
+        },
+        ["unlock"] = {
+            "Play a hand with",
+            "Three or more Holographic cards"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -1211,8 +1215,21 @@ SMODS.Joker { --Holowing Owl
     rarity = 2,
     blueprint_compat = true,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].config.center == G.P_CENTERS.e_holo then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 3 then
+                unlock_card(self)
+            end
+        end
+    end,
     set_ability = function(self, card, initial, delay_sprites)
         card:set_edition('e_holo', false)
         card.cost = 10
@@ -1573,8 +1590,19 @@ SMODS.Joker { --Polecat
             [2] = 'Grants {C:red}+5{} Mult if played card suit is of matching Polarity',
             -- [3] = "{C:inactive}(Currently rewarding {X:mult,C:white}#1#{} and {X:mult,C:white}#2#{})", --"--{V:1}#1#{} and {V:2}#2#{} " --{X:mult,C:white}#1#{} and {X:mult,C:white}#2#{})",
             [3] = "{C:inactive}(Currently rewarding {V:1}#1#{} and {V:2}#2#{}"
+        },
+        ['unlock'] = {
+            "Must Obtain",
+            "The Ancient Joker",
+            "To Unlock the",
+            "Cute One"
         }
     },
+    check_for_unlock = function(self, args)
+        if next(SMODS.find_card("j_ancient")) then
+                unlock_card(self)
+            end
+    end,
     loc_vars = function(self, info_queue, card)
         card.ability.polarity = getPolarity()
         card.ability.polarityStr = card.ability.polarity[1] .. " and " .. card.ability.polarity[2]
@@ -1599,8 +1627,8 @@ SMODS.Joker { --Polecat
     rarity = 2,
     blueprint_compat = true,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
 
     calculate = function(self, card, context)
@@ -1634,6 +1662,10 @@ SMODS.Joker { --Thwomp
         ['text'] = {
             "Gains {C:chips}+#1#{} chips when Stone cards trigger",
             "{C:attention}Currently {C:chips}+ #2#{} chips",
+        },
+        ["unlock"] = {
+            "Play a hand with",
+            "Three or more Stone Cards"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -1648,10 +1680,23 @@ SMODS.Joker { --Thwomp
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_stone',
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].config.center == G.P_CENTERS.m_stone then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 3 then
+                unlock_card(self)
+            end
+        end
+    end,
 
     calculate = function(self, card, context) --context.other_card.ability and context.other_card.ability.name == 'Gold Card'
         if context.individual and context.cardarea == G.play and context.other_card.ability and context.other_card.ability.name == 'Stone Card' then
@@ -1685,6 +1730,10 @@ SMODS.Joker { --Hanging Cat
             "Retrigger {C:attention}last{} played",
             "card used in scoring",
             "{C:attention}#1#{} additional times",
+        },
+        ["unlock"] = {
+            "Play a hand while",
+            "Holding the Hanging Chad"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -1698,9 +1747,14 @@ SMODS.Joker { --Hanging Cat
     rarity = 1,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
+    check_for_unlock = function(self, args)
+        if next(SMODS.find_card("j_hanging_chad")) then
+                unlock_card(self)
+            end
+    end,
 
     calculate = function(self, card, context)
         if context.repetition and context.cardarea == G.play then
