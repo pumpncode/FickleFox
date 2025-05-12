@@ -8,11 +8,6 @@ else
     sendInfoMessage("FoxMod.config.playSounds disabled")
 end
 
-SMODS.Sound({ key = "ghostRare2", path = "woosh.mp3", atlas_table = "ASSET_ATLAS" })
-
--- get creeper to work
--- other stuff
---utils
 local function get_card_value(n)
     local face_cards = {
         [11] = "Jack",
@@ -110,10 +105,13 @@ local function poll_with_custom_editions()
     end
 end
 
-function applyAbilityWithStyle(ability, card)
+function applyAbilityWithStyle(ability, card, trigger)
     --flip card
+    if nil == trigger then
+        trigger = 'after'
+    end
     G.E_MANAGER:add_event(Event({
-        trigger = 'after',
+        trigger = trigger,
         delay = 0.35,
         func = function()
             card:flip(); play_sound('card1', percent);
@@ -123,7 +121,8 @@ function applyAbilityWithStyle(ability, card)
 
     --apply
     if ability == "fail" then
-
+    elseif ability == "GoldSeal" then
+        card:set_seal("Gold", true)
     else
         card:set_ability(ability)
     end
@@ -132,7 +131,7 @@ function applyAbilityWithStyle(ability, card)
     --juice
 
     G.E_MANAGER:add_event(Event({
-        trigger = 'after',
+        trigger = trigger,
         delay = 0.35,
         func = function()
             card:flip(); play_sound('card1', percent);
@@ -194,7 +193,7 @@ SMODS.Joker { --Good Doggie
     name = "Golden Repeater",
     key = "goldretriever",
     config = {
-        odds = 8,
+        odds = 15,
         extra = 1
     },
     loc_txt = {
@@ -230,7 +229,7 @@ SMODS.Joker { --Good Doggie
             --card is golden, roll to see if we copy it
             if pseudorandom('goldretriever') < G.GAME.probabilities.normal / card.ability.odds then
                 --we are copying it
-                sendInfoMessage("LuckY! Copying this card", "goldenRepeater")
+                --sendInfoMessage("LuckY! Copying this card", "goldenRepeater")
                 --old logic, restored
                 G.playing_card = (G.playing_card and G.playing_card + 1) or 1
                 local _card = copy_card(context.other_card, nil, nil, G.playing_card)
@@ -244,6 +243,8 @@ SMODS.Joker { --Good Doggie
                 _card.states.visible = nil
 
                 G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.2,                    
                     func = function()
                         _card:start_materialize()
                         return true
@@ -251,31 +252,32 @@ SMODS.Joker { --Good Doggie
                 }))
             end --end check to copy
             --if we don't meet the odds, it's still a gold card so retrigger once
-            sendInfoMessage("Not so lucky, only reproccing this gold card", "goldenRepeater")
+            -- sendInfoMessage("Not so lucky, only reproccing this gold card", "goldenRepeater")
             return {
                 message = localize('k_again_ex'),
-                repetitions = 1,
-                card = card
+                repetitions = 1
             }
+
         elseif context.cardarea == G.play and context.other_card and context.other_card.ability and context.other_card.ability.name == 'Gold Card' and context.repetition or
             context.cardarea == G.play and context.other_card and context.other_card.edition and context.other_card.edition.key == "e_Fox_goldRare" and context.repetition then
             --card is golden, roll to see if we copy it
             --if we don't meet the odds, it's still a gold card so retrigger once
             sendInfoMessage("Repeating!  This is the alst call for this gold card", "goldenRepeater")
+
             return {
                 message = localize('k_again_ex'),
-                repetitions = 1,
-                card = card
+                repetitions = 1
             }
             --reviewing card held in hand, if they're gold we retrigger them still
         elseif context.repetition and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Gold Card' or
             context.repetition and context.cardarea == G.hand and context.other_card and context.other_card.edition and context.other_card.edition.key == "e_Fox_goldRare" then
             sendInfoMessage("Reproccing this gold card held in hand!", "goldenRepeater")
+
             if (next(context.card_effects[1]) or #context.card_effects > 1) then
+
                 return {
                     message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,
-                    card = card
+                    repetitions = card.ability.extra
                 }
             end
         end
@@ -286,7 +288,7 @@ SMODS.Joker {
     name = "Lucky Retriever",
     key = "luckyretriever",
     config = {
-        odds = 8,
+        odds = 15,
         extra = 1
     },
     loc_txt = {
@@ -324,8 +326,9 @@ SMODS.Joker {
 
     calculate = function(self, card, context)
         --region :scoring the card when played
-        if context.cardarea == G.play and context.other_card and context.other_card.ability and context.other_card.ability.name == 'Lucky Card' then
-            --card is golden, roll to see if we copy it
+        if context.cardarea == G.play and context.other_card and context.other_card.ability 
+            and context.other_card.ability.name == 'Lucky Card' then
+            
             if pseudorandom('luckyretriever') < G.GAME.probabilities.normal / card.ability.odds then
                 --we are copying it
                 G.playing_card = (G.playing_card and G.playing_card + 1) or 1
@@ -341,16 +344,15 @@ SMODS.Joker {
             --if we don't meet the odds, it's still a gold card so retrigger once
             return {
                 message = localize('k_again_ex'),
-                repetitions = 1,
-                card = card
+                repetitions = 1
             }
+
             --reviewing card held in hand, if they're gold we retrigger them still
         elseif context.repetition and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Lucky Card' then
             if (next(context.card_effects[1]) or #context.card_effects > 1) then
                 return {
                     message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,
-                    card = card
+                    repetitions = card.ability.extra
                 }
             end
         end
@@ -428,7 +430,8 @@ SMODS.Joker { --Pair Pear
             end
 
             local chipChange = card.ability.chips - previousChip
-            sendInfoMessage("Chips are now " .. card.ability.chips .. " chip change = " .. chipChange, self.key)
+            
+            --sendInfoMessage("Chips are now " .. card.ability.chips .. " chip change = " .. chipChange, self.key)
 
             if chipChange ~= 0 then
                 return {
@@ -448,7 +451,7 @@ SMODS.Joker { --fickleFox
         oddsToBless = 3,
         oddsToFlee = 12,
         extra = 1,
-        remaining = 6
+        remaining = 7
     },
     loc_txt = {
         ['name'] = 'Fickle Fox',
@@ -461,7 +464,7 @@ SMODS.Joker { --fickleFox
     },
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = { key = "artistcredit", set = "Other", vars = { "Linzra" } }
-        info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
+        info_queue[#info_queue + 1] = { key = 'gold_seal', set = 'Other' }
         return { vars = { G.GAME.probabilities.normal, card.ability.oddsToBless, card.ability.oddsToFlee, card.ability.remaining } }
     end,
     pos = {
@@ -491,7 +494,7 @@ SMODS.Joker { --fickleFox
             --decide if card flees
             local goflee = false
             local reason = ""
-            sendInfoMessage("deciding if we flee", "FickleFox")
+            --sendInfoMessage("deciding if we flee", "FickleFox")
             if pseudorandom("ficklefox") < G.GAME.probabilities.normal / card.ability.oddsToFlee then
                 goflee = true
                 reason = "unlucky"
@@ -538,7 +541,7 @@ SMODS.Joker { --fickleFox
             local othercardSeal = getValueNilSafe(cardInfo.seal)
 
             if othercardSeal == "Gold" or "" ~= othercardSeal then
-                sendInfoMessage("Other card has Gold seal already, skipping", "FickleFox")
+                --sendInfoMessage("Other card has Gold seal already, skipping", "FickleFox")
                 return
             elseif pseudorandom("ficklefox") < G.GAME.probabilities.normal / card.ability.oddsToBless then
                 card:juice_up()
@@ -604,7 +607,7 @@ SMODS.Joker { --benevolance
         if context.individual and context.cardarea == G.hand and context.other_card and context.other_card.seal and context.other_card.seal == 'Gold' and not context.end_of_round then
             -- if context.individual and context.after then
             -- if context.cardarea == G.hand then
-            sendInfoMessage("We are reviewing cards in hand", "BenevloanceJoker")
+            --sendInfoMessage("We are reviewing cards in hand", "BenevloanceJoker")
             local otherCard = context.other_card
             local cardInfo = getValueNilSafe(otherCard.base.value)
             -- if card.seal then  --need to be sure it is a gold seal, not a blue or red
@@ -622,7 +625,7 @@ SMODS.Joker { --benevolance
             end
             -- end
             --context.cardarea == G.play and context.other_card and context.other_card.ability and context.other_card.ability.name == 'Gold Card' and not context.end_of_round then
-        elseif context.cardarea == G.jokers and context.after then
+        elseif context.cardarea == G.jokers and context.before then
             --review played  hand, see if any cards have gold seal and is a flush or flush house or five of a kind
             --if so, then 50% chance to apply goldseals on other cards (don't overwrite)
             local goldSealFound = 'false'
@@ -638,33 +641,30 @@ SMODS.Joker { --benevolance
 
             if G.GAME.current_round.current_hand.handname == "Royal Flush" or
                 G.GAME.current_round.current_hand.handname == "Flush" or
+                G.GAME.current_round.current_hand.handname == "Flush House" or
                 G.GAME.current_round.current_hand.handname == "Flush Five" or
                 G.GAME.current_round.current_hand.handname == "Five of a Kind" or
                 G.GAME.current_round.current_hand.handname == "Four of a Kind" then
+
+                    local needToDisplayToast = true
                 for i = 1, #context.scoring_hand do
                     local otherCard = context.scoring_hand[i]
-                    if otherCard.seal then
+                    if otherCard.seal then --exit early is already sealed
                     else
                         if pseudorandom("benevolence") < G.GAME.probabilities.normal / card.ability.oddsToBless then
                             card:juice_up()
-                            sendInfoMessage("We are going to spread the blessing!", self.key)
 
-                            G.E_MANAGER:add_event(Event({
-                                trigger = "after",
-                                delay = 0.3,
-                                blockable = false,
-                                func = function()
-                                    otherCard:set_seal("Gold", true)
-                                    otherCard:juice_up()
-                                    return {
-                                        message = { "blessed" },
-                                        colour = G.C.FILTER,
-                                        card = card,
-                                    }
-                                end,
-                            }))
+                            if needToDisplayToast then 
+                                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                                    message = "Spreading the Blessing",
+                                    colour = G.C.FILTER
+                                })
+                                needToDisplayToast = false
+                            end
+                            
+                            applyAbilityWithStyle("GoldSeal", otherCard, before)
+                            
                         else
-                            sendInfoMessage("We are unlucky", self.key)
                         end
                     end
                 end
@@ -833,13 +833,18 @@ SMODS.Joker { --Shin Akuma
             '{C:attention}Retriggers{} all {C:attention}10{}, played or in hand',
             "Per level of the {C:dark_edition}Shun Goku Satsu{} hand",
             "{c:inactive}Currently Retriggering {c:attention}#1#{} additional times"
+        },
+        ['unlock'] = {
+            "Play a hand made of all 10's",
+            "While holding {c:attention}A Kuma{}"
         }
     },
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = { key = "artistcredit", set = "Other", vars = { "Akravator" } }
+
         local hand_name = "Fox_shungokusatsu"
         local retrigger = G.GAME.hands[hand_name].level or 1
-        return { vars = { retrigger } } -- Fix for missing values
+        return { vars = { retrigger } }
     end,
     pos = {
         x = 9,
@@ -853,14 +858,22 @@ SMODS.Joker { --Shin Akuma
     discovered = false,
     atlas = 'FoxModJokers',
     yes_pool_flag = 'akumaHeld',
+    check_for_unlock = function(self, args)
+        if next(SMODS.find_card("j_Fox_akuma")) then
+            if G.GAME.hands["Fox_shungokusatsu"].played ~= 0 then
+                unlock_card(self)
+            end
+        end
+    end,
+
 
     calculate = function(self, card, context)
         --region :scoring the card when played
         --        if context.individual and context.cardarea == G.play then
 
         -- if context.individual and context.cardarea == G.play and context.repetition then
-            if context.cardarea == G.play and context.repetition and context.other_card then
-        -- if context.individual and context.cardarea == G.play and context.repetition then
+        if context.cardarea == G.play and context.repetition and context.other_card then
+            -- if context.individual and context.cardarea == G.play and context.repetition then
             local hand_name = "Fox_shungokusatsu"
             local retrigger = tonumber(format_ui_value(G.GAME.hands[hand_name].level))
             card.ability.extra = retrigger
@@ -973,6 +986,138 @@ SMODS.Joker { --Hachiko
                 return {
                     chips = card.ability.chips,
                     mult = card.ability.plusMult,
+                    card = card
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker { --Holowing Owl
+    name = "Holowing Owl",
+    key = "HolowingOwl",
+    config = {
+        odds = 6,
+        extra = 1
+    },
+    loc_txt = {
+        ['name'] = 'Holowing Owl',
+        ['text'] = {
+            [1] = '{C:attention}Retrigger{} all {C:attention}Holographic Cards{}, played or in hand',
+            [2] = 'has a {C:green}#1# in #2#{} chance',
+            [3] = 'to add copy of played {C:attention}Holographic Cards{}',
+        },
+        ["unlock"] = {
+            "Play a hand with",
+            "Three or more Holographic cards"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { G.GAME.probabilities.normal, card.ability.odds } }
+    end,
+    pos = {
+        x = 4,
+        y = 2
+    },
+    enhancement_gate = 'm_holo',
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = true,
+    unlocked = false,
+    discovered = false,
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].edition and args.cards[j].edition.key == "e_holo" then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 3 then
+                unlock_card(self)
+            end
+        end
+    end,
+    set_ability = function(self, card, initial, delay_sprites)
+        card:set_edition('e_holo', false)
+        card.cost = 10
+    end,
+    atlas = 'FoxModJokers',
+    calculate = function(self, card, context)
+        if context.retrigger_joker_check and context.other_card ~= card and context.other_card.edition then
+            sendInfoMessage("other joker has edition of " .. context.other_card.edition.key, self.key)
+
+            if context.other_card.edition.key == "e_holo" then
+                -- joker card retriggers using .retrigger_joker_check
+                sendInfoMessage("other joker has holo!", self.key)
+                -- if context.other_ret and context.other_ret.jokers and context.other_ret.jokers.was_blueprinted then
+                --     -- don't retrigger copied instances of self wiehter
+                -- else
+                return {
+                    message = localize("k_again_ex"),
+                    repetitions = card.ability.extra,
+                    message_card = context.blueprint_card or card,
+                    was_blueprinted = context.blueprint,
+                }
+            end
+        elseif context.repetition and not context.repetition_only and
+            context.other_card and context.other_card.edition and context.other_card.edition.key == "e_holo" then
+            -- playing card retriggers using .repetition
+            return {
+                message = localize("k_again_ex"),
+                repetitions = card.ability.extra,
+                card = card,
+                was_blueprinted = context.blueprint,
+            }
+        elseif context.cardarea == G.play and context.other_card and context.other_card.edition and context.other_card.edition.holo == true and not context.repetition then
+            --card is holo, roll to see if we copy it
+            if pseudorandom('HolowingOwl') < G.GAME.probabilities.normal / card.ability.odds then
+                --we are copying it
+
+
+                G.playing_card = (G.playing_card and G.playing_card + 1) or 1
+                local _card = copy_card(context.other_card, nil, nil, G.playing_card)
+                _card:add_to_deck()
+                G.deck.config.card_limit = G.deck.config.card_limit + 1
+
+                G.hand:emplace(_card)
+                table.insert(G.playing_cards, _card)
+                playing_card_joker_effects({ true })
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
+                    { message = localize('k_copied_ex'), colour = G.C.FILTER })
+                _card.states.visible = nil
+
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        _card:start_materialize()
+                        return true
+                    end
+                }))
+
+                table.insert(G.playing_cards, _card)
+                playing_card_joker_effects({ true })
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
+                    { message = localize('k_copied_ex'), colour = G.C.FILTER })
+            end --end check to copy
+            --if we don't meet the odds, it's still a holo card so retrigger once
+            return {
+                message = localize('k_again_ex'),
+                repetitions = 1,
+                card = card
+            }
+            -- elseif context.cardarea == G.play and context.other_card and context.other_card.edition and context.other_card.edition.holo == true and context.repetition then
+            --     return {
+            --         message = localize('k_again_ex'),
+            --         repetitions = 1,
+            --         card = card
+            --     }
+            --reviewing card held in hand, if they're holo we retrigger them still
+        elseif context.repetition and context.cardarea == G.hand and context.other_card.edition and context.other_card.edition.holo == true then
+            if (next(context.card_effects[1]) or #context.card_effects > 1) then
+                return {
+                    message = localize('k_again_ex'),
+                    repetitions = card.ability.extra,
                     card = card
                 }
             end
@@ -1184,140 +1329,6 @@ SMODS.Joker { -- Bandit Loach
     end
 }
 
-SMODS.Joker { --Holowing Owl
-    name = "Holowing Owl",
-    key = "HolowingOwl",
-    config = {
-        odds = 6,
-        extra = 1
-    },
-    loc_txt = {
-        ['name'] = 'Holowing Owl',
-        ['text'] = {
-            [1] = '{C:attention}Retrigger{} all {C:attention}Holographic Cards{}, played or in hand',
-            [2] = 'has a {C:green}#1# in #2#{} chance',
-            [3] = 'to add copy of played {C:attention}Holographic Cards{}',
-        },
-        ["unlock"] = {
-            "Play a hand with",
-            "Three or more Holographic cards"
-        }
-    },
-    loc_vars = function(self, info_queue, card)
-        return { vars = { G.GAME.probabilities.normal, card.ability.odds } }
-    end,
-    pos = {
-        x = 4,
-        y = 2
-    },
-    enhancement_gate = 'm_holo',
-    cost = 6,
-    rarity = 2,
-    blueprint_compat = true,
-    eternal_compat = true,
-    unlocked = false,
-    discovered = false,
-    check_for_unlock = function(self, args)
-        if args.type == 'hand_contents' then
-            local tally = 0
-            for j = 1, #args.cards do
-                if args.cards[j].config.center == G.P_CENTERS.e_holo then
-                    tally = tally + 1
-                end
-            end
-            if tally >= 3 then
-                unlock_card(self)
-            end
-        end
-    end,
-    set_ability = function(self, card, initial, delay_sprites)
-        card:set_edition('e_holo', false)
-        card.cost = 10
-    end,
-    atlas = 'FoxModJokers',
-    calculate = function(self, card, context)
-        if context.retrigger_joker_check and context.other_card ~= card and context.other_card.edition then
-            sendInfoMessage("other joker has edition of " .. context.other_card.edition.key, self.key)
-
-            if context.other_card.edition.key == "e_holo" then
-                -- joker card retriggers using .retrigger_joker_check
-                sendInfoMessage("other joker has holo!", self.key)
-                -- if context.other_ret and context.other_ret.jokers and context.other_ret.jokers.was_blueprinted then
-                --     -- don't retrigger copied instances of self wiehter
-                -- else
-                return {
-                    message = localize("k_again_ex"),
-                    repetitions = card.ability.extra,
-                    message_card = context.blueprint_card or card,
-                    was_blueprinted = context.blueprint,
-                }
-            end
-        elseif context.repetition and not context.repetition_only and
-            context.other_card and context.other_card.edition and context.other_card.edition.key == "e_holo" then
-            -- playing card retriggers using .repetition
-            return {
-                message = localize("k_again_ex"),
-                repetitions = card.ability.extra,
-                card = card,
-                was_blueprinted = context.blueprint,
-            }
-        elseif context.cardarea == G.play and context.other_card and context.other_card.edition and context.other_card.edition.holo == true and not context.repetition then
-            --card is holo, roll to see if we copy it
-            if pseudorandom('HolowingOwl') < G.GAME.probabilities.normal / card.ability.odds then
-                --we are copying it
-
-
-                G.playing_card = (G.playing_card and G.playing_card + 1) or 1
-                local _card = copy_card(context.other_card, nil, nil, G.playing_card)
-                _card:add_to_deck()
-                G.deck.config.card_limit = G.deck.config.card_limit + 1
-
-                G.hand:emplace(_card)
-                table.insert(G.playing_cards, _card)
-                playing_card_joker_effects({ true })
-                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
-                    { message = localize('k_copied_ex'), colour = G.C.FILTER })
-                _card.states.visible = nil
-
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        _card:start_materialize()
-                        return true
-                    end
-                }))
-
-                table.insert(G.playing_cards, _card)
-                playing_card_joker_effects({ true })
-                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
-                    { message = localize('k_copied_ex'), colour = G.C.FILTER })
-            end --end check to copy
-            --if we don't meet the odds, it's still a holo card so retrigger once
-            return {
-                message = localize('k_again_ex'),
-                repetitions = 1,
-                card = card
-            }
-            -- elseif context.cardarea == G.play and context.other_card and context.other_card.edition and context.other_card.edition.holo == true and context.repetition then
-            --     return {
-            --         message = localize('k_again_ex'),
-            --         repetitions = 1,
-            --         card = card
-            --     }
-            --reviewing card held in hand, if they're holo we retrigger them still
-        elseif context.repetition and context.cardarea == G.hand and context.other_card.edition and context.other_card.edition.holo == true then
-            if (next(context.card_effects[1]) or #context.card_effects > 1) then
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,
-                    card = card
-                }
-            end
-        end
-    end
-}
-
-
-
 SMODS.Joker { --rat of death
     name = "The Death of Rats",
     key = "deathOfRats",
@@ -1326,7 +1337,7 @@ SMODS.Joker { --rat of death
         handsTillReady = 4,
         remainingDefault = 4,
         multBounty = 0,
-        multBountyGrowthRate = 3,
+        multBountyGrowthRate = 5,
         obliterate = false
     },
     loc_txt = {
@@ -1393,6 +1404,10 @@ SMODS.Joker { --rat of death
             end
             local playedCard = context.full_hand[1]
 
+            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                message = "Death comes",
+                colour = G.C.FILTER
+            })
             card.ability.multBounty = card.ability.multBounty + card.ability.multBountyGrowthRate
             -- Apply multiplier to the hand
             sendInfoMessage("Single card played! Applying " .. card.ability.multBounty .. "x Mult", "ratofDeath")
@@ -1519,7 +1534,8 @@ SMODS.Joker { --incremental hermie
         x_mult = 1.0,
         x_mult_growth_rate = .25,
         requiredRank = 2,
-        requiredRankStr = 2
+        requiredRankStr = 2,
+        freeCrunchWrap = false
     },
     loc_txt = {
         ['name'] = 'Incremental Hermie',
@@ -1560,9 +1576,17 @@ SMODS.Joker { --incremental hermie
 
             if thisRankCounted >= 3 then
                 card.ability.requiredRank = card.ability.requiredRank + 1
-                if card.ability.requiredRank >= 14 then card.ability.requiredRank = 2 end
+                if card.ability.requiredRank >= 14 then
+                        card.ability.requiredRank = 2 
+                        card.ability.freeCrunchWrap = true
+                end
                 card.ability.requiredRankStr = get_card_value(card.ability.requiredRank)
                 card.ability.x_mult = card.ability.x_mult + card.ability.x_mult_growth_rate
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                    message = "Level up!",
+                    colour = G.C.FILTER
+                })
+
                 sendInfoMessage("Would be upgrading xmult.  Changing requiredRank to " .. card.ability.requiredRank,
                     self.key)
                 return {
@@ -1600,8 +1624,8 @@ SMODS.Joker { --Polecat
     },
     check_for_unlock = function(self, args)
         if next(SMODS.find_card("j_ancient")) then
-                unlock_card(self)
-            end
+            unlock_card(self)
+        end
     end,
     loc_vars = function(self, info_queue, card)
         card.ability.polarity = getPolarity()
@@ -1752,8 +1776,8 @@ SMODS.Joker { --Hanging Cat
     atlas = 'FoxModJokers',
     check_for_unlock = function(self, args)
         if next(SMODS.find_card("j_hanging_chad")) then
-                unlock_card(self)
-            end
+            unlock_card(self)
+        end
     end,
 
     calculate = function(self, card, context)
@@ -1819,8 +1843,7 @@ SMODS.Joker { --flushTailed fox - boosts played flushes
 
                 return {
                     message = "Awooo",
-                    repetitions = card.ability.extra,
-                    card = card
+                    repetitions = card.ability.extra                    
                 }
                 -- else
                 --     sendInfoMessage("Somehow we are here and is wasnt a flush family", self.key)
@@ -1836,6 +1859,64 @@ SMODS.Joker { --flushTailed fox - boosts played flushes
 
             local eval = function(card) return (nil ~= context.poker_hands and card.ability.ready == true) end
             juice_card_until(card, eval, true)
+        end
+    end
+}
+
+SMODS.Joker { --chocobo
+    name = "Chocobo Straightaway",
+    key = "chocobo",
+    config = {
+        extraGrowthRate = 5,
+        extra = 0
+    },
+    loc_txt = {
+        ['name'] = 'Chocobo Straightaway',
+        ['text'] = {
+            "Gains {C:mult}#1#{} mult when a scored hand contains a {C:attention}Straight{}",
+            "{C:inactive}(Currently{} {C:mult}+#2#{} {C:inactive}Mult){}"
+        },
+        ["unlock"] = {
+            "Level the Straight Hand",
+            "To level Five or more"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extraGrowthRate, card.ability.extra } }
+    end,
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local straightLevel = tonumber(format_ui_value(G.GAME.hands["Straight"].level))
+            if straightLevel > 4 then
+                unlock_card(self)
+            end
+        end
+    end,
+    pos = {
+        x = 8,
+        y = 2
+    },
+    cost = 5,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = false,
+    discovered = false,
+    atlas = 'FoxModJokers',
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                mult = card.ability.extra,
+                card = card
+            }
+        elseif context.cardarea == G.jokers and context.before and nil ~= context.poker_hands and next(context.poker_hands['Straight']) and not context.blueprint then
+            card.ability.extra = card.ability.extra + card.ability.extraGrowthRate
+            return {
+                message = localize('k_upgrade_ex'),
+                colour = G.C.CHIPS,
+                card = self
+            }
         end
     end
 }
@@ -1871,20 +1952,22 @@ if FoxModConfig.customHands then
         discovered = true,
         atlas = 'FoxModJokers',
         calculate = function(self, card, context)
-            if context.after then
+            if context.after or context.end_of_round then
                 card.ability.ready = false
-            elseif context.cardarea == G.play then
+            elseif context.cardarea == G.play and context.repetition then
                 if card.ability.ready then
                     sendInfoMessage("hand is scoring and we are ready", "redXiii")
 
                     return {
                         message = "Awooo",
-                        repetitions = card.ability.extra,
-                        card = card
+                        repetitions = card.ability.extra
                     }
                 else
                     sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", "redXiii")
                 end
+            end
+            if nil ~= context.poker_hands and not next(context.poker_hands["Fox_cosmocanyon"]) then
+                card.ability.ready = false
             end
             if nil ~= context.poker_hands and next(context.poker_hands["Fox_cosmocanyon"]) then
                 if false == card.ability.ready then
@@ -1938,8 +2021,7 @@ if FoxModConfig.customHands then
 
                     return {
                         message = "Awooo",
-                        repetitions = card.ability.extra,
-                        card = card
+                        repetitions = card.ability.extra                        
                     }
                 else
                     sendInfoMessage("Somehow we are here and is wasnt a cosmo canyon", self.key)
@@ -1981,64 +2063,68 @@ if FoxModConfig.customHands then
     }
 end
 
-SMODS.Joker { --chocobo
-    name = "Chocobo Straightaway",
-    key = "chocobo",
+SMODS.Joker { --Cait Sith
+    name = "Cait Sith",
+    key = "caitSith",
     config = {
         extraGrowthRate = 5,
-        extra = 0
+        extra = 0,
+        odds = 3
     },
     loc_txt = {
-        ['name'] = 'Chocobo Straightaway',
+        ['name'] = 'Cait Sith',
         ['text'] = {
-            "Gains {C:mult}#1#{} mult when a scored hand contains a {C:attention}Straight{}",
-            "{C:inactive}(Currently{} {C:mult}+#2#{} {C:inactive}Mult){}"
-        },
-        ["unlock"] = {
-            "Level the Straight Hand",
-            "To level Five or more"
+            "Played {c:attention}7{} cards",
+            "have a {C:green}#1# in #2#{} chance to become {c:green}Lucky{} when scored",
+            "{c:inactive}{s:0.8}Cait Sith seemed to have suspiciously good luck and is no longer welcome in Golden Saucer{}{}"
         }
     },
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extraGrowthRate, card.ability.extra } }
-    end,
-    check_for_unlock = function(self, args)
-        if args.type == 'hand_contents' then
-            local straightLevel = tonumber(format_ui_value(G.GAME.hands["Straight"].level))
-                if straightLevel > 4  then
-                    unlock_card(self)
-                end
-            end
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_lucky
+        return { vars = { G.GAME.probabilities.normal, card.ability.odds } }
     end,
     pos = {
-        x = 8,
-        y = 2
+        x = 5,
+        y = 3
     },
     cost = 5,
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = false,
-    discovered = false,
+    unlocked = true,
+    discovered = true,
     atlas = 'FoxModJokers',
-
+    add_to_deck = function(self, card, from_debuff)
+        sendInfoMessage("added to deck, altering reality", self.key)
+        for k, v in pairs(G.GAME.probabilities) do
+            local old = G.GAME.probabilities[k]
+            G.GAME.probabilities[k] = v * 1.25
+            local new = G.GAME.probabilities[k]
+            sendInfoMessage("odds were " .. old .. " and now became " .. new, self.key)
+        end
+    end,
     calculate = function(self, card, context)
-        if context.joker_main then
-            return {
-                mult = card.ability.extra,
-                card = card
-            }
-        elseif context.cardarea == G.jokers and context.before and nil ~= context.poker_hands and next(context.poker_hands['Straight']) and not context.blueprint then
-            card.ability.extra = card.ability.extra + card.ability.extraGrowthRate
-            return {
-                message = localize('k_upgrade_ex'),
-                colour = G.C.CHIPS,
-                card = self
-            }
+        if context.cardarea == G.jokers and context.before and not context.blueprint then
+            sendInfoMessage("Reviewing cards in played area", self.key)
+
+            for _, playedCard in ipairs(context.scoring_hand) do
+                local rank = playedCard:get_id()
+                if rank == 7 or rank == "7" then
+                    if pseudorandom('caitSith') < G.GAME.probabilities.normal / card.ability.odds then
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                            message = "LUCKY 7",
+                            colour = G.C.FILTER
+                        })
+                        applyAbilityWithStyle("m_lucky", playedCard)
+                        playedCard:juice_up()
+                    else
+                        applyAbilityWithStyle("fail", playedCard)
+                    end
+                end
+            end
         end
     end
 }
-
 
 SMODS.Joker { --moogle
     name = "Moogle Dance",
@@ -2052,10 +2138,9 @@ SMODS.Joker { --moogle
     loc_txt = {
         ['name'] = 'Moogle Dance',
         ['text'] = {
-            "Played cards have a {C:green}#1# in #2#{}  chance",
+            "Played cards have a {C:green}#1# in #2#{} chance",
             "to recieve a {c:attention}random enhancement{} or {c:dark_edition}edition{} when scored",
             "if {C:attention}poker hand{} is a {C:attention}#3#{}",
-            "{C:inactive}(Currently applying {C:mult}+#2#{} {C:inactive}Mult){}"
         },
         ["unlock"] = {
             "Obtain 10 or more",
@@ -2073,13 +2158,13 @@ SMODS.Joker { --moogle
         if args.type == 'hand_contents' then
             local enhancedTally = 0
             for k, v in pairs(G.playing_cards) do
-                if v.config.center ~= G.P_CENTERS.c_base then enhancedTally =enhancedTally+1 end
+                if v.config.center ~= G.P_CENTERS.c_base then enhancedTally = enhancedTally + 1 end
             end
             if enhancedTally >= 10 then
                 unlock_card(self)
             end
         end
-end,
+    end,
     pos = {
         x = 4,
         y = 3
@@ -2150,71 +2235,14 @@ end,
     end
 }
 
-
-SMODS.Joker { --Cait Sith
-    name = "Cait Sith",
-    key = "caitSith",
-    config = {
-        extraGrowthRate = 5,
-        extra = 0,
-        odds = 3
-    },
-    loc_txt = {
-        ['name'] = 'Cait Sith',
-        ['text'] = {
-            "Played {c:attention}7{} cards",
-            "have a {C:green}#1# in #2#{} chance to become {c:green}Lucky{} when scored",
-            "{c:inactive}{s:0.8}Cait Sith seemed to have suspiciously good luck and is no longer welcome in Golden Saucer{}{}"
-        }
-    },
-    loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue + 1] = G.P_CENTERS.m_lucky
-        return { vars = { G.GAME.probabilities.normal, card.ability.odds } }
-    end,
-    pos = {
-        x = 5,
-        y = 3
-    },
-    cost = 5,
-    rarity = 2,
-    blueprint_compat = false,
-    eternal_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'FoxModJokers',
-    added_to_deck = function(self, card, from_debuff)
-        sendInfoMessage("added to deck, altering reality", self.key)
-        for k, v in pairs(G.GAME.probabilities) do
-            local old = G.GAME.probabilities[k]
-            G.GAME.probabilities[k] = v * 1.25
-            local new = G.GAME.probabilities[k]
-            sendInfoMessage("odds were " .. old .. " and now became " .. new, self.key)
-        end
-    end,
-    calculate = function(self, card, context)
-        if context.cardarea == G.jokers and context.before and not context.blueprint then
-            sendInfoMessage("Reviewing cards in played area", self.key)
-
-            for _, playedCard in ipairs(context.scoring_hand) do
-                local rank = playedCard:get_id()
-                if rank == 7 or rank == "7" then
-                    if pseudorandom('caitSith') < G.GAME.probabilities.normal / card.ability.odds then
-                        applyAbilityWithStyle("m_lucky", playedCard)
-                    else
-                        applyAbilityWithStyle("fail", playedCard)
-                    end
-                end
-            end
-        end
-    end
-}
-
-
 SMODS.Joker { --Mochicat
     name = "Mochicat",
     key = "mochiCat",
     config = {
         extra = 2,
+        affected_cards = {
+            2, 4, 7, 8
+        }
     },
     loc_txt = {
         ['name'] = 'Mochicat',
@@ -2225,7 +2253,6 @@ SMODS.Joker { --Mochicat
         }
     },
     loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue + 1] = G.P_CENTERS.m_Fox_grass
         return { vars = { card.ability.extra } }
     end,
     pos = {
@@ -2239,31 +2266,35 @@ SMODS.Joker { --Mochicat
     unlocked = true,
     discovered = true,
     atlas = 'FoxModJokers',
-    enhancement_gate = 'm_Fox_grass',
 
     calculate = function(self, card, context)
         if context.individual and context.cardarea == G.play then
             local otherCard = context.other_card
             local cardInfo = getValueNilSafe(otherCard.base.value)
 
-            if cardInfo == 2 or cardInfo == "2" or cardInfo == 4 or cardInfo == "4" or
-                cardInfo == 8 or cardInfo == "8" or cardInfo == 7 or cardInfo == "7" then
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,                    
-                }
+            for _, affectedCard in ipairs(card.ability.affected_cards) do
+                if cardInfo == affectedCard then 
+                    return {
+                        message = localize('k_again_ex'),
+                        repetitions = card.ability.extra,
+                    }
+                end
             end
         end
-        if context.cardarea == G.play and context.repetition and context.other_card then
+        if context.cardarea == G.play and context.repetition and context.other_card then            
+            print ("in second block")
             local otherCard = context.other_card
             local cardInfo = getValueNilSafe(otherCard.base.value)
 
-            if cardInfo == 2 or cardInfo == "2" or cardInfo == 4 or cardInfo == "4" or
-                cardInfo == 8 or cardInfo == "8" or cardInfo == 7 or cardInfo == "7" then
-                return {
-                    message = localize('k_again_ex'),
-                    repetitions = card.ability.extra,                    
-                }
+            for _, affectedCard in ipairs(card.ability.affected_cards) do
+                --print ("comparing " .. affectedCard  .. " to played card of " .. cardInfo .. " type =" ..type(cardInfo))
+
+                if cardInfo == affectedCard or cardInfo == tostring(affectedCard) then
+                    return {
+                        message = localize('k_again_ex'),
+                        repetitions = card.ability.extra,
+                    }
+                end
             end
         end
     end
@@ -2293,7 +2324,7 @@ SMODS.Joker { --Teafant
     pos = {
         x = 6,
         y = 3
-    },    
+    },
     check_for_unlock = function(self, args)
         if args.type == 'hand_contents' then
             local tally = 0
@@ -2501,11 +2532,10 @@ SMODS.Joker { --Mammorest
         return { vars = { card.ability.x_mult_rate, card.ability.x_mult } }
     end,
     check_for_unlock = function(self, args)
-        if next(SMODS.find_card("j_Fox_teafant")) and 
+        if next(SMODS.find_card("j_Fox_teafant")) and
             next(SMODS.find_card("j_Fox_gumoss")) then
-                unlock_card(self)
-            end
-        
+            unlock_card(self)
+        end
     end,
     pos = {
         x = 1,
@@ -2584,19 +2614,21 @@ if FoxModConfig.moreMystery then
     }
 end
 
-SMODS.Joker { --Boba 
+SMODS.Joker { --Boba
     name = "Caffinated",
     key = "caffinated",
     config = {
         extra = 2,
+        affected_cards = {
+            2, 4, 8, 10
+        }
     },
     loc_txt = {
         ['name'] = 'Caffinated',
-        
+
         ['text'] = caffinatedText
     },
     loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue + 1] = G.P_CENTERS.m_Fox_grass
         return { vars = { card.ability.extra } }
     end,
     pos = {
@@ -2609,51 +2641,26 @@ SMODS.Joker { --Boba
     eternal_compat = true,
     unlocked = true,
     discovered = true,
-    atlas = 'FoxModJokers',
-    enhancement_gate = 'm_Fox_grass',
+    atlas = 'FoxModJokers',    
 
-    calculate = function(self, card, context) --context.other_card.ability and context.other_card.ability.name == 'Gold Card'
-        -- if context.repetition and not context.repetition_only and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" then
-        -- -- playing card retriggers using .repetition
-        -- return {
-        --     message = localize("k_again_ex"),
-        --     repetitions = card.ability.extra,
-        --     card = card,
-        --     was_blueprinted = context.blueprint,
-        -- }
-        if context.cardarea == G.play and context.repetition and context.other_card and context.other_card.ability and context.other_card.ability.name == "Grass Card" and not context.after then
-            return {
-                message = localize('k_again_ex'),
-                repetitions = card.ability.extra,
-                card = card
-            }
-            --context.individual and context.cardarea == G.hand and not context.after
-        elseif context.individual and context.cardarea == G.hand and context.other_card.ability and context.other_card.ability.name == 'Grass Card' and not context.after then
-            sendInfoMessage("1849, new method for held grass", self.key)
+    calculate = function(self, card, context)
+        if context.cardarea == G.play and context.repetition and context.other_card then
+            local otherCard = context.other_card
+            local cardInfo = getValueNilSafe(otherCard.base.value)
 
-            return {
-                message = localize('k_again_ex'),
-                repetitions = card.ability.extra,
-                card = heldCard
-            }
-        elseif context.joker_main and context.repetition and not context.after then
-            sendInfoMessage(" checking for held grass", self.key)
-            for _, heldCard in ipairs(G.hand.cards) do
-                local cardAbility = heldCard.ability.name or "nil"
-                if cardAbility == "Grass Card" then
-                    sendInfoMessage(heldCard.base.id .. " has ability of " .. cardAbility)
+            for _, affectedCard in ipairs(card.ability.affected_cards) do
+                --print ("comparing " .. affectedCard  .. " to played card of " .. cardInfo .. " type =" ..type(cardInfo))
+
+                if cardInfo == affectedCard or cardInfo == tostring(affectedCard) then
                     return {
                         message = localize('k_again_ex'),
                         repetitions = card.ability.extra,
-                        card = heldCard
                     }
                 end
             end
         end
     end
 }
-
-
 
 SMODS.Joker { --Cam
     name = "Squish Squad Cam",
@@ -2691,7 +2698,6 @@ SMODS.Joker { --Cam
     unlocked = true,
     discovered = true,
     atlas = 'FoxModJokers',
-    enhancement_gate = 'm_glass',
     set_ability = function(self, card, initial, delay_sprites)
         local repeats = pseudorandom('cam', 1, 5)
         sendInfoMessage("repeats set to " .. repeats, self.key)
@@ -2725,6 +2731,10 @@ SMODS.Joker { --glass card 1
         ['text'] = {
             "Played cards of {c:attention}#1#{} Rank become glass when played",
             "{s:0.9}rank changes every round{}"
+        },
+        ["unlock"] = {
+            "Play a hand with",
+            "Three or more Glass Cards"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2739,13 +2749,25 @@ SMODS.Joker { --glass card 1
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_glass',
-
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].config.center == G.P_CENTERS.m_glass then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 3 then
+                unlock_card(self)
+            end
+        end
+    end,
     calculate = function(self, card, context)
-        if context.cardarea == G.jokers and context.before then
+        if context.cardarea == G.jokers and context.before and not context.blueprint then
             sendInfoMessage(" checking for played " .. G.GAME.current_round.idol_card.id .. "s", self.key)
             for _, playedCard in ipairs(context.scoring_hand) do
                 if playedCard:get_id() == G.GAME.current_round.idol_card.id then
@@ -2783,33 +2805,6 @@ SMODS.Joker { --glass card 1
                 end
             end
         end
-        --and context.other_card and context.other_card:get_id() == G.GAME.current_round.idol_card.id then
-        --sendInfoMessage(" other card was " .. context.other_card:get_id() .. " and required rank was " .. G.GAME.current_round.idol_card.id ,self.key)
-        -- G.E_MANAGER:add_event(Event({
-        --     trigger = 'after',
-        --     delay = 0.15,
-        --     func = function()
-        --         context.other_card:flip(); play_sound('card1', percent); context.other_card:juice_up(0.3, 0.3); return true
-        --     end
-        -- }))
-
-
-
-        -- G.E_MANAGER:add_event(Event({
-        --     trigger = 'after',
-        --     delay = 0.15,
-        --     func = function()
-        --         context.other_card:flip(); play_sound('tarot2', percent, 0.6); context.other_card:juice_up(0.3, 0.3); return true
-        --     end
-        -- }))
-        -- else
-        --     if context.repetition and context.cardarea == G.play and context.other_card:get_id() == G.GAME.current_round.idol_card.id then
-        --         return {
-        --             message = "Echo of creation",
-        --             repetitions = card.ability.extra,
-        --         }
-        --     end
-        -- end
     end
 }
 
@@ -2825,6 +2820,10 @@ SMODS.Joker { --Echoes of glass
         ['text'] = {
             "Retriggers glass cards cards",
             "{C:attention}#1#{} additional times",
+        },
+        ["unlock"] = {
+            "Have more than",
+            "Ten Glass Cards in your deck"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2839,10 +2838,21 @@ SMODS.Joker { --Echoes of glass
     rarity = 3,
     blueprint_compat = true,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_glass',
+    check_for_unlock = function(self, args)
+        if args.type == 'hand_contents' then
+            local enhancedTally = 0
+            for k, v in pairs(G.playing_cards) do
+                if v.config.center == G.P_CENTERS.m_glass then enhancedTally = enhancedTally + 1 end
+            end
+            if enhancedTally >= 10 then
+                unlock_card(self)
+            end
+        end
+    end,
 
     calculate = function(self, card, context)
         if context.repetition and context.other_card and context.other_card.ability.name == 'Glass Card' then
@@ -2869,6 +2879,11 @@ SMODS.Joker { --glass card 3 gains +mult when glass cards do not break
             "Gains {X:mult,C:white}x#1#{} Mult when played glass cards do not break",
             "resets to {X:mult,C:white}x0.5{} Mult when glass breaks",
             "{s:0.9,C:inactive}Currently {X:mult,C:white}x#2#{} mult{}"
+        },
+        ["unlock"] = {
+            "Play an All-Glass Hand",
+            "Of four or more Glass Cards",
+            "While holding both Glass Jokers",
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -2883,11 +2898,34 @@ SMODS.Joker { --glass card 3 gains +mult when glass cards do not break
     rarity = 2,
     blueprint_compat = false,
     eternal_compat = true,
-    unlocked = true,
-    discovered = true,
+    unlocked = false,
+    discovered = false,
     atlas = 'FoxModJokers',
     enhancement_gate = 'm_glass',
+    check_for_unlock = function(self, args)
+        local bothJokers = false
+        local metTally = false
 
+        if args.type == 'hand_contents' then
+            local tally = 0
+            for j = 1, #args.cards do
+                if args.cards[j].config.center == G.P_CENTERS.m_glass then
+                    tally = tally + 1
+                end
+            end
+            if tally >= 4 then
+                metTally = true
+            end
+        end
+        -- if next(SMODS.find_card("j_Fox_glass2")) and
+        --     next(SMODS.find_card("j_Fox_glass1")) then
+        --     bothJokers = true
+        -- end
+
+        if metTally then
+            unlock_card(self)
+        end
+    end,
     calculate = function(self, card, context)
         if context.post_joker or (context.main_scoring and context.cardarea == G.play) then
             local t = card.base.id or card.label
@@ -3049,7 +3087,7 @@ SMODS.Joker { --Yugi Moto
     name = "King of Games",
     key = "yugi",
     config = {
-        mult_mod = 2.0,
+        mult_mod = 1.0,
         extraGrowthRate = 0.3,
         to_do_poker_hand = "Flush",
         basecoord = 6,
@@ -3188,13 +3226,13 @@ SMODS.Joker { --Lord of Gold
         ['text'] = {
             '{C:attention}Golden Cards{} in hand now have a {C:green}#1# in #2#{} chance',
             'To apply a {X:mult,C:white}x1.5{} Mult bonus',
-            'Accrues plus mult per gold card in deck, currently {X:mult,C:white}+#3#{} Mult bonus',
+            'Accrues plus mult for every {c:attention}Gold Card{} activation, currently {X:mult,C:white}+#3#{} Mult bonus',
             '{s:0.9,C:inactive}Eldlich is the Lord of all that is Golden{}',
 
         }
     },
     loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue + 1] = G.P_CENTERS.e_gold
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
         return { vars = { G.GAME.probabilities.normal, card.ability.odds, card.ability.goldTally } }
     end,
     pos = {
@@ -3299,20 +3337,23 @@ SMODS.Joker { --Joku
     name = "Joku",
     key = "joku",
     config = {
-        extra = 1.7,
+        x_mult = 1.5,
+        x_mult_growth_rate = 0.5,
+        legendaryUnlock = false
     },
     loc_txt = {
         ['name'] = 'Joku',
         ['text'] = {
-            "Played cards with",
-            "{C:attention}Super Sayan{} rank give",
+            "Played cards with {C:attention}Super Sayan{} rank give",
             "{X:mult,C:white}X#1#{} Mult when scored",
-            "{C:inactive}(2, 3, 4)",
-            '{s:0.9,C:inactive}The Legendary Super Joker{}',
+            "Increases xMult by {C:attention}0.5{} when Three of a Kind or better",
+            "Hands are played comprised of SSJ Ranks",
+            '{s:0.9,C:inactive}The Legendary Super Joker, reach Level 4 and something marvelous will happen{}',
         }
     },
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra } }
+        info_queue[#info_queue + 1] = { key = "ssjToast", set = "Other", vars = { "2's, 3's or 4's" }}
+        return { vars = { card.ability.x_mult } }
     end,
     pos = {
         x = 0,
@@ -3328,14 +3369,47 @@ SMODS.Joker { --Joku
     soul_pos = { x = 1, y = 0 },
 
     calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.before and not context.blueprint then
+            local thisRankCounted = 0
+            for i = 1, #context.scoring_hand do
+                local thisCard = context.scoring_hand[i]:get_id()
+                
+                if thisCard == 2  or thisCard == 3 or thisCard == 4 then
+                    thisRankCounted = thisRankCounted + 1
+                end
+            end
+
+            if thisRankCounted >= 3 then
+                if 
+                    G.GAME.current_round.current_hand.handname == "Flush House" or
+                    G.GAME.current_round.current_hand.handname == "Full House" or
+                    G.GAME.current_round.current_hand.handname == "Flush Five" or
+                    G.GAME.current_round.current_hand.handname == "Five of a Kind" or
+                    G.GAME.current_round.current_hand.handname == "Four of a Kind" or
+                    G.GAME.current_round.current_hand.handname == "Three of a Kind" then
+                        card.ability.x_mult = card.ability.x_mult + card.ability.x_mult_growth_rate
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {
+                            message = "Level up!",
+                            colour = G.C.FILTER
+                        })                
+                end            
+            end
+        end
+    
         if context.individual and context.cardarea == G.play then --and not context .joker_main then
             local otherCard = context.other_card
             local cardInfo = getValueNilSafe(otherCard.base.value)
+
+            if card.ability.x_mult > 3.9 then 
+                print("legendary unlocked!")
+                card.ability.legendaryUnlock = true
+            end
+
             if cardInfo == 2 or cardInfo == "2"
                 or cardInfo == 3 or cardInfo == "3"
                 or cardInfo == 4 or cardInfo == "4" then
                 return {
-                    x_mult = card.ability.extra,
+                    x_mult = card.ability.x_mult,
                     colour = G.C.RED,
                     card = card,
                 }
@@ -3349,7 +3423,8 @@ SMODS.Joker { --Kirbo
     key = "kirbo",
     config = {
         mult_mod = 1.0,
-        extraGrowthRate = 0.3
+        extraGrowthRate = 0.3,
+        legendaryUnlock = false
     },
     loc_txt = {
         ['name'] = 'Kirbo',
@@ -3359,6 +3434,7 @@ SMODS.Joker { --Kirbo
             "Scored {c:attention}2's{} are destroyed, increasing xMult by {X:mult,C:white}#1#{}",
             "{C:inactive}Currently {X:mult,C:white}X#2#{}",
             '{s:0.9,C:inactive}Kirby was very hungry{}',
+            '{s:0.9,C:inactive}Something marvelous will happen when he reaches {X:mult,C:white}x3{}',
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -3470,6 +3546,10 @@ SMODS.Joker { --Kirbo
                 sendInfoMessage("This is a 2 " .. context.destroy_card:get_id(), self.key)
 
                 card.ability.mult_mod = card.ability.mult_mod + card.ability.extraGrowthRate
+
+                if card.ability.mult_mod > 2.9 then
+                    card.ability.legendaryUnlock = true
+                end
                 card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil,
                     { message = "POYO!", colour = G.C.FILTER })
                 G.E_MANAGER:add_event(Event({
@@ -3487,6 +3567,72 @@ SMODS.Joker { --Kirbo
 
                 return { remove = true, card = context.destroy_card }
             end
+        end
+    end
+}
+
+
+SMODS.Joker { --Crunchwrap Supreme
+    name = "Crunchwrap Supreme",
+    key = "crunchWrap",
+    config = {
+        extra = 2,
+    },
+    loc_txt = {
+        ['name'] = 'Crunchwrap Supreme',
+        ['text'] = {
+            'Retriggers played {c:attention}Three of a Kind{} or better hands',
+            "{C:inactive}(Currently {X:mult,C:white}X#3#{} Mult)",
+            '{s:0.9,C:inactive}His friend is Shaq-eel{}',
+        },
+        ["unlock"] = {
+            "Level Incremental Hermie",
+            "To 4x Mult",
+            "{s:0.9,C:inactive}Feed him 2's, then 3's, then...{}"
+        }
+
+    },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.x_mult_growth_rate, card.ability.requiredRankStr, card.ability.x_mult } }
+    end,
+    pos = {
+        x = 4,
+        y = 1
+    },
+    cost = 7,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = true,
+    unlocked = false,
+    discovered = false,
+    atlas = 'FoxModJokers',
+    check_for_unlock = function(self, args)
+        if next(SMODS.find_card("j_Fox_IncrementalHermie")) then
+            local hermie = SMODS.find_card("j_Fox_IncrementalHermie")
+                if hermie[1].ability.freeCrunchWrap then 
+                    print("freeing crunchwrap")
+                    unlock_card(self)
+                else
+                    print("crunchwrap is not yet freed")
+                end
+            end
+    end,
+
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.repetition then
+            
+            if 
+            G.GAME.current_round.current_hand.handname == "Flush House" or
+            G.GAME.current_round.current_hand.handname == "Full House" or
+            G.GAME.current_round.current_hand.handname == "Flush Five" or
+            G.GAME.current_round.current_hand.handname == "Five of a Kind" or
+            G.GAME.current_round.current_hand.handname == "Four of a Kind" or
+            G.GAME.current_round.current_hand.handname == "Three of a Kind" then
+                return {
+                    message = "Awooo",
+                    repetitions = card.ability.extra
+                }
+            end                       
         end
     end
 }

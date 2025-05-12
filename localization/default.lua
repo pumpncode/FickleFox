@@ -26,7 +26,13 @@ return {
 				text = {
 				"{E:1}#1#{}"
 				},
-			},				
+			},
+			ssjToast = {
+				name = "Super Sayan Ranks",
+				text = {
+				"{E:1}#1#{}"
+				},
+			},
 			config_credits = {
 				name = " ",
 				text = {
@@ -71,12 +77,6 @@ return {
 			hologramPACK = "Oops all shineys",
 			k_Fox_discord = "Discord",
 			k_Fox_github = "Github",
-		},
-		artistcredit = {
-    		name = "Artist",
-    		text = {
-			"{E:1}#1#{}"
-			},
-		},
+		}
 	}
 }

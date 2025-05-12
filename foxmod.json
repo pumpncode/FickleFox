@@ -9,7 +9,7 @@
 	"priority": 1,
 	"badge_colour": "0011EC",
 	"badge_text_colour": "FBA105",
-	"version": "0.0.4",
+	"version": "0.5.0",
 	"dependencies": [
 		"Steamodded (>=1.0.0~ALPHA-1206c)"
 	]

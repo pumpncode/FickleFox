@@ -31,7 +31,7 @@ if FoxModConfig.customEditions then
             odds = 6
         },
         in_shop = true,
-        weight = 25,
+        weight = 17,
         extra_cost = 4,
         -- disable_base_shader=true,
         apply_to_float = true, --false,
@@ -39,7 +39,7 @@ if FoxModConfig.customEditions then
             return { vars = { self.config.dollars, self.config.mult, G.GAME.probabilities.normal, self.config.odds } }
         end,
         sound = {
-            sound = "Fox_ghostRare",
+            sound = "Fox_goldRare",
             per = 1,
             vol = 0.3,
         },
@@ -100,11 +100,11 @@ if FoxModConfig.customEditions then
         loc_txt = {
             name = "Ghost Rare",
             label = "ghost Rare",
-            text = {
-                "{X:red,C:white} X.25 {} Mult for each",
+            text = {                
+                "Applies {C:red} +1 {} Mult for each",
                 "{C:dark_edition}Ghost Rare{} edition",
                 "in your {C:attention}full deck",
-                "{C:inactive}(Currently {X:mult,C:white} X#1# {C:inactive} Mult)"
+                "{C:inactive}(Currently {C:red} +#1# {C:inactive} Mult)"
             }
         },
         discovered = true,
@@ -130,6 +130,7 @@ if FoxModConfig.customEditions then
         calculate = function(self, card, context)
             if context.main_scoring and context.cardarea == G.play then
                 card.ability.ghostTally = 1
+                
                 for k, v in pairs(G.playing_cards) do
                     if v.edition then
                         if v.edition.key == "e_Fox_ghostRare" then
@@ -255,7 +256,7 @@ if FoxModConfig.customEditions then
             growthRateTable = {}
         },
         in_shop = true,
-        weight = 25,
+        weight = 21,
         extra_cost = 4,
         apply_to_float = true,
         loc_vars = function(self, info_queue, card)
@@ -338,7 +339,7 @@ if FoxModConfig.customEditions then
             initialxmult = 0.4,
         },
         in_shop = true,
-        weight = 20,
+        weight = 8,
         extra_cost = 4,
         on_apply = function(self, card, context)
             -- sendInfoMessage("triggering on pickup logic for this card", self.key)
@@ -443,7 +444,7 @@ if FoxModConfig.customEditions then
                 '{s:0.9,C:inactive}Currently {X:chips,C:white} +#1#{}{}',
             }
         },
-        config = { extra = { h_x_chips = 5, chipsRate = 2 } },
+        config = { extra = { h_x_chips = 7, chipsRate = 5 } },
 
         loc_vars = function(self, info_queue, card)
             return {
@@ -456,10 +457,7 @@ if FoxModConfig.customEditions then
             vol = 0.3,
         },
         set_ability = function(self, card, initial, delay_sprites)
-            -- sendInfoMessage("triggering on pickup logic for this card", self.key)
             play_sound("Fox_grass", 0.95)
-            -- card:set_edition('e_holo', false)
-            -- card.cost = 10
         end,
 
         calculate = function(self, card, context, ret)
@@ -481,17 +479,6 @@ if FoxModConfig.customEditions then
                     chips = card.ability.extra.h_x_chips
                 }
             end
-            -- if context.repetition and not context.after then
-            --     card.ability.extra.h_x_chips = card.ability.extra.h_x_chips + card.ability.extra.chipsRate
-            --     sendInfoMessage(
-            --     "I am being repeated, currently " ..
-            --     card.ability.extra.h_x_chips .. " and was " .. card.ability.extra.h_x_chips - card.ability.extra.chipsRate,
-            --         "grassCard")
-            --     card:juice_up()
-            --     return {
-            --         chips = card.ability.extra.h_x_chips
-            --     }
-            -- end
         end
     })
 

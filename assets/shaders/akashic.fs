@@ -4,7 +4,7 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
-//watch shader Mods/FoxMods/assets/shaders/akashic.fs
+//watch shader Mods/FickleFox/assets/shaders/akashic.fs
 extern MY_HIGHP_OR_MEDIUMP vec2 akashic;
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
 extern MY_HIGHP_OR_MEDIUMP number time;
@@ -61,17 +61,17 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     number high = max(tex.r, max(tex.g, tex.b));
     number delta = high - low - 0.1;
     
-    // Calculate distorted center for warping effect
+    //distnace from center for warping effect
     vec2 center = vec2(0.5, 0.5);  
     float warpAmount = 0.15 * sin(time * 7.5 * 3) + 0.15 * cos(time * 7.5);  
 
-    // comment out for the 'uno card like look from previous
+    // comment out for the 'uno' card like look from previous
     center.x += warpAmount * sin(uv.y * 25.0); 
     center.y += warpAmount * cos(uv.x * 25.0); 
     
     
     float distanceFromCenter = length(uv - center);
-    float vignetteRadius = 0.4;  // Adjust to control vignette size
+    float vignetteRadius = 0.4;
 
     // Exit Early if Near White, But Only Far from Center
     if (high > 0.999 && distanceFromCenter > vignetteRadius) {  
@@ -100,9 +100,7 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     vec3 blueTint = vec3(0.2, 0.4, 1.0);  
     vec3 redTint = vec3(1.0, 0.2, 0.3); 
 
-    // mix it up
     vec3 finalColor = mix(blueTint, redTint, gradientFactor) * inverted;
-
     
     finalColor.r = finalColor.r - delta + delta * maxfac * (0.7 + fac5 * 0.27) - 0.1;
     finalColor.g = finalColor.g - delta + delta * maxfac * (0.7 - fac5 * 0.27) - 0.1;

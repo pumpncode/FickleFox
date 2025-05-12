@@ -182,7 +182,12 @@ SMODS.current_mod.config_tab = function()
                 label = "More Mystery?",
                 ref_table = FoxModConfig,
                 ref_value = "moreMystery",
-            })
+            }),
+            create_toggle({
+                label = "Allow Edition Effects on Mod Specific Decks? (May cause slowdown)",
+                ref_table = FoxModConfig,
+                ref_value = "animatedSpecialDecks",
+            }),
         },
     }
 end
@@ -201,6 +206,7 @@ SMODS.Sound({key = "yoshiEat",	path = "yoshi-tongue.mp3",atlas_table = "ASSET_AT
 SMODS.Sound({key = "akumaClear",	path = "akuma_clear.mp3",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "yourMove",	path = "yourmove.ogg",atlas_table = "ASSET_ATLAS"})
 SMODS.Sound({key = "grass",	path = "grass.ogg",atlas_table = "ASSET_ATLAS"})
+SMODS.Sound({key = "goldRare",	path = "diablo-gold.mp3",atlas_table = "ASSET_ATLAS"})
 --redxiii_2.wav
 --dbz_punch.mp3
 SMODS.current_mod.optional_features = {retrigger_joker = true}
@@ -217,10 +223,9 @@ SMODS.Atlas{ key = "FoxModDecks", path = "decks.png", px = 71, py = 95, atlas_ta
 SMODS.Shader({ key = 'glimmer', path = 'glimmer3.fs' })
 SMODS.Shader({ key = 'etherOverdrive', path = 'etherOverdrive.fs' })
 SMODS.Shader({ key = 'akashic', path = 'akashic.fs' })
--- SMODS.Shader({ key = 'secretRare', path = 'secretRare_new.fs' })
--- SMODS.Shader({ key = 'secretRare_subtle', path = 'secretRare_4.fs' })
 SMODS.Shader({ key = 'ghostRare', path = 'ghostRare.fs' })
-SMODS.Shader({ key = 'secretRare', path = 'secretRare_4.fs' })
+SMODS.Shader({ key = 'secretRare', path = 'secretRare.fs' })
+SMODS.Shader({ key = 'shadowChrome', path = 'shadowChrome.fs' })
 
 sendInfoMessage("Loading all subfiles", "FoxMods-config.lua")
 

@@ -11,7 +11,7 @@ end
 function getResourceWithPrefix(s)
     local results = {}
     for k, v in pairs(G.P_CENTERS) do
-        if StartsWith(k, s) then
+        if StartsWith(k, s) then --and k.unlocked == true then
             print(k)
             table.insert(results, k)
         end
@@ -20,12 +20,12 @@ function getResourceWithPrefix(s)
 end
 
 function getRandomFoxJoker()
-    print("getting a random fox joker")
-    local allFoxJokers = getResourceWithPrefix("j_Fox")
-    print("received list of " .. #allFoxJokers)
+    --print("getting a random fox joker")
+    local allFoxJokers = getResourceWithPrefix("j_Fox")    
+    --print("received list of " .. #allFoxJokers)
     local randomJoker = allFoxJokers[math.random(#allFoxJokers)]
 
-    print("random joker shall be " .. randomJoker)
+    --print("random joker shall be " .. randomJoker)
 
     return randomJoker
 end
@@ -68,17 +68,63 @@ end
 
 local function poll_with_custom_editions()
     local randNo = math.random(2)
-    if randNo > 1 then
+    if randNo > 1 and FoxModConfig.customEditions then
         local edition = poll_edition('aura', nil, true, true)
-        if nil == edition then return poll_custom_editions() end
+        if nil == edition and FoxModConfig.customEditions then return poll_custom_editions() end
         return edition
     else
-        local edition = poll_custom_editions()
+        local edition = nil
+        if FoxModConfig.customEditions then
+            edition = poll_custom_editions()
+        else
+            edition = poll_edition('aura', nil, true, true)
+        end
         return edition
     end
 end
 
 if FoxModConfig.customBoosters then
+
+    
+    SMODS.Booster({
+        object_type = "Booster",
+        key = "RarityStandardCollection",
+        kind = "Card",
+        atlas = "FoxModBoosters",
+        pos = { x = 0, y = 0 },
+        config = { extra = 4, choose = 1 },
+        cost = 10,
+        order = 3,
+        weight = 0.25,
+        create_card = function(self, card)
+            --function create_playing_card(card_init, area, skip_materialize, silent, colours)
+
+            local getCard = create_playing_card(nil, G.pack_cards, true, true, nil)
+            sendInfoMessage("creating cards for this pack")
+            local jokerInfo = inspect(getCard)
+            -- sendInfoMessage("created joker card of " .. jokerInfo.base.key, self.key)
+            local edition = poll_with_custom_editions()
+            getCard:set_edition(edition, false)
+            return getCard
+        end,
+        ease_background_colour = function(self)
+            ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
+            ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
+        end,
+        loc_vars = function(self, info_queue, card)
+            return { vars = { card.config.center.config.choose, card.ability.extra } }
+        end,
+        loc_txt = {
+            name = "Standard Rarity Collection",
+            text = {
+                "Choose {C:attention}#1#{} of",
+                "up to {C:attention}#2# Rare Edition Cards{}",
+            },
+        },
+        group_key = "StandardRarity",
+    })
+end --customEditionCheck
+
     if FoxModConfig.customEditions then
         SMODS.Booster({
             object_type = "Booster",
@@ -178,44 +224,6 @@ if FoxModConfig.customBoosters then
             group_key = "RarityMegaCollection",
         })
 
-        SMODS.Booster({
-            object_type = "Booster",
-            key = "RarityStandardCollection",
-            kind = "Card",
-            atlas = "FoxModBoosters",
-            pos = { x = 2, y = 0 },
-            config = { extra = 4, choose = 1 },
-            cost = 10,
-            order = 3,
-            weight = 0.25,
-            create_card = function(self, card)
-                --function create_playing_card(card_init, area, skip_materialize, silent, colours)
-
-                local getCard = create_playing_card(nil, G.pack_cards, true, true, nil)
-                sendInfoMessage("creating cards for this pack")
-                local jokerInfo = inspect(getCard)
-                -- sendInfoMessage("created joker card of " .. jokerInfo.base.key, self.key)
-                local edition = poll_with_custom_editions()
-                getCard:set_edition(edition, false)
-                return getCard
-            end,
-            ease_background_colour = function(self)
-                ease_colour(G.C.DYN_UI.MAIN, G.C.BLUE)
-                ease_background_colour({ new_colour = G.C.SET.PURPLE, special_colour = G.C.BLACK, contrast = 2 })
-            end,
-            loc_vars = function(self, info_queue, card)
-                return { vars = { card.config.center.config.choose, card.ability.extra } }
-            end,
-            loc_txt = {
-                name = "Standard Rarity Collection",
-                text = {
-                    "Choose {C:attention}#1#{} of",
-                    "up to {C:attention}#2# Rare Edition Cards{}",
-                },
-            },
-            group_key = "StandardRarity",
-        })
-    end --customEditionCheck
 
     if FoxModConfig.modSpecificJokerBoosters then
         SMODS.Booster({
@@ -223,7 +231,7 @@ if FoxModConfig.customBoosters then
             key = "FickleFoxCollection",
             kind = "Jokers",
             atlas = "FoxModBoosters",
-            pos = { x = 0, y = 0 },
+            pos = { x = 2, y = 0 },
             config = { extra = 4, choose = 1 },
             cost = 10,
             order = 3,
@@ -231,7 +239,7 @@ if FoxModConfig.customBoosters then
             create_card = function(self, card)
                 -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
                 local randomFoxJoker = getRandomFoxJoker()
-                print(randomFoxJoker)
+                --print(randomFoxJoker)
                 local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, randomFoxJoker, "Fox")
                 sendInfoMessage("creating cards for this pack", self.key)
 
@@ -278,9 +286,9 @@ if FoxModConfig.customBoosters then
             atlas = "FoxModBoosters",
             pos = { x = 0, y = 1 },
             config = { extra = 5, choose = 1 },
-            cost = 15,
+            cost = 17,
             order = 3,
-            weight = 0.05,
+            weight = 0.10,
             create_card = function(self, card)
                 -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
                 local getCard = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, "foxNegation")

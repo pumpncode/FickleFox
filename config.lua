@@ -4,5 +4,6 @@ return {
 	playSounds = true,
     negativeBooster = true,
     modSpecificJokerBoosters = true,
-    moreMystery = true
+    moreMystery = true,
+    animatedSpecialDecks = true
 }

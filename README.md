@@ -32,9 +32,10 @@ This mod contains a lot of fun stuff, including 40+ fun and original Joker ideas
 ### 5+ new boosters
 ### New Editions, Vouchers, Decks and more!
 
+![](jokerSample.webp)
+*Just a sampling of the Joker's you will discover!*
 <details>
-    <summary><b>Mod Spoilers</b></summary>
-    ![](jokerSample.webp)
+    <summary><b>Mod Spoilers</b></summary>    
 
     * Golden Repeater - a golden retriever!  Has a chance to repeat gold cards and sometimes make a copy of them!
     * Lucky Repeater - an irish setter,  Has a chance to repeat lucky cards and sometimes make a copy of them!
@@ -59,8 +60,31 @@ This mod contains a lot of fun stuff, including 40+ fun and original Joker ideas
     <summary><b>Contains Joker Spoilers</b></summary>
     * Fix Creeper, it should explode    
     * Add progression - unlock system!    
-    * Caffeine is a great option for a retrigger joker, it's chemical compound is C8H10N4O2 so it would retrigger 
-        10, 8, 4 and 2's
+    * Grass Deck, Grass Jokers and Glass jokers unlock conditions need to be tightened up (seems to look at jokers, or not be strict enough)
+
+</details><br>
+
+## Changelog
+<details>
+    <summary><b>v 0.5.0 - Half Moon Release</b></summary>    
+    * Fixes boot loop issue * 
+    * Add progression - unlock system!  Make a new profile to see these unlocks!
+    * * Adds new decks with progressive unlock
+    * * Adds loads of new fun joker unlocks as well
+    * Cleans up card logic
+    * Fixes 'Again' messages firing for wrong cards
+    * Fixes numerous 'Repeat' or 'Retrigger' cards not working as expected
+    * Buffs the Grass Card to make it more viable
+    * Buffs Benevolence's Gold Seal interaction
+    * Fixes wrong description for FickleFox Joker: Thanks to Discord user [Seals on Everything](https://discord.com/channels/1116389027176787968/1355819401198178455)
+    * Adds more configuration
+    * * Can now disable Mod specific boosters, the Negatvie booster, and many other things
+    * * Adds 'more Mystery' mode which preserves the previous sort of insane behavior of Cam and the funny description of Mochi Cat
+    * Fixes the logic for Caffinated and Mochi cat to work!
+    * Adds beautiful new shaders to special edition decks!
+    * Adds beautiful new version of secretRare shader
+    * Adjusted Card Doubling rates for Lucky and Golden Retriever, from 1 ~ 8 to 1 ~ 10 
+    * Adjusted card and booster spawn rates
 
 </details><br>
 
