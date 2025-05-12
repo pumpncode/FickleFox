@@ -4,9 +4,8 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
-//watch shader Mods/FoxMods/assets/shaders/secretRare_4.fs
-extern MY_HIGHP_OR_MEDIUMP vec2 secretRare;
-
+//watch shader Mods/FickleFox/assets/shaders/shadowChrome.fs
+extern MY_HIGHP_OR_MEDIUMP vec2 shadowChrome;
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
 extern MY_HIGHP_OR_MEDIUMP number time;
 extern MY_HIGHP_OR_MEDIUMP vec4 texture_details;
@@ -64,7 +63,7 @@ number hue(number s, number t, number h)
 
 vec4 RGB(vec4 c)
 {
-	if (c.y == 0.)
+	if (c.y < 0.0001)
 		return vec4(vec3(c.z), c.a);
 
 	number t = (c.z < .5) ? c.y*c.z + c.z : -c.y*c.z + (c.y+c.z);
@@ -96,82 +95,52 @@ vec4 HSL(vec4 c)
 	return hsl;
 }
 
+vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 tex = Texel(texture, texture_coords);
+	vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
 
+	number low = min(tex.r, min(tex.g, tex.b));
+    number high = max(tex.r, max(tex.g, tex.b));
+	number delta = high - low;
 
-// **Hash function for procedural randomness**
-vec2 hash(vec2 p) {
-    p = vec2(dot(p, vec2(127.1, 311.7)),
-             dot(p, vec2(269.5, 183.3)));
-    return fract(sin(p) * 43758.5453123);
+	number saturation_fac = 1. - max(0., 0.05*(1.1-delta));
+
+	vec4 hsl = HSL(vec4(tex.r*saturation_fac, tex.g*saturation_fac, tex.b, tex.a));
+
+	float t = shadowChrome.y*2.221 + time;
+	vec2 floored_uv = (floor((uv*texture_details.ba)))/texture_details.ba;
+    vec2 uv_scaled_centered = (floored_uv - 0.5) * 50.;
+	
+	vec2 field_part1 = uv_scaled_centered + 50.*vec2(sin(-t / 143.6340), cos(-t / 99.4324));
+	vec2 field_part2 = uv_scaled_centered + 50.*vec2(cos( t / 53.1532),  cos( t / 61.4532));
+	vec2 field_part3 = uv_scaled_centered + 50.*vec2(sin(-t / 87.53218), sin(-t / 49.0000));
+
+    float field = (1.+ (
+        cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
+        cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92) ))/2.;
+
+    float res = (.5 + .5* cos( (shadowChrome.x) * 2.612 + ( field + -.5 ) *3.14));
+	hsl.x = hsl.x+ res + shadowChrome.y*0.04;
+	hsl.y = min(0.6,hsl.y+0.5);
+
+    tex.rgb = RGB(hsl).rgb;
+	vec4 SAT = HSL(tex);
+	
+	if (shadowChrome.g > 0.0 || shadowChrome.g < 0.0) {
+		SAT.b = (1.-SAT.b);
+	}
+	SAT.r = -SAT.r+0.2;
+
+    tex = RGB(SAT) + 0.8*vec4(79./255., 99./255.,103./255.,0.);
+
+	tex.g = 0;
+	tex.r = tex.b * 0.5;
+	tex.b = tex.b * 0.7;
+	if (tex[3] < 0.7)
+		tex[3] = tex[3]/3.;
+	return dissolve_mask(tex, texture_coords, uv);
 }
-
-
-vec3 hueToRGB(float h) {
-    h = fract(h); // Keep hue within 0-1 range
-    vec3 col = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-    return col * col * (3.0 - 2.0 * col); // Slight contrast enhancement
-}
-
-
-//**Works and gorgeous! 
-vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords) {
-    vec4 texColor = Texel(texture, texture_coords);
-    vec2 uv = texture_coords * image_details.xy / image_details.y;
-
-    if (texColor.a < 0.01) {
-        return dissolve_mask(texColor, texture_coords, texture_coords);
-    }
-
-    float whiteness = texColor.r * texColor.g * texColor.b;
-    // bool is_white = whiteness > 0.55;
-
-    // //vec4 whiteBlend = 
-    //  if (is_white) {
-    //     float smoke_time = time * 0.3; // Slows the movement for a natural drift
-    //     vec2 smoke_uv = uv * 3.0; // Scale noise effect
-        
-    //     // layered turbulence for smoky effect**
-    //     float smoke1 = sin(smoke_uv.x * 3.0 + smoke_time) * 0.5;
-    //     float smoke2 = cos(smoke_uv.y * 4.0 - smoke_time * 1.2) * 0.5;
-    //     float smoke3 = sin(smoke_uv.x * 1.5 + smoke_uv.y * 1.2 + smoke_time * 0.8) * 0.5;
-
-    //     float smoke_pattern = (smoke1 + smoke2 + smoke3) * 0.3 + 0.5;
-    
-    //     return vec4(vec3(1.0 - smoke_pattern * 0.3), 1.0); // Soft black smoke over white
-    // }    
-
-    float density = 350.0;  
-
-    vec2 gridPos = floor(uv * density);
-    vec2 randOffset = hash(gridPos);
-    vec2 dustUV = uv - (gridPos + randOffset) / density;
-
-    // Increase Mote Size in Small Areas
-    float dustMote = smoothstep(0.8, 0.05, length(dustUV) * density); // Increase smoothstep range
-
-    // Flicker - does not work
-    //float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5);
-
-    float highlight = abs(sin(time * 3.0 + uv.x * 15.0)); 
-    float specular = pow(highlight, 12.0) * 0.5; // gold seal approach?
-
-    float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5) + specular;
-
-    float minBrightness = 0.05;
-    float hue = fract(dot(gridPos, vec2(0.7, 0.5)) + time * 0.5);
-    vec3 sparkleColor = hueToRGB(hue) * sparkle;
-    sparkleColor = mix(vec3(minBrightness), sparkleColor, sparkle);
-
-    vec4 finalColor = texColor;
-    finalColor.rgb += sparkleColor;
-    finalColor.a = max(sparkle, texColor.a);
-
-    // Do not remove!  some weird shader optimization happens here
-    finalColor.rgb += secretRare.x * 0.0;
-
-    return dissolve_mask(finalColor * colour, texture_coords, texture_coords);
-}
-
 
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;
 extern MY_HIGHP_OR_MEDIUMP float hovering;

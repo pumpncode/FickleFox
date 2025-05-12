@@ -4,7 +4,7 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
-//watch shader Mods/FoxMods/assets/shaders/ghostRare.fs
+//  watch shader Mods/FickleFox/assets/shaders/ghostRare.fs
 extern MY_HIGHP_OR_MEDIUMP vec2 ghostRare;
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
 extern MY_HIGHP_OR_MEDIUMP number time;
@@ -95,39 +95,167 @@ vec4 HSL(vec4 c)
 	return hsl;
 }
 
+vec2 hash2(vec2 p) {
+    p = vec2(dot(p, vec2(127.1, 311.7)),
+             dot(p, vec2(269.5, 183.3)));
+    return fract(sin(p) * 43758.5453);
+}
+
+
+float snow(vec2 uv, float scale) {
+    float w = smoothstep(1.0, 0.0, -uv.y * (scale / 10.0));
+    if (w < 0.1) return 0.0;
+
+    uv += ghostRare.y / scale;
+    uv.y += ghostRare.y * 2.0 / scale;
+    uv.x += sin(uv.y + ghostRare.y * 0.5) / scale;
+
+    uv *= scale;
+    vec2 s = floor(uv);
+    vec2 f = fract(uv);
+    vec2 p;
+    float k = 3.0, d;
+    p = 0.5 + 0.35 * sin(11.0 * fract(sin((s + p + scale) * mat2(7, 3, 6, 5)) * 5.0)) - f;
+    d = length(p);
+    k = min(d, k);
+    k = smoothstep(0.0, k, sin(f.x + f.y) * 0.01);
+
+    return k * w;
+}
+
+
 vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
-    vec4 tex = Texel(texture, texture_coords);
-	vec2 uv = (((texture_coords) * image_details) - texture_details.xy * texture_details.ba) / texture_details.ba;
+   vec4 tex = Texel(texture, texture_coords);
+vec2 uv = (((texture_coords) * image_details) - texture_details.xy * texture_details.ba) / texture_details.ba;
 
-    float whiteness = tex.r * tex.g * tex.b;
-    bool is_white = whiteness > 0.85;
+float whiteness = tex.r * tex.g * tex.b;
+bool is_white = whiteness > 0.85;
 
-    number low = min(tex.r, min(tex.g, tex.b));
-    number high = max(tex.r, max(tex.g, tex.b));
-	number delta = high - low - 0.1;
+number low = min(tex.r, min(tex.g, tex.b));
+number high = max(tex.r, max(tex.g, tex.b));
+number delta = high - low - 0.1;
 
-    // Voronoi-style smoke for white regions
-    if (is_white) {
-        vec2 smoke_uv = uv * 20.0;
-        float t = time * 12.5;
+// Protect saturated colors near center
+vec2 centeredUV = abs(uv - 0.5);
+bool isNearCenter = max(centeredUV.x, centeredUV.y) < 0.25;
+bool isDeepPurple = tex.r > 0.3 && tex.b > 0.3 && tex.g < 0.2;
+bool isProtectedColor = delta > 0.4;// && isNearCenter;
 
-        float noise = (
-            sin(smoke_uv.x + t) +
-            cos(smoke_uv.y * 1.3 - t * 0.6) +
-            sin(smoke_uv.x * 0.8 + smoke_uv.y * 0.6 + t * 0.7) +
-            cos((smoke_uv.x + smoke_uv.y) * 1.5 - t * 0.9)
-        ) * 0.25 + 0.5;
+vec2 adjusted_uv = uv - vec2(0.5);
 
-        float softness = smoothstep(0.1, 0.9, noise);
-        return dissolve_mask(vec4(vec3(softness * 0.6), 1.0), texture_coords, uv);
-    }
+
+// Radial distance check
+float radial_dist = length(adjusted_uv);
+bool is_outer_region = radial_dist > 0.1;
+
+if (is_white) {
+
+    // Compute animated position by shifting upward over time
+    float riseSpeed = 0.1; // tweak this
+    //vec2 animatedUV = uv - vec2(0.0, mod(time * riseSpeed + randOffset.y, 1.0));
+
+    vec2 smoke_uv = uv * 20.0;
+    float gradientMask = clamp(dot(uv, normalize(vec2(1.0, 1.0))), 0.0, 1.0);
+    float maskStrength = smoothstep(0.3, 0.8, gradientMask);
+
+    //trying to integrate .r, rotstion, to see if we can make the smoke move more
+    float t = time * 12.5 + ghostRare.x * 0.015;
+
+    float noise = (
+        sin(smoke_uv.x + t + ghostRare.r * 1.15) +
+        cos(smoke_uv.y * 1.3 - t * 0.6) +
+        sin(smoke_uv.x * 0.8 + smoke_uv.y * 0.6 + t * 0.7) +
+        cos((smoke_uv.x + smoke_uv.y) * 1.5 - t * 0.9)
+    ) * 0.25 + 0.5;
+
+    // float softness = smoothstep(0.1, 0.9, noise);
+    float softness = smoothstep(0.1, 0.9, noise) * maskStrength;
+
+    //new sparkle test
+    float inverseMask = 1.0 - maskStrength;
+
+    // Animate upward motion from center line
+
+    vec2 animatedUV = uv - vec2(0.0, mod(time * riseSpeed + ghostRare.y * 2.0, 1.0)); // randomize offset per card
+
+// Mote generation
+vec2 gridPos = floor(animatedUV * 40.0);
+vec2 randOffset = hash2(gridPos);
+vec2 motePos = (gridPos + randOffset) / 40.0;
+
+float dist = length(animatedUV - motePos);
+float mote = smoothstep(0.02, 0.0, dist);
+
+// Flicker
+float flicker = abs(sin(time * 5.0 + dot(gridPos, vec2(3.1, 4.7)))) * 0.5 + 0.5;
+
+// Fade as they move up
+float verticalDistFromCenter = abs(animatedUV.y - 0.5);
+float fadeOut = smoothstep(0.3, 0.5, verticalDistFromCenter);
+mote *= 1.0 - fadeOut;
+
+// Final color
+vec3 moteColor = vec3(1.0) * mote * flicker * inverseMask * 0.6;
+
+    // Grid for mote placement
+    // vec2 gridPos = floor(animatedUV * 40.0);
+    // //vec2 randOffset = fract(sin(dot(gridPos, vec2(12.9898,78.233))) * 43758.5453);
+    // vec2 randOffset = hash2(gridPos);
+
+    // vec2 motePos = (gridPos + randOffset) / 40.0;
+
+    // // Distance from pixel to mote
+    // float dist = length(uv - motePos);
+    // float mote = smoothstep(0.02, 0.0, dist); // small soft circle
+
+    // // Optional twinkle/flicker
+    // float flicker = abs(sin(time *ghostRare.y * 5.0 + dot(gridPos, vec2(3.1, 4.7)))) * 0.5 + 0.5;
+
+    // vec3 moteColor = vec3(1.0) * mote * flicker * inverseMask * 0.6;
+    //end new
+
+
+    tex.rgb += moteColor;
+    vec4 k = vec4(vec3(softness * 0.6), 1.0);
+    k.rgb;// += moteColor;// + finalColor;
+    return dissolve_mask(k, texture_coords, uv);
+}
+
+if (isProtectedColor){
+     number fac = 0.8 + 0.9 * sin(11. * uv.x + 4.32 * uv.y + ghostRare.r * 12. + cos(ghostRare.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
+    number fac2 = 0.5 + 0.5 * sin(8. * uv.x + 2.32 * uv.y + ghostRare.r * 5. - cos(ghostRare.r * 2.3 + uv.x * 8.2));
+    number fac3 = 0.5 + 0.5 * sin(10. * uv.x + 5.32 * uv.y + ghostRare.r * 6.111 + sin(ghostRare.r * 5.3 + uv.y * 3.2));
+    number fac4 = 0.5 + 0.5 * sin(3. * uv.x + 2.32 * uv.y + ghostRare.r * 8.111 + sin(ghostRare.r * 1.3 + uv.y * 11.2));
+    number fac5 = sin(0.9 * 16. * uv.x + 5.32 * uv.y + ghostRare.r * 12. + cos(ghostRare.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
+
+    number maxfac = 0.7 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fac3 * fac4), 0.);
+
+    // looks weird
+    vec3 inverted = mix(tex.rgb, 1.0 - tex.rgb, smoothstep(0.1, 1.0, high));
+    
+    float gradientFactor = (uv.x + uv.y) * 0.5;  
+    vec3 blueTint = vec3(0.2, 0.4, 1.0);  
+    vec3 redTint = vec3(1.0, 0.2, 0.3); 
+
+    // mix it up
+    vec3 finalColor = mix(blueTint, redTint, gradientFactor) * inverted;
+    
+    finalColor.r = finalColor.r - delta + delta * maxfac * (0.7 + fac5 * 0.27) - 0.1;
+    finalColor.g = finalColor.g - delta + delta * maxfac * (0.7 - fac5 * 0.27) - 0.1;
+    finalColor.b = finalColor.b - delta + delta * maxfac * 0.7 - 0.1;
+
+    tex.rgb = finalColor;
+    tex.a = tex.a * (0.5 * max(min(1., max(0., 0.3 * max(low * 0.2, delta) + min(max(maxfac * 0.1, 0.), 0.4))), 0.) + 0.15 * maxfac * (0.1 + delta));
+
+    return dissolve_mask(tex, texture_coords, uv);
+}
 
     // Faded color logic
     number saturation_fac = 1.0 - max(0.0, 0.05 * (1.1 - delta));
     vec4 hsl = HSL(vec4(tex.r * saturation_fac, tex.g * saturation_fac, tex.b, tex.a));
 
-    float t = ghostRare.y * 2.221 + time;
+    float t = ghostRare.x * 2.221 + time * 10;
     vec2 floored_uv = (floor((uv * texture_details.ba))) / texture_details.ba;
     vec2 uv_scaled_centered = (floored_uv - 0.5) * 50.0;
 

@@ -4,8 +4,7 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
-//watch shader Mods/FickleFox/assets/shaders/secretRare_new.fs
-// inspired by https://www.shadertoy.com/view/Dty3Dc
+//watch shader Mods/FickleFox/assets/shaders/secretRare_4.fs
 extern MY_HIGHP_OR_MEDIUMP vec2 secretRare;
 
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
@@ -113,121 +112,66 @@ vec3 hueToRGB(float h) {
     return col * col * (3.0 - 2.0 * col); // Slight contrast enhancement
 }
 
-////new looks smll in the game for some reason
+
+//**Works and gorgeous! 
 vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords) {
     vec4 texColor = Texel(texture, texture_coords);
+    vec2 uv = texture_coords * image_details.xy / image_details.y;
 
-    // **Exit Early if the Texture is Transparent**
+    texColor.rgb *= 0.7;
     if (texColor.a < 0.01) {
         return dissolve_mask(texColor, texture_coords, texture_coords);
     }
 
-    vec2 uv = texture_coords * image_details.xy / image_details.y;
+    float whiteness = texColor.r * texColor.g * texColor.b;
+    // bool is_white = whiteness > 0.55;
 
-    float density = 300.0;
+    // //vec4 whiteBlend = 
+    //  if (is_white) {
+    //     float smoke_time = time * 0.3; // Slows the movement for a natural drift
+    //     vec2 smoke_uv = uv * 3.0; // Scale noise effect
+        
+    //     // layered turbulence for smoky effect**
+    //     float smoke1 = sin(smoke_uv.x * 3.0 + smoke_time) * 0.5;
+    //     float smoke2 = cos(smoke_uv.y * 4.0 - smoke_time * 1.2) * 0.5;
+    //     float smoke3 = sin(smoke_uv.x * 1.5 + smoke_uv.y * 1.2 + smoke_time * 0.8) * 0.5;
+
+    //     float smoke_pattern = (smoke1 + smoke2 + smoke3) * 0.3 + 0.5;
+    
+    //     return vec4(vec3(1.0 - smoke_pattern * 0.3), 1.0); // Soft black smoke over white
+    // }    
+
+    float density = 350.0;  
 
     vec2 gridPos = floor(uv * density);
     vec2 randOffset = hash(gridPos);
     vec2 dustUV = uv - (gridPos + randOffset) / density;
 
-    // trying to fix small appearance again
-    float dustMote = smoothstep(0.3, 0.03, length(dustUV) * density);
+    // Increase Mote Size in Small Areas
+    float dustMote = smoothstep(0.8, 0.05, length(dustUV) * density); // Increase smoothstep range
 
-    float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5);
+    // Flicker - does not work
+    //float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5);
 
-    // trying the shine approach from gold coin 
-    float fac = 0.8 + 0.9 * sin(11. * uv.x + 4.32 * uv.y + secretRare.r * 12. + cos(secretRare.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
-    float fac2 = 0.5 + 0.5 * sin(8. * uv.x + 2.32 * uv.y + secretRare.r * 5. - cos(secretRare.r * 2.3 + uv.x * 8.2));
-    float fac3 = 0.5 + 0.5 * sin(10. * uv.x + 5.32 * uv.y + secretRare.r * 6.111 + sin(secretRare.r * 5.3 + uv.y * 3.2));
-    float fac4 = 0.5 + 0.5 * sin(3. * uv.x + 2.32 * uv.y + secretRare.r * 8.111 + sin(secretRare.r * 1.3 + uv.y * 11.2));
-    float fac5 = sin(0.9 * 16. * uv.x + 5.32 * uv.y + secretRare.r * 12. + cos(secretRare.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
+    float highlight = abs(sin(time * 3.0 + uv.x * 15.0)); 
+    float specular = pow(highlight, 12.0) * 0.5; // gold seal approach?
 
-    float maxfac = 0.7 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fac3 * fac4), 0.);
+    float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5) + specular;
 
-    float shineFactor = maxfac * sparkle;
-    sparkle += shineFactor * 0.7; 
-
+    float minBrightness = 0.05;
     float hue = fract(dot(gridPos, vec2(0.7, 0.5)) + time * 0.5);
-    vec3 sparkleColor = hueToRGB(hue) * sparkle;    
-    float minBrightness = 0.25;
+    vec3 sparkleColor = hueToRGB(hue) * sparkle;
     sparkleColor = mix(vec3(minBrightness), sparkleColor, sparkle);
 
-    
     vec4 finalColor = texColor;
-    // looked weird finalColor.rgb += sparkleColor;
-
-    finalColor.rgb = mix(finalColor.rgb, sparkleColor, sparkle);
-
+    finalColor.rgb += sparkleColor;
     finalColor.a = max(sparkle, texColor.a);
 
-    //can't find a better way to use the x value yet but needed for shader reasosn
+    // Do not remove!  some weird shader optimization happens here
     finalColor.rgb += secretRare.x * 0.0;
-    
 
     return dissolve_mask(finalColor * colour, texture_coords, texture_coords);
 }
-
-
-//**Works and gorgeous! 
-// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords) {
-//     vec4 texColor = Texel(texture, texture_coords);
-//     vec2 uv = texture_coords * image_details.xy / image_details.y;
-// 
-//     if (texColor.a < 0.01) {
-//         return dissolve_mask(texColor, texture_coords, texture_coords);
-//     }
-
-//     float whiteness = texColor.r * texColor.g * texColor.b;
-//     // bool is_white = whiteness > 0.55;
-
-//     // //vec4 whiteBlend = 
-//     //  if (is_white) {
-//     //     float smoke_time = time * 0.3; // Slows the movement for a natural drift
-//     //     vec2 smoke_uv = uv * 3.0; // Scale noise effect
-        
-//     //     //     //     float smoke1 = sin(smoke_uv.x * 3.0 + smoke_time) * 0.5;
-//     //     float smoke2 = cos(smoke_uv.y * 4.0 - smoke_time * 1.2) * 0.5;
-//     //     float smoke3 = sin(smoke_uv.x * 1.5 + smoke_uv.y * 1.2 + smoke_time * 0.8) * 0.5;
-//     //     
-//     //     float smoke_pattern = (smoke1 + smoke2 + smoke3) * 0.3 + 0.5;
-//     //     return vec4(vec3(1.0 - smoke_pattern * 0.3), 1.0); // Soft black smoke over white
-//     // }    
-
-//   
-//     float density = 350.0;  // Was 40.0 
-
-//     vec2 gridPos = floor(uv * density);
-//     vec2 randOffset = hash(gridPos);
-//     vec2 dustUV = uv - (gridPos + randOffset) / density;
-
-//     // **Increase Mote Size in Small Areas**
-//     float dustMote = smoothstep(0.8, 0.05, length(dustUV) * density); // Increase smoothstep range
-
-//     // **Flicker Effect**
-//     //float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5);
-
-//     float highlight = abs(sin(time * 3.0 + uv.x * 15.0)); 
-//     float specular = pow(highlight, 12.0) * 0.5; // Sharper highlight for "glinting" effect
-
-//     // **Shiny Glitter Effect**
-//     float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5) + specular;
-
-//     // **Ensure Motes Appear Even on Bright Backgrounds**
-//     float minBrightness = 0.05;
-//     float hue = fract(dot(gridPos, vec2(0.7, 0.5)) + time * 0.5);
-//     vec3 sparkleColor = hueToRGB(hue) * sparkle;
-//     sparkleColor = mix(vec3(minBrightness), sparkleColor, sparkle);
-
-//     // **Blend Sparkles into the Texture**
-//     vec4 finalColor = texColor;
-//     finalColor.rgb += sparkleColor;
-//     finalColor.a = max(sparkle, texColor.a);
-
-//     // **Prevent Optimization Removal**
-//     finalColor.rgb += secretRare.x * 0.0;
-
-//     return dissolve_mask(finalColor * colour, texture_coords, texture_coords);
-// }
 
 
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;
