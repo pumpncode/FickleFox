@@ -677,19 +677,16 @@ if FoxModConfig.animatedSpecialDecks then
                     deckName = "b_Fox_InsanityDeck",
                     shader   = "Fox_shadowChrome",
                 },
-            }    
+            }                  
             
-            if self.area and self.area.config and self.area.config.type == "deck" then
-                local currentBack = not self.params.galdur_selector
-                    and ((Galdur and Galdur.config.use and type(self.params.galdur_back) == "table" and self.params.galdur_back)
-                        or (type(self.params.viewed_back) == "table" and self.params.viewed_back)
-                        or (self.params.viewed_back and G.GAME.viewed_back or G.GAME.selected_back))
-                    or Back(G.P_CENTERS["b_Fox_goldDeck"]) 
-                    or Back(G.P_CENTERS["b_Fox_GhostRareDeck"])
-                    or Back(G.P_CENTERS["b_Fox_RarityCollectionDeck"])
-                    or Back(G.P_CENTERS["b_Fox_secretRareDeck"])
-                    or Back(G.P_CENTERS["b_Fox_InsanityDeck"])
-            
+                    if self.area and self.area.config and self.area.config.type == "deck" then
+                        local currentBack = (type(self.params.viewed_back) == "table" and self.params.viewed_back)
+                                or (self.params.viewed_back and G.GAME.viewed_back or G.GAME.selected_back)
+                            or Back(G.P_CENTERS["b_Fox_goldDeck"]) 
+                            or Back(G.P_CENTERS["b_Fox_GhostRareDeck"])
+                            or Back(G.P_CENTERS["b_Fox_RarityCollectionDeck"])
+                            or Back(G.P_CENTERS["b_Fox_secretRareDeck"])
+                            or Back(G.P_CENTERS["b_Fox_InsanityDeck"])
                 local deckToShaderMapping = nil
             
                 if currentBack and currentBack.effect.center.key then

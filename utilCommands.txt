@@ -38,3 +38,39 @@ eval forceEditionCollectionView("e_Fox_goldRare")
 
 watch shader Mods/FickleFox/assets/shaders/ghostRare.fs
 mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+
+
+function StartsWith(String, Start)
+    return string.sub(String, 1, string.len(Start)) == Start
+end
+
+function string.starts(String, Start)
+    return string.sub(String, 1, string.len(Start)) == Start
+end
+
+function getResourceWithPrefix(s)
+    local results = {}
+    for k, v in pairs(G.P_CENTERS) do
+        if StartsWith(k, s) then --and k.unlocked == true then
+            print(k)
+            table.insert(results, k)
+        end
+    end
+    return results
+end                
+
+local getEditions = getResourceWithPrefix("e_")
+print(getEditions[2] .. " e")
+for index, value in ipairs(getEditions) do    
+    local ed = G.P_CENTERS[value]
+    local w = ed.weight or 1
+    print("This edition is " .. value .. " weight = " .. w)-- .. ed.weight or 1)
+end
+
+
+
+
+v 0.5.0 - Half Moon Release
+
+git tag v0.5 -a -m "Half-Moon Release v0.5"
+git push origin --tags
