@@ -1316,8 +1316,9 @@ SMODS.Joker { -- Bandit Loach
                 level_up = true,
                 message = localize('k_level_up_ex')
             }
-        elseif context.cardarea == G.jokers and context.before and not G.GAME.current_round.hands_played == 0 then
+        elseif context.cardarea == G.jokers and context.before and G.GAME.current_round.hands_played > 0 then
             --prob check for free upgrade
+            sendInfoMessage("checking for freebie")
             if pseudorandom('bandit_loach') < G.GAME.probabilities.normal / card.ability.odds then
                 return {
                     card = self,
@@ -1837,7 +1838,7 @@ SMODS.Joker { --flushTailed fox - boosts played flushes
             card.ability.ready = false
         elseif nil == context.poker_hands then
             card.ability.ready = false
-        elseif context.cardarea == G.play then
+        elseif context.cardarea == G.play and context.repetition then
             if card.ability.ready then
                 sendInfoMessage("hand is scoring and we are ready", self.key)
 
