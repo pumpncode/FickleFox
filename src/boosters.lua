@@ -235,7 +235,7 @@ end --customEditionCheck
             config = { extra = 4, choose = 1 },
             cost = 10,
             order = 3,
-            weight = 0.15,
+            weight = 0.25,
             create_card = function(self, card)
                 -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
                 local randomFoxJoker = getRandomFoxJoker()
