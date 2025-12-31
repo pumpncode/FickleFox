@@ -95,6 +95,7 @@ vec4 HSL(vec4 c)
 	return hsl;
 }
 
+// combines virnoi/whirley noise with a random green pattern
 vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
     vec4 tex = Texel(texture, texture_coords);

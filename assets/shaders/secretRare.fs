@@ -21,7 +21,7 @@ vec4 dissolve_mask(vec4 tex, vec2 texture_coords, vec2 uv)
         return vec4(shadow ? vec3(0.,0.,0.) : tex.xyz, shadow ? tex.a*0.3: tex.a);
     }
 
-    float adjusted_dissolve = (dissolve*dissolve*(3.-2.*dissolve))*1.02 - 0.01; //Adjusting 0.0-1.0 to fall to -0.1 - 1.1 scale so the mask does not pause at extreme values
+    float adjusted_dissolve = (dissolve*dissolve*(3.-2.*dissolve))*1.02 - 0.01; 
 
 	float t = time * 10.0 + 2003.;
 	vec2 floored_uv = (floor((uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
@@ -96,19 +96,16 @@ vec4 HSL(vec4 c)
 	return hsl;
 }
 
-
-// **Hash function for procedural randomness**
 vec2 hash(vec2 p) {
     p = vec2(dot(p, vec2(127.1, 311.7)),
              dot(p, vec2(269.5, 183.3)));
     return fract(sin(p) * 43758.5453123);
 }
 
-
 vec3 hueToRGB(float h) {
-    h = fract(h); // Keep hue within 0-1 range
+    h = fract(h);
     vec3 col = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-    return col * col * (3.0 - 2.0 * col); // Slight contrast enhancement
+    return col * col * (3.0 - 2.0 * col); 
 }
 
 extern vec2 resolution;
@@ -124,26 +121,22 @@ vec2 hash2(vec2 p)
 
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screenCoords)
 {
-    // vec2 uv = screenCoords / resolution;
-        vec2 uv = texture_coords * image_details.xy / image_details.y;
 
-        vec4 tex2 = Texel(tex, texture_coords);
-        if (tex2.a < 0.01) {
-            return dissolve_mask(tex2 * color, texture_coords, texture_coords);
-        }
+    vec2 uv = texture_coords * image_details.xy / image_details.y;
+
+    vec4 tex2 = Texel(tex, texture_coords);
+    if (tex2.a < 0.01) {
+        return dissolve_mask(tex2 * color, texture_coords, texture_coords);
+    }
 
     //polygon tiles
-    float scale = 150.0; // Try 50–80 for more cells
+    float scale = 150.0;
     vec2 ip = floor(uv * scale);
-    vec2 fp = fract(uv * scale);
-
-    // vec2 ip = floor(uv * 20.0);  // controls scale of polygons
-    // vec2 fp = fract(uv * 20.0);
+    vec2 fp = fract(uv * scale);    
 
     float minDist = 50.0;
     float cellHue = 0.0 + secretRare.r;
     vec2 point;
-
 
     for (int j = -1; j <= 1; j++)
     for (int i = -1; i <= 1; i++) {
@@ -158,7 +151,7 @@ vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screenCoords)
             point = p;
         }
     }
-    // ----- SPECTRAL GEMS RAINBOW -----
+    
     float w = fract(cellHue + time * 0.4 + secretRare.r); 
     vec3 rainbow = vec3(
         max(1.0 - pow(4.0 * (w - 0.75), 2.0), 0.0),
@@ -166,25 +159,18 @@ vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screenCoords)
         max(1.0 - pow(4.0 * (w - 0.25), 2.0), 0.0)
     );
     
-    rainbow = pow(rainbow, vec3(0.6)) * 1.4 ;// + 0.8 * secretRare;
-    // rainbow = pow(rainbow, vec3(0.5)) * 1.86;
+    rainbow = pow(rainbow, vec3(0.6)) * 1.4 ;    
 
-    vec2 refractUV = uv + (point - 0.5) * 0.02 * secretRare.x; // tiny wobble
+    vec2 refractUV = uv + (point - 0.5) * 0.02 * secretRare.x; 
     vec3 refractedTex = Texel(tex, refractUV).rgb;
 
-    //vec3 blendedColor = mix(tex2.rgb, rainbow, 0.08 * secretRare.x); // 50% blend
-    vec3 blendedColor = mix(tex2.rgb, rainbow, 0.2);  // always visible
+    vec3 blendedColor = mix(tex2.rgb, rainbow, 0.2);
 
     float sparkle = smoothstep(0.0, 0.02, fract(sin(dot(ip, vec2(91.1, 57.3))) * 758.5453));
     blendedColor += sparkle * 0.05;
 
     vec4 finalColor = vec4(blendedColor, tex2.a);
     return dissolve_mask(finalColor * color, texture_coords, texture_coords);
-    // return dissolve_mask(vec4(rainbow * color.rgb, 1.0), texture_coords, texture_coords);
-
-    // return dissolve_mask(tex * rainbow, texture_coords, texture_coords);
-//return dissolve_mask(finalColor * colour, texture_coords, texture_coords);
-    // return vec4(rainbow * color.rgb, 1.0);
 }
 
 

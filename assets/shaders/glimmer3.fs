@@ -4,6 +4,7 @@
 	#define MY_HIGHP_OR_MEDIUMP mediump
 #endif
 
+//this is the source file for gold rare
 //watch shader Mods/FoxMods/assets/shaders/glimmer3.fs
 extern MY_HIGHP_OR_MEDIUMP vec2 glimmer;
 extern MY_HIGHP_OR_MEDIUMP number dissolve;
@@ -95,7 +96,9 @@ vec4 HSL(vec4 c)
 	return hsl;
 }
 
-
+// if the color is white, shift to black
+// if the color is ... a color, then shift it to golden hues
+// finally use a reflective shimmer to make it look shiney and gold 
 vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
     vec4 tex = Texel(texture, texture_coords);
@@ -131,17 +134,12 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
         return vec4(smoke_color, 1.0);
     }
     
-    vec4 hslGrey = HSL(tex);
-    
+    vec4 hslGrey = HSL(tex);    
             if (hslGrey.y < 0.15 || hslGrey.z < 0.15) {
             // This pixel is either grey or black — skip the gold shift
             return dissolve_mask(tex * colour, texture_coords, uv);
         }
 
-    // removed
-    // number low = min(tex.r, min(tex.g, tex.b));
-    // number high = max(tex.r, max(tex.g, tex.b));
-    // number delta = high - low;
     number saturation_fac = 1. - max(0., 0.05 * (1.1 - delta));
     vec4 hsl = HSL(vec4(tex.r * saturation_fac, tex.g * saturation_fac, tex.b, tex.a));
     
@@ -178,7 +176,6 @@ number maxfac = 0.7 * max(max(fac, max(fac2, max(fac3, 0.0))) + (fac + fac2 + fa
 vec3 baseGold = vec3(0.9, 0.7, 0.2); // Base gold
 vec3 warmHighlight = vec3(1.0, 0.85, 0.5); // Highlighted gold
 
-// belnd
 vec3 finalColor = mix(baseGold, warmHighlight, clamp(maxfac, 0.0, 1.0));
 
 
@@ -194,59 +191,6 @@ tex.rgb = finalColor;
     return dissolve_mask(tex * colour, texture_coords, uv);
 }
 
-
-
-// //works!  but want to  to try and improve it by adding an effect to the white area
-// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
-// {
-//     vec4 tex = Texel(texture, texture_coords);
-// 	vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
-
-//     // exit earlier for white
-//     float whiteness = tex.r * tex.g * tex.b;  
-//     if (whiteness > 0.85) {  
-//         return tex * colour;  
-//     }
-
-
-// 	number low = min(tex.r, min(tex.g, tex.b));
-//     number high = max(tex.r, max(tex.g, tex.b));
-// 	number delta = high - low;
-// 	number saturation_fac = 1. - max(0., 0.05*(1.1-delta));
-// 	vec4 hsl = HSL(vec4(tex.r * saturation_fac, tex.g * saturation_fac, tex.b, tex.a));
-
-// 	float t = glimmer.y * 2.221 + time;
-// 	vec2 floored_uv = (floor((uv * texture_details.ba))) / texture_details.ba;
-//     vec2 uv_scaled_centered = (floored_uv - 0.5) * 50.;
-
-// 	vec2 field_part1 = uv_scaled_centered + 50. * vec2(sin(-t / 143.6340), cos(-t / 99.4324));
-// 	vec2 field_part2 = uv_scaled_centered + 50. * vec2(cos(t / 53.1532), cos(t / 61.4532));
-// 	vec2 field_part3 = uv_scaled_centered + 50. * vec2(sin(-t / 87.53218), sin(-t / 49.0000));
-
-//     float field = (1.+ (
-//         cos(length(field_part1) / 19.483) + sin(length(field_part2) / 33.155) * cos(field_part2.y / 15.73) +
-//         cos(length(field_part3) / 27.193) * sin(field_part3.x / 21.92) ))/2.;
-
-//     float res = (.5 + .5* cos((glimmer.x) * 2.612 + (field + -.5) * 3.14));
-
-//     // made it animate but was rgb again, lol!
-//     // float golden_shift = 0.08 + 0.07 * sin(time * 0.5 + field * 6.283);
-//     // hsl.x = hsl.x + golden_shift + glimmer.y*0.04;
-
-//     //new approach
-//     float golden_shift = 0.08 + 0.07 * sin(time * 0.5 + field * 6.283);
-//     hsl.x = mix(0.08, 0.15, fract(hsl.x + golden_shift + glimmer.y * 0.04));
-
-// 	hsl.y = min(0.6, hsl.y + 0.5);  // Slightly boost saturation
-    
-//     tex.rgb = RGB(hsl).rgb;
-
-    
-// 	if (tex[3] < 0.7)
-// 		tex[3] = tex[3] / 3.;
-
-//     return dissolve_mask(tex * colour, texture_coords, uv);
-// }
 
 
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;

@@ -22,7 +22,7 @@ vec4 dissolve_mask(vec4 tex, vec2 texture_coords, vec2 uv)
         return vec4(shadow ? vec3(0.,0.,0.) : tex.xyz, shadow ? tex.a*0.3: tex.a);
     }
 
-    float adjusted_dissolve = (dissolve*dissolve*(3.-2.*dissolve))*1.02 - 0.01; //Adjusting 0.0-1.0 to fall to -0.1 - 1.1 scale so the mask does not pause at extreme values
+    float adjusted_dissolve = (dissolve*dissolve*(3.-2.*dissolve))*1.02 - 0.01;
 
 	float t = time * 10.0 + 2003.;
 	vec2 floored_uv = (floor((uv*texture_details.ba)))/max(texture_details.b, texture_details.a);
@@ -97,9 +97,6 @@ vec4 HSL(vec4 c)
 	return hsl;
 }
 
-
-
-// **Hash function for procedural randomness**
 vec2 hash(vec2 p) {
     p = vec2(dot(p, vec2(127.1, 311.7)),
              dot(p, vec2(269.5, 183.3)));
@@ -108,16 +105,16 @@ vec2 hash(vec2 p) {
 
 
 vec3 hueToRGB(float h) {
-    h = fract(h); // Keep hue within 0-1 range
+    h = fract(h); 
     vec3 col = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-    return col * col * (3.0 - 2.0 * col); // Slight contrast enhancement
+    return col * col * (3.0 - 2.0 * col); 
 }
 
-////new looks smll in the game for some reason
+// this shader tries to add little reflective bits of glitter to the card, and exits early if the input pixel is near transparent
 vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords) {
     vec4 texColor = Texel(texture, texture_coords);
-
-    // **Exit Early if the Texture is Transparent**
+    
+    //exiting early for near transparency 
     if (texColor.a < 0.01) {
         return dissolve_mask(texColor, texture_coords, texture_coords);
     }
@@ -129,13 +126,12 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     vec2 gridPos = floor(uv * density);
     vec2 randOffset = hash(gridPos);
     vec2 dustUV = uv - (gridPos + randOffset) / density;
-
-    // trying to fix small appearance again
+    
     float dustMote = smoothstep(0.3, 0.03, length(dustUV) * density);
 
     float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5);
 
-    // trying the shine approach from gold coin 
+    // inspired by reflective shine 
     float fac = 0.8 + 0.9 * sin(11. * uv.x + 4.32 * uv.y + secretRare.r * 12. + cos(secretRare.r * 5.3 + uv.y * 4.2 - uv.x * 4.));
     float fac2 = 0.5 + 0.5 * sin(8. * uv.x + 2.32 * uv.y + secretRare.r * 5. - cos(secretRare.r * 2.3 + uv.x * 8.2));
     float fac3 = 0.5 + 0.5 * sin(10. * uv.x + 5.32 * uv.y + secretRare.r * 6.111 + sin(secretRare.r * 5.3 + uv.y * 3.2));
@@ -153,81 +149,18 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     sparkleColor = mix(vec3(minBrightness), sparkleColor, sparkle);
 
     
-    vec4 finalColor = texColor;
-    // looked weird finalColor.rgb += sparkleColor;
+    vec4 finalColor = texColor;    
 
     finalColor.rgb = mix(finalColor.rgb, sparkleColor, sparkle);
 
     finalColor.a = max(sparkle, texColor.a);
 
-    //can't find a better way to use the x value yet but needed for shader reasosn
+    //prevent being optiized away
     finalColor.rgb += secretRare.x * 0.0;
     
 
     return dissolve_mask(finalColor * colour, texture_coords, texture_coords);
 }
-
-
-//**Works and gorgeous! 
-// vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords) {
-//     vec4 texColor = Texel(texture, texture_coords);
-//     vec2 uv = texture_coords * image_details.xy / image_details.y;
-// 
-//     if (texColor.a < 0.01) {
-//         return dissolve_mask(texColor, texture_coords, texture_coords);
-//     }
-
-//     float whiteness = texColor.r * texColor.g * texColor.b;
-//     // bool is_white = whiteness > 0.55;
-
-//     // //vec4 whiteBlend = 
-//     //  if (is_white) {
-//     //     float smoke_time = time * 0.3; // Slows the movement for a natural drift
-//     //     vec2 smoke_uv = uv * 3.0; // Scale noise effect
-        
-//     //     //     //     float smoke1 = sin(smoke_uv.x * 3.0 + smoke_time) * 0.5;
-//     //     float smoke2 = cos(smoke_uv.y * 4.0 - smoke_time * 1.2) * 0.5;
-//     //     float smoke3 = sin(smoke_uv.x * 1.5 + smoke_uv.y * 1.2 + smoke_time * 0.8) * 0.5;
-//     //     
-//     //     float smoke_pattern = (smoke1 + smoke2 + smoke3) * 0.3 + 0.5;
-//     //     return vec4(vec3(1.0 - smoke_pattern * 0.3), 1.0); // Soft black smoke over white
-//     // }    
-
-//   
-//     float density = 350.0;  // Was 40.0 
-
-//     vec2 gridPos = floor(uv * density);
-//     vec2 randOffset = hash(gridPos);
-//     vec2 dustUV = uv - (gridPos + randOffset) / density;
-
-//     // **Increase Mote Size in Small Areas**
-//     float dustMote = smoothstep(0.8, 0.05, length(dustUV) * density); // Increase smoothstep range
-
-//     // **Flicker Effect**
-//     //float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5);
-
-//     float highlight = abs(sin(time * 3.0 + uv.x * 15.0)); 
-//     float specular = pow(highlight, 12.0) * 0.5; // Sharper highlight for "glinting" effect
-
-//     // **Shiny Glitter Effect**
-//     float sparkle = dustMote * (sin(time * 1.3 + dot(gridPos, vec2(3.1, 4.2))) * 0.5 + 0.5) + specular;
-
-//     // **Ensure Motes Appear Even on Bright Backgrounds**
-//     float minBrightness = 0.05;
-//     float hue = fract(dot(gridPos, vec2(0.7, 0.5)) + time * 0.5);
-//     vec3 sparkleColor = hueToRGB(hue) * sparkle;
-//     sparkleColor = mix(vec3(minBrightness), sparkleColor, sparkle);
-
-//     // **Blend Sparkles into the Texture**
-//     vec4 finalColor = texColor;
-//     finalColor.rgb += sparkleColor;
-//     finalColor.a = max(sparkle, texColor.a);
-
-//     // **Prevent Optimization Removal**
-//     finalColor.rgb += secretRare.x * 0.0;
-
-//     return dissolve_mask(finalColor * colour, texture_coords, texture_coords);
-// }
 
 
 extern MY_HIGHP_OR_MEDIUMP vec2 mouse_screen_pos;
