@@ -226,7 +226,6 @@ SMODS.Shader({ key = 'akashic', path = 'akashic.fs' })
 SMODS.Shader({ key = 'ghostRare', path = 'ghostRare.fs' })
 SMODS.Shader({ key = 'secretRare', path = 'secretRare.fs' })
 SMODS.Shader({ key = 'shadowChrome', path = 'shadowChrome.fs' })
-SMODS.Shader({ key = 'begild', path = 'begild.fs' })
 
 sendInfoMessage("Loading all subfiles", "FoxMods-config.lua")
 
