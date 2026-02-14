@@ -1,20 +1,11 @@
-
+//to list the edition for each card in the hand
 
 for _, jokerCard in ipairs(G.your_collection[1]) do
   print(jokerCard.edition)
 end
 
-
-G.your_collection, [1], [2], and [3]
-
-G.your_collection
-
-mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-
-eval G.your_collection[2]
-
-mmmmmmmmmmmmmmmmmmmmmmm
-local function forceEditionCollectionView(s)
+// to load a function while debugging Balatro, run the following
+eval local function forceEditionCollectionView(s)
 
 for _, jokerCard in ipairs(G.your_collection[1].cards) do
   jokerCard:set_edition(s, true)
@@ -27,18 +18,17 @@ end
 for _, jokerCard in ipairs(G.your_collection[3].cards) do
   jokerCard:set_edition(s, true)
 end
-
 end
 
-forceEditionCollectionView("e_Fox_ghostRare")
-mmmmmmmmmmmmmmmmmmmmmmmmmm
-
-watch shader Mods/FickleFox/assets/shaders/glimmer3.fs
+//this then allows us to open the collection joker view and run the following to see how a given shaders edition looks on each card
+eval forceEditionCollectionView("e_Fox_ghostRare")
 eval forceEditionCollectionView("e_Fox_goldRare")
 
+// to monitor a shader file for real time changes, great for debugging
+watch shader Mods/FickleFox/assets/shaders/glimmer3.fs
 watch shader Mods/FickleFox/assets/shaders/ghostRare.fs
-mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 
+// random helper functions
 
 function StartsWith(String, Start)
     return string.sub(String, 1, string.len(Start)) == Start
@@ -69,7 +59,7 @@ end
 
 
 
-
+//ref - how to add a tag to a commit
 v 0.5.0 - Half Moon Release
 
 git tag v0.5 -a -m "Half-Moon Release v0.5"

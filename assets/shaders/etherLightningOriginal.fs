@@ -149,7 +149,7 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
     vec4 tex = Texel(texture, texture_coords);
     vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
 
-    // **Detect White Areas (Make Them Smoke)**
+    //Detect White Areas to apply effect
     float whiteness = tex.r * tex.g * tex.b;
     bool is_white = whiteness > 0.85; 
 
@@ -158,9 +158,9 @@ vec4 effect(vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords)
 
     if (has_color) {
 
-        float glow_pulse = 0.5 + 0.5 * sin(time * 2.0); // Smooth pulsing effect
-        vec3 metallic_green = vec3(0.2, 1.0, 0.4) * (0.5 + 0.3 * sin(time * 0.5 + uv.x * 5.0)); // Keep metallic base
-        metallic_green += glow_pulse * 0.2; // Add pulsing brightness
+        float glow_pulse = 0.5 + 0.5 * sin(time * 2.0);
+        vec3 metallic_green = vec3(0.2, 1.0, 0.4) * (0.5 + 0.3 * sin(time * 0.5 + uv.x * 5.0));
+        metallic_green += glow_pulse * 0.2;
 
 
         float low = min(metallic_green.r, min(metallic_green.g, metallic_green.b));
